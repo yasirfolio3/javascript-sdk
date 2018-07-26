@@ -521,6 +521,9 @@ Optimizely.prototype.isFeatureEnabled = function (featureKey, userId, attributes
         // got a variation from the exp, so we track the impression
         this._sendImpressionEvent(decision.experiment.key, decision.variation.key, userId, attributes);
       }
+      if (decision.decisionSource === DECISION_SOURCES.ROLLOUT) {
+         this._sendFeatureRolloutNotification(feature, userId, attributes, variation.featureEnabled);
+      }
       if (variation.featureEnabled === true) {
         this.logger.log(LOG_LEVEL.INFO, sprintf(LOG_MESSAGES.FEATURE_ENABLED_FOR_USER, MODULE_NAME, featureKey, userId));
         return true;
@@ -534,6 +537,20 @@ Optimizely.prototype.isFeatureEnabled = function (featureKey, userId, attributes
     return false;
   }
 };
+
+Optimizely.prototype._sendFeatureRolloutNotification = function (feature, userId, attributes, featureEnabled) {
+  var isEnabled = featureEnabled ? "Enabled" : "Disabled";
+
+  this.notificationCenter.sendNotifications(
+    enums.NOTIFICATION_TYPES.FEATURE_ROLLOUT,
+    {
+      feature: feature,
+      userId: userId,
+      attributes: attributes,
+      variation: isEnabled
+    }
+  );
+}
 
 /**
  * Returns an Array containing the keys of all features in the project that are
