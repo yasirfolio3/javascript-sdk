@@ -1913,6 +1913,7 @@ describe('lib/optimizely', function() {
         trackListener = sinon.spy();
         decisionListener2 = sinon.spy();
         trackListener2 = sinon.spy();
+
         bucketStub.returns('111129');
         sinon.stub(fns, 'currentTimestamp').returns(1509489766569);
       });
@@ -2438,6 +2439,7 @@ describe('lib/optimizely', function() {
     var sandbox = sinon.sandbox.create();
     var createdLogger = logger.createLogger({logLevel: LOG_LEVEL.INFO});
     var optlyInstance;
+
     var clock;
     beforeEach(function() {
       optlyInstance = new Optimizely({
@@ -2465,6 +2467,7 @@ describe('lib/optimizely', function() {
     });
 
     describe('#isFeatureEnabled', function() {
+
       it('returns false, and does not dispatch an impression event, for an invalid feature key', function() {
         var result = optlyInstance.isFeatureEnabled('thisIsDefinitelyNotAFeatureKey', 'user1');
         assert.strictEqual(result, false);
@@ -2768,11 +2771,18 @@ describe('lib/optimizely', function() {
       });
 
       describe('user bucketed into a variation of a rollout of the feature', function() {
+        var decisionListener;
+
+        beforeEach(function(){
+          decisionListener.spy();
+        });
+
         describe('when the variation is toggled ON', function() {
           beforeEach(function() {
             // This experiment is the first audience targeting rule in the rollout of feature 'test_feature'
             var experiment = optlyInstance.configObj.experimentKeyMap['594031'];
             var variation = experiment.variations[0];
+            
             sandbox.stub(optlyInstance.decisionService, 'getVariationForFeature').returns({
               experiment: experiment,
               variation: variation,
@@ -2787,6 +2797,21 @@ describe('lib/optimizely', function() {
             assert.strictEqual(result, true);
             sinon.assert.notCalled(eventDispatcher.dispatchEvent);
             sinon.assert.calledWith(createdLogger.log, LOG_LEVEL.INFO, 'OPTIMIZELY: Feature test_feature is enabled for user user1.');
+          });
+
+          //notification listener is triggered
+          it('returns true and does not dispatch an event and triggers notification listener', function() {
+            optlyInstance.notificationCenter.addNotificationListener({
+              enums.NOTIFICATION_TYPES.FEATURE_ROLLOUT,
+              decisionListener
+            });
+            var result = optlyInstance.isFeatureEnabled('test_feature', 'user1', {
+              test_attribute: 'test_value',
+            });
+            assert.strictEqual(result, true);
+            sinon.assert.notCalled(eventDispatcher.dispatchEvent);
+            sinon.assert.calledWith(createdLogger.log, LOG_LEVEL.INFO, 'OPTIMIZELY: Feature test_feature is enabled for user user1.');
+            sinon.assert.calledOnce(decisionListener);
           });
         });
 
@@ -2809,16 +2834,32 @@ describe('lib/optimizely', function() {
             assert.strictEqual(result, false);
             sinon.assert.calledWith(createdLogger.log, LOG_LEVEL.INFO, 'OPTIMIZELY: Feature test_feature is not enabled for user user1.');
           });
+
+          //notification listener is not triggered
+          it('returns false and notification listener is not triggered', function() {
+            optlyInstance.notificationCenter.addNotificationListener({
+              enums.NOTIFICATION_TYPES.FEATURE_ROLLOUT,
+              decisionListener
+            });
+            var result = optlyInstance.isFeatureEnabled('test_feature', 'user1', {
+              test_attribute: 'test_value',
+            });
+            assert.strictEqual(result, false);
+            sinon.assert.calledWith(createdLogger.log, LOG_LEVEL.INFO, 'OPTIMIZELY: Feature test_feature is not enabled for user user1.');
+            sinon.assert.notCalled(decisionListener)
+          });
         });
       });
 
       describe('user not bucketed into an experiment or a rollout', function() {
+        var decisionListener;
         beforeEach(function() {
           sandbox.stub(optlyInstance.decisionService, 'getVariationForFeature').returns({
             experiment: null,
             variation: null,
             decisionSource: null,
           });
+          decisionListener.spy();
         });
 
         it('returns false and does not dispatch an event', function() {
@@ -2826,6 +2867,19 @@ describe('lib/optimizely', function() {
           assert.strictEqual(result, false);
           sinon.assert.notCalled(eventDispatcher.dispatchEvent);
           sinon.assert.calledWith(createdLogger.log, LOG_LEVEL.INFO, 'OPTIMIZELY: Feature test_feature is not enabled for user user1.');
+        });
+
+
+        it('returns false and does not dispatch an event and notification listener is not triggered', function() {
+          optlyInstance.notificationCenter.addNotificationListener({
+            enums.NOTIFICATION_TYPES.FEATURE_ROLLOUT,
+            decisionListener
+          });
+          var result = optlyInstance.isFeatureEnabled('test_feature', 'user1');
+          assert.strictEqual(result, false);
+          sinon.assert.notCalled(eventDispatcher.dispatchEvent);
+          sinon.assert.calledWith(createdLogger.log, LOG_LEVEL.INFO, 'OPTIMIZELY: Feature test_feature is not enabled for user user1.');
+          sinon.assert.notCalled(decisionListener);
         });
       });
     });
@@ -3222,5 +3276,7 @@ describe('lib/optimizely', function() {
         assert.strictEqual(logMessage, sprintf(LOG_MESSAGES.INVALID_OBJECT, 'OPTIMIZELY', 'getFeatureVariableString'));
       });
     });
+
+    
   });
 });
