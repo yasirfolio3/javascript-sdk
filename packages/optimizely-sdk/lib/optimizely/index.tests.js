@@ -2470,7 +2470,7 @@ describe('lib/optimizely', function() {
       var decisionListener;
 
       beforeEach(function(){
-        decisionListener.spy();
+        decisionListener = sinon.spy();
       });
       it('returns false, and does not dispatch an impression event, for an invalid feature key', function() {
         var result = optlyInstance.isFeatureEnabled('thisIsDefinitelyNotAFeatureKey', 'user1');
@@ -2478,15 +2478,15 @@ describe('lib/optimizely', function() {
         sinon.assert.notCalled(eventDispatcher.dispatchEvent);
       });
       it('returns false, and does not trigger listener, for an invalid feature key', function() {
-        optlyInstance.notificationCenter.addNotificationListener({
+        optlyInstance.notificationCenter.addNotificationListener(
           enums.NOTIFICATION_TYPES.FEATURE_ROLLOUT,
           decisionListener
-        });
+        );
 
         var result = optlyInstance.isFeatureEnabled('thisIsDefinitelyNotAFeatureKey', 'user1');
         assert.strictEqual(result, false);
         sinon.assert.notCalled(eventDispatcher.dispatchEvent);
-        simon.assert.notCalled(decisionListener)
+        sinon.assert.notCalled(decisionListener)
       });
       it('returns false if the instance is invalid', function() {
         optlyInstance = new Optimizely({
@@ -2519,14 +2519,14 @@ describe('lib/optimizely', function() {
           jsonSchemaValidator: jsonSchemaValidator,
           logger: createdLogger,
         });
-        optlyInstance.notificationCenter.addNotificationListener({
+        optlyInstance.notificationCenter.addNotificationListener(
           enums.NOTIFICATION_TYPES.FEATURE_ROLLOUT,
           decisionListener
-        });
+        );
         var result = optlyInstance.isFeatureEnabled('test_feature_for_experiment', 'user1');
         assert.strictEqual(result, false);
         sinon.assert.calledWith(createdLogger.log, LOG_LEVEL.ERROR, 'OPTIMIZELY: Optimizely object is not valid. Failing isFeatureEnabled.');
-        simon.assert.notCalled(decisionListener)
+        sinon.assert.notCalled(decisionListener)
       });
 
       describe('when the user bucketed into a variation of an experiment with the feature', function() {
@@ -2832,10 +2832,10 @@ describe('lib/optimizely', function() {
 
           //notification listener is triggered
           it('returns true and does not dispatch an event and triggers notification listener', function() {
-            optlyInstance.notificationCenter.addNotificationListener({
+            optlyInstance.notificationCenter.addNotificationListener(
               enums.NOTIFICATION_TYPES.FEATURE_ROLLOUT,
               decisionListener
-            });
+            );
             var result = optlyInstance.isFeatureEnabled('test_feature', 'user1', {
               test_attribute: 'test_value',
             });
@@ -2857,10 +2857,10 @@ describe('lib/optimizely', function() {
 
           //notification listener is not triggered
           it('returns false and notification listener is not triggered', function() {
-            optlyInstance.notificationCenter.addNotificationListener({
+            optlyInstance.notificationCenter.addNotificationListener(
               enums.NOTIFICATION_TYPES.FEATURE_ROLLOUT,
               decisionListener
-            });
+            );
             var result = optlyInstance.isFeatureEnabled('test_feature', 'user1', {
               test_attribute: 'test_value',
             });
@@ -2891,10 +2891,10 @@ describe('lib/optimizely', function() {
 
 
         it('returns false and does not dispatch an event, and a notification listener is not triggered', function() {
-          optlyInstance.notificationCenter.addNotificationListener({
+          optlyInstance.notificationCenter.addNotificationListener(
             enums.NOTIFICATION_TYPES.FEATURE_ROLLOUT,
             decisionListener
-          });
+          );
           var result = optlyInstance.isFeatureEnabled('test_feature', 'user1');
           assert.strictEqual(result, false);
           sinon.assert.notCalled(eventDispatcher.dispatchEvent);
