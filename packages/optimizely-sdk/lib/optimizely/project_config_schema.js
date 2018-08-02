@@ -22,92 +22,92 @@ module.exports = {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
   "properties": {
-    "rollouts": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "required": true
-          },
-          "experiments": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string",
-                  "required": true
-                },
-                "status": {
-                  "type": "string",
-                  "required": true
-                },
-                "key": {
-                  "type": "string",
-                  "required": true
-                },
-                "layerId": {
-                  "type": "string",
-                  "required": true
-                },
-                "trafficAllocation": {
-                  "type": "array",
-                  "items":{
-                    "type": "object",
-                    "properties": {
-                      "entityId": "string",
-                      "endOfRange": "integer"
-                    }
-                  }
-                },
-                "audienceIds": {
-                  "type": "array",
-                  "items":{
-                    "type": "string"
-                  }
-                },
-                "variations": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "string"
-                      },
-                      "key": {
-                        "type": "string"
-                      },
-                      "featureEnabled": {
-                        "type": "boolean"
-                      },
-                      "variables": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "id": {
-                              "type": "string"
-                            },
-                            "value": {
-                              "type": "string"
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                },
-                // "forcedVariations": {
-                //   "type": "obj"
-                // }
-              }
-            }
-          }
-        }
-      },
-    },
+    // "rollouts": {
+    //   "type": "array",
+    //   "items": {
+    //     "type": "object",
+    //     "properties": {
+    //       "id": {
+    //         "type": "string",
+    //         "required": true
+    //       },
+    //       "experiments": {
+    //         "type": "array",
+    //         "items": {
+    //           "type": "object",
+    //           "properties": {
+    //             "id": {
+    //               "type": "string",
+    //               "required": true
+    //             },
+    //             "status": {
+    //               "type": "string",
+    //               "required": true
+    //             },
+    //             "key": {
+    //               "type": "string",
+    //               "required": true
+    //             },
+    //             "layerId": {
+    //               "type": "string",
+    //               "required": true
+    //             },
+    //             "trafficAllocation": {
+    //               "type": "array",
+    //               "items":{
+    //                 "type": "object",
+    //                 "properties": {
+    //                   "entityId": "string",
+    //                   "endOfRange": "integer"
+    //                 }
+    //               }
+    //             },
+    //             "audienceIds": {
+    //               "type": "array",
+    //               "items":{
+    //                 "type": "string"
+    //               }
+    //             },
+    //             "variations": {
+    //               "type": "array",
+    //               "items": {
+    //                 "type": "object",
+    //                 "properties": {
+    //                   "id": {
+    //                     "type": "string"
+    //                   },
+    //                   "key": {
+    //                     "type": "string"
+    //                   },
+    //                   "featureEnabled": {
+    //                     "type": "boolean"
+    //                   },
+    //                   "variables": {
+    //                     "type": "array",
+    //                     "items": {
+    //                       "type": "object",
+    //                       "properties": {
+    //                         "id": {
+    //                           "type": "string"
+    //                         },
+    //                         "value": {
+    //                           "type": "string"
+    //                         }
+    //                       }
+    //                     }
+    //                   }
+    //                 }
+    //               }
+    //             },
+    //             // "forcedVariations": {
+    //             //   "type": "obj"
+    //             // }
+    //           }
+    //         }
+    //       }
+    //     }
+    //   },
+    // },
     "projectId": {
       "type": "string",
       "required": true
