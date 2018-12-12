@@ -253,8 +253,9 @@ Optimizely.prototype.track = function(eventKey, userId, attributes, eventTags) {
 
       var dispatchedConversionEventLogMessage = sprintf(LOG_MESSAGES.DISPATCH_CONVERSION_EVENT,
         MODULE_NAME,
-        { url: conversionEvent.url,
-        converstion: JSON.stringify(conversionEvent.params), {conversionEvent});
+        {  url: conversionEvent.url,
+        converstion: JSON.stringify(conversionEvent.params)
+      });
       this.logger.log(LOG_LEVEL.DEBUG, dispatchedConversionEventLogMessage);
 
       var eventDispatcherCallback = function () {
