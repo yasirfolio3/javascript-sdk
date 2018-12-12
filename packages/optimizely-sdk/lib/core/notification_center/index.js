@@ -16,7 +16,7 @@
 
 var enums = require('../../utils/enums');
 var fns = require('../../utils/fns');
-var sprintf = require('sprintf-js').sprintf;
+var sprintf = require('../../utils/sprintf');
 
 var LOG_LEVEL = enums.LOG_LEVEL;
 var LOG_MESSAGES = enums.LOG_MESSAGES;
@@ -165,7 +165,7 @@ NotificationCenter.prototype.sendNotifications = function (notificationType, not
       try {
         callback(notificationData);
       } catch (ex) {
-        this.logger.log(LOG_LEVEL.ERROR, sprintf(LOG_MESSAGES.NOTIFICATION_LISTENER_EXCEPTION, MODULE_NAME, notificationType, ex.message));
+        this.logger.log(LOG_LEVEL.ERROR, sprintf(LOG_MESSAGES.NOTIFICATION_LISTENER_EXCEPTION, MODULE_NAME, {notificationType, error: ex.message}));
       }
     }.bind(this));
   } catch (e) {

@@ -19,7 +19,7 @@
  */
 var enums = require('../../utils/enums');
 var murmurhash = require('murmurhash');
-var sprintf = require('sprintf-js').sprintf;
+var sprintf = require('../../utils/sprintf');
 
 var ERROR_MESSAGES = enums.ERROR_MESSAGES;
 var HASH_SEED = 1;
@@ -53,7 +53,7 @@ module.exports = {
     if (groupId) {
       var group = bucketerParams.groupIdMap[groupId];
       if (!group) {
-        throw new Error(sprintf(ERROR_MESSAGES.INVALID_GROUP_ID, MODULE_NAME, groupId));
+        throw new Error(sprintf(ERROR_MESSAGES.INVALID_GROUP_ID, MODULE_NAME, groupId).message);
       }
       if (group.policy === RANDOM_POLICY) {
         var bucketedExperimentId = module.exports.bucketUserIntoExperiment(group,
@@ -63,32 +63,32 @@ module.exports = {
 
         // Return if user is not bucketed into any experiment
         if (bucketedExperimentId === null) {
-          var notbucketedInAnyExperimentLogMessage = sprintf(LOG_MESSAGES.USER_NOT_IN_ANY_EXPERIMENT, MODULE_NAME, bucketerParams.userId, groupId);
+          var notbucketedInAnyExperimentLogMessage = sprintf(LOG_MESSAGES.USER_NOT_IN_ANY_EXPERIMENT, MODULE_NAME, {useId: bucketerParams.userId, groupId});
           bucketerParams.logger.log(LOG_LEVEL.INFO, notbucketedInAnyExperimentLogMessage);
           return null;
         }
 
         // Return if user is bucketed into a different experiment than the one specified
         if (bucketedExperimentId !== bucketerParams.experimentId) {
-          var notBucketedIntoExperimentOfGroupLogMessage = sprintf(LOG_MESSAGES.USER_NOT_BUCKETED_INTO_EXPERIMENT_IN_GROUP, MODULE_NAME, bucketerParams.userId, bucketerParams.experimentKey, groupId);
+          var notBucketedIntoExperimentOfGroupLogMessage = sprintf(LOG_MESSAGES.USER_NOT_BUCKETED_INTO_EXPERIMENT_IN_GROUP, MODULE_NAME, {userId: bucketerParams.userId, experimentKey: bucketerParams.experimentKey, groupId});
           bucketerParams.logger.log(LOG_LEVEL.INFO, notBucketedIntoExperimentOfGroupLogMessage);
           return null;
         }
 
         // Continue bucketing if user is bucketed into specified experiment
-        var bucketedIntoExperimentOfGroupLogMessage = sprintf(LOG_MESSAGES.USER_BUCKETED_INTO_EXPERIMENT_IN_GROUP, MODULE_NAME, bucketerParams.userId, bucketerParams.experimentKey, groupId);
+        var bucketedIntoExperimentOfGroupLogMessage = sprintf(LOG_MESSAGES.USER_BUCKETED_INTO_EXPERIMENT_IN_GROUP, MODULE_NAME, {userId: bucketerParams.userId, experimentKey: bucketerParams.experimentKey, groupId});
         bucketerParams.logger.log(LOG_LEVEL.INFO, bucketedIntoExperimentOfGroupLogMessage);
       }
     }
-    var bucketingId = sprintf('%s%s', bucketerParams.bucketingId, bucketerParams.experimentId);
+    var bucketingId = sprintf('%s%s', bucketerParams.bucketingId, bucketerParams.experimentId).message;
     var bucketValue = module.exports._generateBucketValue(bucketingId);
 
-    var bucketedUserLogMessage = sprintf(LOG_MESSAGES.USER_ASSIGNED_TO_VARIATION_BUCKET, MODULE_NAME, bucketValue, bucketerParams.userId);
+    var bucketedUserLogMessage = sprintf(LOG_MESSAGES.USER_ASSIGNED_TO_VARIATION_BUCKET, MODULE_NAME, {bucketValue, userId: bucketerParams.userId});
     bucketerParams.logger.log(LOG_LEVEL.DEBUG, bucketedUserLogMessage);
 
     var entityId = module.exports._findBucket(bucketValue, bucketerParams.trafficAllocationConfig);
     if (entityId === null) {
-      var userHasNoVariationLogMessage = sprintf(LOG_MESSAGES.USER_HAS_NO_VARIATION, MODULE_NAME, bucketerParams.userId, bucketerParams.experimentKey);
+      var userHasNoVariationLogMessage = sprintf(LOG_MESSAGES.USER_HAS_NO_VARIATION, MODULE_NAME, {userId: bucketerParams.userId, experimentKey: bucketerParams.experimentKey});
       bucketerParams.logger.log(LOG_LEVEL.DEBUG, userHasNoVariationLogMessage);
     } else if (entityId === '' || !bucketerParams.variationIdMap.hasOwnProperty(entityId)) {
       var invalidVariationIdLogMessage = sprintf(LOG_MESSAGES.INVALID_VARIATION_ID, MODULE_NAME);
@@ -96,7 +96,7 @@ module.exports = {
       return null;
     } else {
       var variationKey = bucketerParams.variationIdMap[entityId].key;
-      var userInVariationLogMessage = sprintf(LOG_MESSAGES.USER_HAS_VARIATION, MODULE_NAME, bucketerParams.userId, variationKey, bucketerParams.experimentKey);
+      var userInVariationLogMessage = sprintf(LOG_MESSAGES.USER_HAS_VARIATION, MODULE_NAME, {userId: bucketerParams.userId, variationKey, experimentKey: bucketerParams.experimentKey});
       bucketerParams.logger.log(LOG_LEVEL.INFO, userInVariationLogMessage);
     }
 
@@ -112,9 +112,9 @@ module.exports = {
    * @return {string} ID of experiment if user is bucketed into experiment within the group, null otherwise
    */
   bucketUserIntoExperiment: function(group, bucketingId, userId, logger) {
-    var bucketingKey = sprintf('%s%s', bucketingId, group.id);
+    var bucketingKey = sprintf('%s%s', bucketingId, group.id).message;
     var bucketValue = module.exports._generateBucketValue(bucketingKey);
-    logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.USER_ASSIGNED_TO_EXPERIMENT_BUCKET, MODULE_NAME, bucketValue, userId));
+    logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.USER_ASSIGNED_TO_EXPERIMENT_BUCKET, MODULE_NAME, {bucketValue, userId}));
     var trafficAllocationConfig = group.trafficAllocation;
     var bucketedExperimentId = module.exports._findBucket(bucketValue, trafficAllocationConfig);
     return bucketedExperimentId;
@@ -151,7 +151,7 @@ module.exports = {
       var ratio = hashValue / MAX_HASH_VALUE;
       return parseInt(ratio * MAX_TRAFFIC_VALUE, 10);
     } catch (ex) {
-      throw new Error(sprintf(ERROR_MESSAGES.INVALID_BUCKETING_ID, MODULE_NAME, bucketingKey, ex.message));
+      throw new Error(sprintf(ERROR_MESSAGES.INVALID_BUCKETING_ID, MODULE_NAME, {bucketingKey, error: ex.message}).message);
     }
   },
 };

@@ -20,7 +20,7 @@ var enums = require('../../utils/enums');
 var fns = require('../../utils/fns');
 var projectConfig = require('../project_config');
 
-var sprintf = require('sprintf-js').sprintf;
+var sprintf = require('../../utils/sprintf');
 
 var MODULE_NAME = 'DECISION_SERVICE';
 var ERROR_MESSAGES = enums.ERROR_MESSAGES;
@@ -83,7 +83,7 @@ DecisionService.prototype.getVariation = function(experimentKey, userId, attribu
   var experimentBucketMap = this.__resolveExperimentBucketMap(userId, attributes);
   variation = this.__getStoredVariation(experiment, userId, experimentBucketMap);
   if (!!variation) {
-    this.logger.log(LOG_LEVEL.INFO, sprintf(LOG_MESSAGES.RETURNING_STORED_VARIATION, MODULE_NAME, variation.key, experimentKey, userId));
+    this.logger.log(LOG_LEVEL.INFO, sprintf(LOG_MESSAGES.RETURNING_STORED_VARIATION, MODULE_NAME, {variationKey: variation.key, experimentKey, userId}));
     return variation.key;
   }
 
@@ -126,7 +126,7 @@ DecisionService.prototype.__resolveExperimentBucketMap = function(userId, attrib
  */
 DecisionService.prototype.__checkIfExperimentIsActive = function(experimentKey, userId) {
   if (!projectConfig.isActive(this.configObj, experimentKey)) {
-    var experimentNotRunningLogMessage = sprintf(LOG_MESSAGES.EXPERIMENT_NOT_RUNNING, MODULE_NAME, experimentKey);
+    var experimentNotRunningLogMessage = sprintf(LOG_MESSAGES.EXPERIMENT_NOT_RUNNING, MODULE_NAME, {experimentKey});
     this.logger.log(LOG_LEVEL.INFO, experimentNotRunningLogMessage);
     return false;
   }
@@ -144,11 +144,11 @@ DecisionService.prototype.__getWhitelistedVariation = function(experiment, userI
   if (!fns.isEmpty(experiment.forcedVariations) && experiment.forcedVariations.hasOwnProperty(userId)) {
     var forcedVariationKey = experiment.forcedVariations[userId];
     if (experiment.variationKeyMap.hasOwnProperty(forcedVariationKey)) {
-      var forcedBucketingSucceededMessageLog = sprintf(LOG_MESSAGES.USER_FORCED_IN_VARIATION, MODULE_NAME, userId, forcedVariationKey);
+      var forcedBucketingSucceededMessageLog = sprintf(LOG_MESSAGES.USER_FORCED_IN_VARIATION, MODULE_NAME, {userId, forcedVariationKey});
       this.logger.log(LOG_LEVEL.INFO, forcedBucketingSucceededMessageLog);
       return experiment.variationKeyMap[forcedVariationKey];
     } else {
-      var forcedBucketingFailedMessageLog = sprintf(LOG_MESSAGES.FORCED_BUCKETING_FAILED, MODULE_NAME, forcedVariationKey, userId);
+      var forcedBucketingFailedMessageLog = sprintf(LOG_MESSAGES.FORCED_BUCKETING_FAILED, MODULE_NAME, {forcedVariationKey, userId});
       this.logger.log(LOG_LEVEL.ERROR, forcedBucketingFailedMessageLog);
       return null;
     }
@@ -168,7 +168,7 @@ DecisionService.prototype.__checkIfUserIsInAudience = function(experimentKey, us
   var experimentAudienceConditions = projectConfig.getExperimentAudienceConditions(this.configObj, experimentKey);
   var audiencesById = projectConfig.getAudiencesById(this.configObj);
   if (!audienceEvaluator.evaluate(experimentAudienceConditions, audiencesById, attributes)) {
-    var userDoesNotMeetConditionsLogMessage = sprintf(LOG_MESSAGES.USER_NOT_IN_EXPERIMENT, MODULE_NAME, userId, experimentKey);
+    var userDoesNotMeetConditionsLogMessage = sprintf(LOG_MESSAGES.USER_NOT_IN_EXPERIMENT, MODULE_NAME, {userId, experimentKey});
     this.logger.log(LOG_LEVEL.INFO, userDoesNotMeetConditionsLogMessage);
     return false;
   }
@@ -211,7 +211,7 @@ DecisionService.prototype.__getStoredVariation = function(experiment, userId, ex
     if (this.configObj.variationIdMap.hasOwnProperty(variationId)) {
       return this.configObj.variationIdMap[decision.variation_id];
     } else {
-      this.logger.log(LOG_LEVEL.INFO, sprintf(LOG_MESSAGES.SAVED_VARIATION_NOT_FOUND, MODULE_NAME, userId, variationId, experiment.key));
+      this.logger.log(LOG_LEVEL.INFO, sprintf(LOG_MESSAGES.SAVED_VARIATION_NOT_FOUND, MODULE_NAME, {userId, variationId, experimentKey: experiment.key}));
     }
   }
 
@@ -236,7 +236,7 @@ DecisionService.prototype.__getUserProfile = function(userId) {
   try {
     return this.userProfileService.lookup(userId);
   } catch (ex) {
-    this.logger.log(LOG_LEVEL.ERROR, sprintf(ERROR_MESSAGES.USER_PROFILE_LOOKUP_ERROR, MODULE_NAME, userId, ex.message));
+    this.logger.log(LOG_LEVEL.ERROR, sprintf(ERROR_MESSAGES.USER_PROFILE_LOOKUP_ERROR, MODULE_NAME, {userId, error: ex.message}));
   }
 };
 
@@ -263,9 +263,9 @@ DecisionService.prototype.__saveUserProfile = function(experiment, variation, us
       experiment_bucket_map: newBucketMap,
     });
 
-    this.logger.log(LOG_LEVEL.INFO, sprintf(LOG_MESSAGES.SAVED_VARIATION, MODULE_NAME, variation.key, experiment.key, userId));
+    this.logger.log(LOG_LEVEL.INFO, sprintf(LOG_MESSAGES.SAVED_VARIATION, MODULE_NAME, {variationKey: variation.key, experimentKey: experiment.key, userId}));
   } catch (ex) {
-    this.logger.log(LOG_LEVEL.ERROR, sprintf(ERROR_MESSAGES.USER_PROFILE_SAVE_ERROR, MODULE_NAME, userId, ex.message));
+    this.logger.log(LOG_LEVEL.ERROR, sprintf(ERROR_MESSAGES.USER_PROFILE_SAVE_ERROR, MODULE_NAME, {userId, error: ex.message}));
   }
 };
 
@@ -286,19 +286,19 @@ DecisionService.prototype.__saveUserProfile = function(experiment, variation, us
 DecisionService.prototype.getVariationForFeature = function(feature, userId, attributes) {
   var experimentDecision = this._getVariationForFeatureExperiment(feature, userId, attributes);
   if (experimentDecision.variation !== null) {
-    this.logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.USER_IN_FEATURE_EXPERIMENT, MODULE_NAME, userId, experimentDecision.variation.key, experimentDecision.experiment.key, feature.key));
+    this.logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.USER_IN_FEATURE_EXPERIMENT, MODULE_NAME, {userId, variationKey: experimentDecision.variation.key, experimentKey: experimentDecision.experiment.key, featureKey: feature.key}));
     return experimentDecision;
   }
 
-  this.logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.USER_NOT_IN_FEATURE_EXPERIMENT, MODULE_NAME, userId, feature.key));
+  this.logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.USER_NOT_IN_FEATURE_EXPERIMENT, MODULE_NAME, {userId, featureKey: feature.key}));
 
   var rolloutDecision = this._getVariationForRollout(feature, userId, attributes);
   if (rolloutDecision.variation !== null) {
-    this.logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.USER_IN_ROLLOUT, MODULE_NAME, userId, feature.key));
+    this.logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.USER_IN_ROLLOUT, MODULE_NAME, {userId, featureKey: feature.key}));
     return rolloutDecision;
   }
 
-  this.logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.USER_NOT_IN_ROLLOUT, MODULE_NAME, userId, feature.key));
+  this.logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.USER_NOT_IN_ROLLOUT, MODULE_NAME, {userId, featureKey: feature.key}));
 
   return {
     experiment: null,
@@ -327,7 +327,7 @@ DecisionService.prototype._getVariationForFeatureExperiment = function(feature, 
       variationKey = this.getVariation(experiment.key, userId, attributes);
     }
   } else {
-    this.logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.FEATURE_HAS_NO_EXPERIMENTS, MODULE_NAME, feature.key));
+    this.logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.FEATURE_HAS_NO_EXPERIMENTS, MODULE_NAME, {featureKey: feature.key}));
   }
 
   var variation = null;
@@ -344,20 +344,20 @@ DecisionService.prototype._getVariationForFeatureExperiment = function(feature, 
 DecisionService.prototype._getExperimentInGroup = function(group, userId) {
   var experimentId = bucketer.bucketUserIntoExperiment(group, userId, userId, this.logger);
   if (experimentId !== null) {
-    this.logger.log(LOG_LEVEL.INFO, sprintf(LOG_MESSAGES.USER_BUCKETED_INTO_EXPERIMENT_IN_GROUP, MODULE_NAME, userId, experimentId, group.id));
+    this.logger.log(LOG_LEVEL.INFO, sprintf(LOG_MESSAGES.USER_BUCKETED_INTO_EXPERIMENT_IN_GROUP, MODULE_NAME, {userId, experimentId, groupId: group.id}));
     var experiment = projectConfig.getExperimentFromId(this.configObj, experimentId, this.logger);
     if (experiment) {
       return experiment;
     }
   }
 
-  this.logger.log(LOG_LEVEL.INFO, sprintf(LOG_MESSAGES.USER_NOT_BUCKETED_INTO_ANY_EXPERIMENT_IN_GROUP, MODULE_NAME, userId, group.id));
+  this.logger.log(LOG_LEVEL.INFO, sprintf(LOG_MESSAGES.USER_NOT_BUCKETED_INTO_ANY_EXPERIMENT_IN_GROUP, MODULE_NAME, {userId, groupId: group.id}));
   return null;
 };
 
 DecisionService.prototype._getVariationForRollout = function(feature, userId, attributes) {
   if (!feature.rolloutId) {
-    this.logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.NO_ROLLOUT_EXISTS, MODULE_NAME, feature.key));
+    this.logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.NO_ROLLOUT_EXISTS, MODULE_NAME, {featureKey: feature.key}));
     return {
       experiment: null,
       variation: null,
@@ -367,7 +367,7 @@ DecisionService.prototype._getVariationForRollout = function(feature, userId, at
 
   var rollout = this.configObj.rolloutIdMap[feature.rolloutId];
   if (!rollout) {
-    this.logger.log(LOG_LEVEL.ERROR, sprintf(ERROR_MESSAGES.INVALID_ROLLOUT_ID, MODULE_NAME, feature.rolloutId, feature.key));
+    this.logger.log(LOG_LEVEL.ERROR, sprintf(ERROR_MESSAGES.INVALID_ROLLOUT_ID, MODULE_NAME, {rolloutId: feature.rolloutId, featureKey: feature.key}));
     return {
       experiment: null,
       variation: null,
@@ -376,7 +376,7 @@ DecisionService.prototype._getVariationForRollout = function(feature, userId, at
   }
 
   if (rollout.experiments.length === 0) {
-    this.logger.log(LOG_LEVEL.ERROR, sprintf(LOG_MESSAGES.ROLLOUT_HAS_NO_EXPERIMENTS, MODULE_NAME, feature.rolloutId));
+    this.logger.log(LOG_LEVEL.ERROR, sprintf(LOG_MESSAGES.ROLLOUT_HAS_NO_EXPERIMENTS, MODULE_NAME, {rolloutId: feature.rolloutId}));
     return {
       experiment: null,
       variation: null,
@@ -396,23 +396,23 @@ DecisionService.prototype._getVariationForRollout = function(feature, userId, at
     experiment = this.configObj.experimentKeyMap[rollout.experiments[index].key];
 
     if (!this.__checkIfUserIsInAudience(experiment.key, userId, attributes)) {
-      this.logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.USER_DOESNT_MEET_CONDITIONS_FOR_TARGETING_RULE, MODULE_NAME, userId, index + 1));
+      this.logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.USER_DOESNT_MEET_CONDITIONS_FOR_TARGETING_RULE, MODULE_NAME, {userId, index: index + 1}));
       continue;
     }
 
-    this.logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.USER_MEETS_CONDITIONS_FOR_TARGETING_RULE, MODULE_NAME, userId, index + 1));
+    this.logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.USER_MEETS_CONDITIONS_FOR_TARGETING_RULE, MODULE_NAME, {userId, index: index + 1}));
     bucketerParams = this.__buildBucketerParams(experiment.key, userId, userId);
     variationId = bucketer.bucket(bucketerParams);
     variation = this.configObj.variationIdMap[variationId];
     if (variation) {
-      this.logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.USER_BUCKETED_INTO_TARGETING_RULE, MODULE_NAME, userId, index + 1));
+      this.logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.USER_BUCKETED_INTO_TARGETING_RULE, MODULE_NAME, {userId, index: index + 1}));
       return {
         experiment: experiment,
         variation: variation,
         decisionSource: DECISION_SOURCES.ROLLOUT,
       };
     } else {
-      this.logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.USER_NOT_BUCKETED_INTO_TARGETING_RULE, MODULE_NAME, userId, index + 1));
+      this.logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.USER_NOT_BUCKETED_INTO_TARGETING_RULE, MODULE_NAME, {userId, index: index + 1}));
       break;
     }
   }
@@ -423,14 +423,14 @@ DecisionService.prototype._getVariationForRollout = function(feature, userId, at
     variationId = bucketer.bucket(bucketerParams);
     variation = this.configObj.variationIdMap[variationId];
     if (variation) {
-      this.logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.USER_BUCKETED_INTO_EVERYONE_TARGETING_RULE, MODULE_NAME, userId));
+      this.logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.USER_BUCKETED_INTO_EVERYONE_TARGETING_RULE, MODULE_NAME, {userId}));
       return {
         experiment: everyoneElseExperiment,
         variation: variation,
         decisionSource: DECISION_SOURCES.ROLLOUT,
       };
     } else {
-      this.logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.USER_NOT_BUCKETED_INTO_EVERYONE_TARGETING_RULE, MODULE_NAME, userId));
+      this.logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.USER_NOT_BUCKETED_INTO_EVERYONE_TARGETING_RULE, MODULE_NAME, {userId}));
     }
   }
 
@@ -454,7 +454,7 @@ DecisionService.prototype._getBucketingId = function(userId, attributes) {
   if ((attributes != null && typeof attributes === 'object') && attributes.hasOwnProperty(enums.CONTROL_ATTRIBUTES.BUCKETING_ID)) {
     if (typeof attributes[enums.CONTROL_ATTRIBUTES.BUCKETING_ID] === 'string') {
       bucketingId = attributes[enums.CONTROL_ATTRIBUTES.BUCKETING_ID];
-      this.logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.VALID_BUCKETING_ID, MODULE_NAME, bucketingId));
+      this.logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.VALID_BUCKETING_ID, MODULE_NAME, {bucketingId}));
     } else {
       this.logger.log(LOG_LEVEL.WARNING, sprintf(LOG_MESSAGES.BUCKETING_ID_NOT_STRING, MODULE_NAME));
     }

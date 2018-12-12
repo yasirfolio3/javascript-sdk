@@ -15,7 +15,7 @@
  */
 var fns = require('../../utils/fns');
 var enums = require('../../utils/enums');
-var sprintf = require('sprintf-js').sprintf;
+var sprintf = require('../../utils/sprintf');
 var stringValidator = require('../../utils/string_value_validator');
 
 var EXPERIMENT_LAUNCHED_STATUS = 'Launched';
@@ -115,7 +115,7 @@ module.exports = {
   getExperimentId: function(projectConfig, experimentKey) {
     var experiment = projectConfig.experimentKeyMap[experimentKey];
     if (fns.isEmpty(experiment)) {
-      throw new Error(sprintf(ERROR_MESSAGES.INVALID_EXPERIMENT_KEY, MODULE_NAME, experimentKey));
+      throw new Error(sprintf(ERROR_MESSAGES.INVALID_EXPERIMENT_KEY, MODULE_NAME, {experimentKey}).message);
     }
     return experiment.id;
   },
@@ -130,7 +130,7 @@ module.exports = {
   getLayerId: function(projectConfig, experimentId) {
     var experiment = projectConfig.experimentIdMap[experimentId];
     if (fns.isEmpty(experiment)) {
-      throw new Error(sprintf(ERROR_MESSAGES.INVALID_EXPERIMENT_ID, MODULE_NAME, experimentId));
+      throw new Error(sprintf(ERROR_MESSAGES.INVALID_EXPERIMENT_ID, MODULE_NAME, {experimentId}).message);
     }
     return experiment.layerId;
   },
@@ -148,14 +148,14 @@ module.exports = {
     if (attribute) {
       if (hasReservedPrefix) {
         logger.log(LOG_LEVEL.WARN,
-                   sprintf('Attribute %s unexpectedly has reserved prefix %s; using attribute ID instead of reserved attribute name.', attributeKey, RESERVED_ATTRIBUTE_PREFIX));
+                   sprintf('Attribute %s unexpectedly has reserved prefix %s; using attribute ID instead of reserved attribute name.', {attributeKey, RESERVED_ATTRIBUTE_PREFIX}));
       }
       return attribute.id;
     } else if (hasReservedPrefix) {
       return attributeKey;
     }
 
-    logger.log(LOG_LEVEL.DEBUG, sprintf(ERROR_MESSAGES.UNRECOGNIZED_ATTRIBUTE, MODULE_NAME, attributeKey));
+    logger.log(LOG_LEVEL.DEBUG, sprintf(ERROR_MESSAGES.UNRECOGNIZED_ATTRIBUTE, MODULE_NAME, {attributeKey}));
     return null;
   },
 
@@ -183,7 +183,7 @@ module.exports = {
   getExperimentStatus: function(projectConfig, experimentKey) {
     var experiment = projectConfig.experimentKeyMap[experimentKey];
     if (fns.isEmpty(experiment)) {
-      throw new Error(sprintf(ERROR_MESSAGES.INVALID_EXPERIMENT_KEY, MODULE_NAME, experimentKey));
+      throw new Error(sprintf(ERROR_MESSAGES.INVALID_EXPERIMENT_KEY, MODULE_NAME, {experimentKey}).message);
     }
     return experiment.status;
   },
@@ -218,7 +218,7 @@ module.exports = {
   getExperimentAudienceConditions: function(projectConfig, experimentKey) {
     var experiment = projectConfig.experimentKeyMap[experimentKey];
     if (fns.isEmpty(experiment)) {
-      throw new Error(sprintf(ERROR_MESSAGES.INVALID_EXPERIMENT_KEY, MODULE_NAME, experimentKey));
+      throw new Error(sprintf(ERROR_MESSAGES.INVALID_EXPERIMENT_KEY, MODULE_NAME, {experimentKey}).message);
     }
 
     return experiment.audienceConditions || experiment.audienceIds;
@@ -267,7 +267,7 @@ module.exports = {
       }
     }
 
-    throw new Error(sprintf(ERROR_MESSAGES.EXPERIMENT_KEY_NOT_IN_DATAFILE, MODULE_NAME, experimentKey));
+    throw new Error(sprintf(ERROR_MESSAGES.EXPERIMENT_KEY_NOT_IN_DATAFILE, MODULE_NAME, {experimentKey}).message);
   },
 
 
@@ -287,7 +287,7 @@ module.exports = {
         return null;
       }
     } else {
-      throw new Error(sprintf(ERROR_MESSAGES.INVALID_EVENT_KEY, MODULE_NAME, eventKey));
+      throw new Error(sprintf(ERROR_MESSAGES.INVALID_EVENT_KEY, MODULE_NAME, {eventKey}).message);
     }
   },
 
@@ -301,7 +301,7 @@ module.exports = {
   getTrafficAllocation: function(projectConfig, experimentKey) {
     var experiment = projectConfig.experimentKeyMap[experimentKey];
     if (fns.isEmpty(experiment)) {
-      throw new Error(sprintf(ERROR_MESSAGES.INVALID_EXPERIMENT_KEY, MODULE_NAME, experimentKey));
+      throw new Error(sprintf(ERROR_MESSAGES.INVALID_EXPERIMENT_KEY, MODULE_NAME, {experimentKey}).message);
     }
     return experiment.trafficAllocation;
   },
@@ -322,9 +322,9 @@ module.exports = {
 
     if (projectConfig.forcedVariationMap.hasOwnProperty(userId)) {
       delete projectConfig.forcedVariationMap[userId][experimentId];
-      logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.VARIATION_REMOVED_FOR_USER, MODULE_NAME, experimentKey, userId));
+      logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.VARIATION_REMOVED_FOR_USER, MODULE_NAME, {experimentKey, userId}));
     } else {
-      throw new Error(sprintf(ERROR_MESSAGES.USER_NOT_IN_FORCED_VARIATION, MODULE_NAME, userId));
+      throw new Error(sprintf(ERROR_MESSAGES.USER_NOT_IN_FORCED_VARIATION, MODULE_NAME, {userId}).message);
     }
   },
 
@@ -345,7 +345,7 @@ module.exports = {
       projectConfig.forcedVariationMap[userId][experimentId] = variationId;
     }
 
-    logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.USER_MAPPED_TO_FORCED_VARIATION, MODULE_NAME, variationId, experimentId, userId));
+    logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.USER_MAPPED_TO_FORCED_VARIATION, MODULE_NAME, {variationId, experimentId, userId}));
   },
 
   /**
@@ -359,7 +359,7 @@ module.exports = {
   getForcedVariation: function(projectConfig, experimentKey, userId, logger) {
     var experimentToVariationMap = projectConfig.forcedVariationMap[userId];
     if (!experimentToVariationMap) {
-      logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.USER_HAS_NO_FORCED_VARIATION, MODULE_NAME, userId));
+      logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.USER_HAS_NO_FORCED_VARIATION, MODULE_NAME, {userId}));
       return null;
     }
 
@@ -370,7 +370,7 @@ module.exports = {
         experimentId = experiment['id'];
       } else {
         // catching improperly formatted experiments
-        logger.log(LOG_LEVEL.ERROR, sprintf(ERROR_MESSAGES.IMPROPERLY_FORMATTED_EXPERIMENT, MODULE_NAME, experimentKey));
+        logger.log(LOG_LEVEL.ERROR, sprintf(ERROR_MESSAGES.IMPROPERLY_FORMATTED_EXPERIMENT, MODULE_NAME, {experimentKey}));
         return null;
       }
     } catch (ex) {
@@ -381,12 +381,12 @@ module.exports = {
 
     var variationId = experimentToVariationMap[experimentId];
     if (!variationId) {
-      logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.USER_HAS_NO_FORCED_VARIATION_FOR_EXPERIMENT, MODULE_NAME, experimentKey, userId));
+      logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.USER_HAS_NO_FORCED_VARIATION_FOR_EXPERIMENT, MODULE_NAME, {experimentKey, userId}));
       return null;
     }
 
     var variationKey = this.getVariationKeyFromId(projectConfig, variationId);
-    logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.USER_HAS_FORCED_VARIATION, MODULE_NAME, variationKey, experimentKey, userId));
+    logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.USER_HAS_FORCED_VARIATION, MODULE_NAME, {variationKey, experimentKey, userId}));
 
     return variationKey;
   },
@@ -413,7 +413,7 @@ module.exports = {
         experimentId = experiment['id'];
       } else {
         // catching improperly formatted experiments
-        logger.log(LOG_LEVEL.ERROR, sprintf(ERROR_MESSAGES.IMPROPERLY_FORMATTED_EXPERIMENT, MODULE_NAME, experimentKey));
+        logger.log(LOG_LEVEL.ERROR, sprintf(ERROR_MESSAGES.IMPROPERLY_FORMATTED_EXPERIMENT, MODULE_NAME, {experimentKey}));
         return false;
       }
     } catch (ex) {
@@ -435,7 +435,7 @@ module.exports = {
     var variationId = this.getVariationIdFromExperimentAndVariationKey(projectConfig, experimentKey, variationKey);
 
     if (!variationId) {
-      logger.log(LOG_LEVEL.ERROR, sprintf(ERROR_MESSAGES.NO_VARIATION_FOR_EXPERIMENT_KEY, MODULE_NAME, variationKey, experimentKey));
+      logger.log(LOG_LEVEL.ERROR, sprintf(ERROR_MESSAGES.NO_VARIATION_FOR_EXPERIMENT_KEY, MODULE_NAME, {variationKey, experimentKey}));
       return false;
     }
 
@@ -463,7 +463,7 @@ module.exports = {
       }
     }
 
-    logger.log(LOG_LEVEL.ERROR, sprintf(ERROR_MESSAGES.INVALID_EXPERIMENT_ID, MODULE_NAME, experimentId));
+    logger.log(LOG_LEVEL.ERROR, sprintf(ERROR_MESSAGES.INVALID_EXPERIMENT_ID, MODULE_NAME, {experimentId}));
     return null;
   },
 
@@ -484,7 +484,7 @@ module.exports = {
       }
     }
 
-    logger.log(LOG_LEVEL.ERROR, sprintf(ERROR_MESSAGES.FEATURE_NOT_IN_DATAFILE, MODULE_NAME, featureKey));
+    logger.log(LOG_LEVEL.ERROR, sprintf(ERROR_MESSAGES.FEATURE_NOT_IN_DATAFILE, MODULE_NAME, {featureKey}));
     return null;
   },
 
@@ -502,13 +502,13 @@ module.exports = {
   getVariableForFeature: function(projectConfig, featureKey, variableKey, logger) {
     var feature = projectConfig.featureKeyMap[featureKey];
     if (!feature) {
-      logger.log(LOG_LEVEL.ERROR, sprintf(ERROR_MESSAGES.FEATURE_NOT_IN_DATAFILE, MODULE_NAME, featureKey));
+      logger.log(LOG_LEVEL.ERROR, sprintf(ERROR_MESSAGES.FEATURE_NOT_IN_DATAFILE, MODULE_NAME, {featureKey}));
       return null;
     }
 
     var variable = feature.variableKeyMap[variableKey];
     if (!variable) {
-      logger.log(LOG_LEVEL.ERROR, sprintf(ERROR_MESSAGES.VARIABLE_KEY_NOT_IN_DATAFILE, MODULE_NAME, variableKey, featureKey));
+      logger.log(LOG_LEVEL.ERROR, sprintf(ERROR_MESSAGES.VARIABLE_KEY_NOT_IN_DATAFILE, MODULE_NAME, {variableKey, featureKey}));
       return null;
     }
 
@@ -534,7 +534,7 @@ module.exports = {
     }
 
     if (!projectConfig.variationVariableUsageMap.hasOwnProperty(variation.id)) {
-      logger.log(LOG_LEVEL.ERROR, sprintf(ERROR_MESSAGES.VARIATION_ID_NOT_IN_DATAFILE_NO_EXPERIMENT, MODULE_NAME, variation.id));
+      logger.log(LOG_LEVEL.ERROR, sprintf(ERROR_MESSAGES.VARIATION_ID_NOT_IN_DATAFILE_NO_EXPERIMENT, MODULE_NAME, {variationId: variation.id}));
       return null;
     }
 
@@ -565,7 +565,7 @@ module.exports = {
     switch (variableType) {
       case FEATURE_VARIABLE_TYPES.BOOLEAN:
         if (variableValue !== 'true' && variableValue !== 'false') {
-          logger.log(LOG_LEVEL.ERROR, sprintf(ERROR_MESSAGES.UNABLE_TO_CAST_VALUE, MODULE_NAME, variableValue, variableType));
+          logger.log(LOG_LEVEL.ERROR, sprintf(ERROR_MESSAGES.UNABLE_TO_CAST_VALUE, MODULE_NAME, {variableValue, variableType}));
           castValue = null;
         } else {
           castValue = variableValue === 'true';
@@ -575,7 +575,7 @@ module.exports = {
       case FEATURE_VARIABLE_TYPES.INTEGER:
         castValue = parseInt(variableValue, 10);
         if (isNaN(castValue)) {
-          logger.log(LOG_LEVEL.ERROR, sprintf(ERROR_MESSAGES.UNABLE_TO_CAST_VALUE, MODULE_NAME, variableValue, variableType));
+          logger.log(LOG_LEVEL.ERROR, sprintf(ERROR_MESSAGES.UNABLE_TO_CAST_VALUE, MODULE_NAME, {variableValue, variableType}));
           castValue = null;
         }
         break;
@@ -583,7 +583,7 @@ module.exports = {
       case FEATURE_VARIABLE_TYPES.DOUBLE:
         castValue = parseFloat(variableValue);
         if (isNaN(castValue)) {
-          logger.log(LOG_LEVEL.ERROR, sprintf(ERROR_MESSAGES.UNABLE_TO_CAST_VALUE, MODULE_NAME, variableValue, variableType));
+          logger.log(LOG_LEVEL.ERROR, sprintf(ERROR_MESSAGES.UNABLE_TO_CAST_VALUE, MODULE_NAME, {variableValue, variableType}));
           castValue = null;
         }
         break;
