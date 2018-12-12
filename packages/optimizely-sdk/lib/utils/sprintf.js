@@ -1,14 +1,12 @@
-const sprintf2 = require('sprintf-js').sprintf;
+var sprintf2 = require('sprintf-js').sprintf;
 
-const sprintf = (message, moduleName, data) => {
-  const dataValues = Object.keys(data).map(k => data[k]);
+var sprintf = function(message, moduleName, data) {
+  var dataValues = Object.keys(data).map(function(k) { return data[k]; });
   try {
-    return {
-      ...data,
-      message: sprintf2.apply(sprintf2, [message, moduleName, ...dataValues]),
-    }
-  } catch (error) {
-  }
+    return Object.assign({}, data, {
+      message: sprintf2.apply(sprintf2, [message, moduleName].concat(dataValues)),
+    });
+  } catch (error) {}
 };
 
 module.exports = sprintf;
