@@ -16,6 +16,7 @@
 var http = require('http');
 var https = require('https');
 var url = require('url');
+var util = require('util');
 
 module.exports = {
   /**
@@ -42,7 +43,8 @@ module.exports = {
     var dataString = JSON.stringify(eventObj.params);
 
     var requestOptions = {
-      host: parsedUrl.host,
+      hostname: parsedUrl.hostname,
+      port: parsedUrl.port,
       path: parsedUrl.path,
       method: 'POST',
       headers: {
@@ -50,8 +52,10 @@ module.exports = {
         'content-length': dataString.length.toString(),
       }
     };
+    // console.log("=== Request Info\n", util.inspect(requestOptions, {showHidden: false, depth: null}))
 
     var requestCallback = function(response) {
+      // console.log("=== Response Info\n", util.inspect(response, { showHidden: false, depth: null }))
       if (response && response.statusCode && response.statusCode >= 200 && response.statusCode < 400) {
         callback(response);
       }
@@ -59,9 +63,17 @@ module.exports = {
 
     var req = (parsedUrl.protocol === 'http:' ? http : https).request(requestOptions, requestCallback);
     // Add no-op error listener to prevent this from throwing
-    req.on('error', function() {});
+    req.on('error', function() {
+      console.log("ERROR", arguments)
+
+    });
     req.write(dataString);
     req.end();
     return req;
   }
+  /**
+   *
+"{\"visitors\":[{\"snapshots\":[{\"decisions\":[{\"experiment_id\":\"12893320251\",\"variation_id\":\"12879850470\",\"campaign_id\":\"12889690465\"}],\"events\":[{\"entity_id\":\"12889690465\",\"uuid\":\"f7d70aa2-7a66-4024-9afc-ef5b92903265\",\"key\":\"campaign_activated\",\"timestamp\":1547191046662}]}],\"visitor_id\":\"sb\",\"attributes\":[{\"entity_id\":\"$opt_bot_filtering\",\"type\":\"custom\",\"value\":false,\"key\":\"$opt_bot_filtering\"},{\"entityId\":null,\"type\":\"custom\",\"value\":true,\"key\":\"$opt_enrich_decisions\"}]}],\"account_id\":\"7592617968\",\"project_id\":\"10685243500\",\"header\":{\"clientIp\":\"10.110.254.152\"},\"client_version\":\"3.0.0-rc2\",\"client_name\":\"node-sdk\",\"revision\":\"13\",\"anonymize_ip\":false}"
+
+   */
 };

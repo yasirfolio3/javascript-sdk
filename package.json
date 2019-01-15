@@ -11,6 +11,6 @@
     "test-xbrowser": "lerna run test-xbrowser --stream"
   },
   "dependencies": {
-    "lerna": "^3.2.1"
+    "lerna": "^3.4.3"
   }
 }
