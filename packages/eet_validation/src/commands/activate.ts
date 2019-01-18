@@ -7,7 +7,12 @@ export default class Activate extends BaseCommand {
   static description = 'activates an experiment impression'
 
   static flags = {
-    ...BaseCommand.flags
+    ...BaseCommand.flags,
+    userId: flags.string({
+      name: 'user',
+      char: 'u',
+      required: true
+    }),
   }
 
   static args = [{name: 'experimentKey', required: true}]
@@ -27,5 +32,9 @@ export default class Activate extends BaseCommand {
 
     cli.styledHeader('Result')
     cli.styledJSON(decision)
+  }
+
+  get userAttributes(): { [k: string]: string } {
+    return {}
   }
 }

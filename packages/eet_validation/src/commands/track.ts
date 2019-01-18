@@ -6,10 +6,12 @@ export default class Track extends BaseCommand {
   static description = 'tracks event conversion'
 
   static flags = {
-    ...BaseCommand.flags
-    // tags: flags.string({
-    //   multiple: true,
-    // })
+    ...BaseCommand.flags,
+    userId: flags.string({
+      name: 'user',
+      char: 'u',
+      required: true
+    })
   }
 
   static args = [{name: 'eventKey', required: true}]
@@ -22,5 +24,9 @@ export default class Track extends BaseCommand {
     const tags = {}
 
     opti.track(args.eventKey, flags.userId, this.userAttributes, tags)
+  }
+
+  get userAttributes(): { [k: string]: string } {
+    return {}
   }
 }

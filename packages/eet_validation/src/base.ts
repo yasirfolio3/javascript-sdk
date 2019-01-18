@@ -3,45 +3,11 @@ import * as optimizely from '@optimizely/optimizely-sdk'
 import cli from 'cli-ux'
 import * as rp from 'request-promise'
 
-const defaultEventDispatcher = require('@optimizely/optimizely-sdk/lib/plugins/event_dispatcher/index.node.js')
-
-class EventDispatcher implements optimizely.EventDispatcher {
-  constructor(public logUrl: string | null) {}
-
-  dispatchEvent(event: optimizely.Event, callback: () => void) {
-    if (this.logUrl) {
-      event.url = this.logUrl
-    }
-
-    cli.action.start('Dispatching event')
-    cli.styledHeader('Event')
-    cli.styledJSON(event)
-
-    defaultEventDispatcher.dispatchEvent(event, resp => {
-      callback()
-      cli.action.stop()
-      if (resp) {
-        cli.styledHeader('Response')
-        cli.styledObject(
-          {
-            status: resp.statusCode,
-            headers: resp.headers
-          },
-          ['status', 'headers']
-        )
-      }
-    })
-  }
-}
+import {EventDispatcher} from './EventDispatcher'
 
 export abstract class BaseCommand extends Command {
   static flags = {
     help: flags.help({char: 'h'}),
-    userId: flags.string({
-      name: 'user',
-      char: 'u',
-      required: true
-    }),
     datafile: flags.string({
       env: 'DATAFILE_URL',
       default:
@@ -55,23 +21,30 @@ export abstract class BaseCommand extends Command {
 
   static strict = false
 
-  private _optimizely: optimizely.Client
+  private _flags!: {[f: string]: any}
+  private _optimizely!: optimizely.Client
 
-  async init() {}
+  async init() {
+    const {flags} = await this.parse(BaseCommand)
+    this._flags = flags
+  }
+
+  async fetchDatafile(): Promise<any> {
+    cli.action.start('fetching datafile')
+    const datafile = await rp({uri: this._flags.datafile!})
+    cli.action.stop('success')
+    return datafile
+  }
 
   async optimizely(): Promise<optimizely.Client> {
     if (this._optimizely) {
       return this._optimizely
     }
 
-    const {flags} = await this.parse(BaseCommand)
-
-    cli.action.start('fetching datafile')
-    const datafile = await rp({uri: flags.datafile})
-    cli.action.stop('success')
+    const datafile = await this.fetchDatafile()
 
     cli.action.start('instantiating Optimizely client')
-    const eventDispatcher = new EventDispatcher(flags.logHost)
+    const eventDispatcher = new EventDispatcher(this._flags.logHost)
 
     this._optimizely = optimizely.createInstance({
       datafile,
@@ -81,9 +54,5 @@ export abstract class BaseCommand extends Command {
     cli.action.stop()
 
     return this._optimizely
-  }
-
-  get userAttributes(): { [k: string]: string } {
-    return {}
   }
 }
