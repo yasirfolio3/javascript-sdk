@@ -1,29 +1,30 @@
 import {flags} from '@oclif/command'
 
-import {BaseCommand} from '../base'
+import {OptimizelyClientCommand} from '../OptimizelyClientCommand'
 
-export default class Track extends BaseCommand {
+export default class Track extends OptimizelyClientCommand {
   static description = 'tracks event conversion'
 
   static flags = {
-    ...BaseCommand.flags,
-    userId: flags.string({
-      name: 'user',
+    ...OptimizelyClientCommand.flags,
+    user: flags.string({
       char: 'u',
       required: true
-    })
+    }),
+    event: flags.string({
+      char: 'e',
+      required: true,
+    }),
   }
 
-  static args = [{name: 'eventKey', required: true}]
-
   async run() {
-    const {args, flags} = this.parse(Track)
+    const {flags} = this.parse(Track)
 
-    const opti = await this.optimizely()
+    const opti = await this.optimizelyClient()
 
     const tags = {}
 
-    opti.track(args.eventKey, flags.userId, this.userAttributes, tags)
+    opti.track(flags.event, flags.user, this.userAttributes, tags)
   }
 
   get userAttributes(): { [k: string]: string } {

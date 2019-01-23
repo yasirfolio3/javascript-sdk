@@ -1,30 +1,18 @@
-import {flags} from '@oclif/command'
 import cli from 'cli-ux'
 
-const jq = require('node-jq')
+import {OptimizelyClientCommand} from '../OptimizelyClientCommand'
 
-import {BaseCommand} from '../base'
-
-export default class Datafile extends BaseCommand {
+export default class Datafile extends OptimizelyClientCommand {
   static description = 'fetches datafile'
 
   static flags = {
-    ...BaseCommand.flags,
-    query: flags.string({
-      char: 'q'
-    })
+    ...OptimizelyClientCommand.flags,
   }
 
   async run() {
-    const {flags} = this.parse(Datafile)
-
     const datafile = await this.fetchDatafile()
+    cli.styledJSON(datafile)
 
-    let out = JSON.parse(datafile)
-    if (flags.query) {
-      out = await jq.run(flags.query, out, {input: 'json', output: 'json'})
-    }
-
-    cli.styledJSON(out)
+    const optimizely = await this.optimizelyClient()
   }
 }
