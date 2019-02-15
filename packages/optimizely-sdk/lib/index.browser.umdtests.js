@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+var core = require('@optimizely/js-sdk-core');
 var configValidator = require('./utils/config_validator');
 var enums = require('./utils/enums');
 var logger = require('./plugins/logger');
@@ -36,7 +37,7 @@ describe('javascript-sdk', function() {
       var silentLogger;
 
       beforeEach(function() {
-        silentLogger = logger.createLogger({
+        silentLogger = core.createLogger({
           logLevel: enums.LOG_LEVEL.INFO,
           logToConsole: false,
         });

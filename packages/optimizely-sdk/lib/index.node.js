@@ -88,6 +88,7 @@ module.exports = {
         {
           // always get the OptimizelyLogger facade from core
           logger: core.getLogger(),
+          errorHandler: core.getErrorHandler(),
         }
       );
 
