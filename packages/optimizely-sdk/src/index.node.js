@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and      *
  * limitations under the License.                                           *
  ***************************************************************************/
-
+var core = require('@optimizely/js-sdk-core');
 var configValidator = require('./utils/config_validator');
 var defaultErrorHandler = require('./plugins/error_handler');
 var defaultEventDispatcher = require('./plugins/event_dispatcher/index.node');
@@ -48,32 +48,53 @@ module.exports = {
    * @return {Object} the Optimizely object
    */
   createInstance: function(config) {
-    var defaultLogger = logger.createNoOpLogger();
-    if (config) {
+    try {
+      var hasLogger = false;
+      config = config || {};
+
+      if (config.errorHandler) {
+        core.setErrorHandler(config.errorHandler);
+      }
+      if (config.logger) {
+        // only set a logger in node if one is provided, by not setting we are noop-ing
+        hasLogger = true;
+        core.setLoggerBackend(config.logger);
+      }
+      if (config.logLevel !== undefined) {
+        core.setLogLevel(config.logLevel);
+      }
+
       try {
         configValidator.validate(config);
         config.isValidInstance = true;
       } catch (ex) {
-        if (config.logger) {
-          config.logger.log(enums.LOG_LEVEL.ERROR, sprintf('%s: %s', MODULE_NAME, ex.message));
+        var errorMessage = sprintf('%s: %s', MODULE_NAME, ex.message);
+        if (hasLogger) {
+          core.getLogger().log(enums.LOG_LEVEL.ERROR, errorMessage);
         } else {
-          var simpleLogger = logger.createLogger({logLevel: 4});
-          simpleLogger.log(enums.LOG_LEVEL.ERROR, sprintf('%s: %s', MODULE_NAME, ex.message));
+          core.createLogger().log(enums.LOG_LEVEL.ERROR, errorMessage);
         }
         config.isValidInstance = false;
       }
+
+      config = fns.assign(
+        {
+          clientEngine: enums.NODE_CLIENT_ENGINE,
+          eventDispatcher: defaultEventDispatcher,
+          jsonSchemaValidator: jsonSchemaValidator,
+          skipJSONValidation: false,
+        },
+        config,
+        {
+          // always get the OptimizelyLogger facade from core
+          logger: core.getLogger(),
+        }
+      );
+
+      return new Optimizely(config);
+    } catch (e) {
+      core.getLogger().handleError(e);
+      return null;
     }
-
-    config = fns.assign({
-      clientEngine: enums.NODE_CLIENT_ENGINE,
-      clientVersion: enums.CLIENT_VERSION,
-      errorHandler: defaultErrorHandler,
-      eventDispatcher: defaultEventDispatcher,
-      jsonSchemaValidator: jsonSchemaValidator,
-      logger: defaultLogger,
-      skipJSONValidation: false
-    }, config);
-
-    return new Optimizely(config);
-  }
+  },
 };

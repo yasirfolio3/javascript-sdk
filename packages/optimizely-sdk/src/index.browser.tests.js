@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+var core = require('@optimizely/js-sdk-core');
 var configValidator = require('./utils/config_validator');
 var Optimizely = require('./optimizely');
 var optimizelyFactory = require('./index.browser');
@@ -249,37 +250,37 @@ describe('javascript-sdk', function() {
       });
 
       describe('automatically created logger instances', function() {
+        var setLogLevelStub;
+
         beforeEach(function() {
-          sinon.stub(optimizelyFactory.logger, 'createLogger').callsFake(function() {
+          setLogLevelStub = sinon.stub();
+          sinon.stub(core, 'createLogger').callsFake(function() {
             return {
               log: function() {},
+              setLogLevel: setLogLevelStub,
             };
           });
         });
 
         afterEach(function() {
-          optimizelyFactory.logger.createLogger.restore();
+          core.createLogger.restore();
         });
 
         it('should instantiate the logger with a custom logLevel when provided', function() {
-          var optlyInstance = optimizelyFactory.createInstance({
+          optimizelyFactory.createInstance({
             datafile: testData.getTestProjectConfig(),
             logLevel: optimizelyFactory.enums.LOG_LEVEL.ERROR,
           });
-          var foundCall = find(optimizelyFactory.logger.createLogger.getCalls(), function(call) {
-            return call.returned(sinon.match.same(optlyInstance.logger));
-          });
-          assert.strictEqual(foundCall.args[0].logLevel, optimizelyFactory.enums.LOG_LEVEL.ERROR);
+          sinon.assert.calledOnce(setLogLevelStub);
+          sinon.assert.calledWithExactly(setLogLevelStub, optimizelyFactory.enums.LOG_LEVEL.ERROR);
         });
 
         it('should default to INFO when no logLevel is provided', function() {
-          var optlyInstance = optimizelyFactory.createInstance({
+          optimizelyFactory.createInstance({
             datafile: testData.getTestProjectConfig(),
           });
-          var foundCall = find(optimizelyFactory.logger.createLogger.getCalls(), function(call) {
-            return call.returned(sinon.match.same(optlyInstance.logger));
-          });
-          assert.strictEqual(foundCall.args[0].logLevel, optimizelyFactory.enums.LOG_LEVEL.INFO);
+          sinon.assert.calledOnce(setLogLevelStub);
+          sinon.assert.calledWithExactly(setLogLevelStub, optimizelyFactory.enums.LOG_LEVEL.INFO);
         });
       });
     });

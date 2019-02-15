@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+var core = require('@optimizely/js-sdk-core');
 var fns = require('./utils/fns');
 var configValidator = require('./utils/config_validator');
 var defaultErrorHandler = require('./plugins/error_handler');
@@ -22,8 +23,6 @@ var logger = require('./plugins/logger');
 var Optimizely = require('./optimizely');
 
 var MODULE_NAME = 'INDEX';
-
-
 
 /**
  * Entry point into the Optimizely Browser SDK
@@ -47,44 +46,45 @@ module.exports = {
    */
   createInstance: function(config) {
     try {
-      var logLevel = 'logLevel' in config ? config.logLevel : enums.LOG_LEVEL.INFO;
-      var defaultLogger = logger.createLogger({logLevel: enums.LOG_LEVEL.INFO});
-      if (config) {
-        try {
-          configValidator.validate(config);
-          config.isValidInstance = true;
-        } catch (ex) {
-          var errorMessage = MODULE_NAME + ':' + ex.message;
-          if (config.logger) {
-            config.logger.log(enums.LOG_LEVEL.ERROR, errorMessage);
-          } else {
-            defaultLogger.log(enums.LOG_LEVEL.ERROR, errorMessage);
-          }
-          config.isValidInstance = false;
-        }
+      config = config || {};
+
+      if (config.errorHandler) {
+        core.setErrorHandler(config.errorHandler);
+      }
+      // always default to the basic logger from createLogger if one isn't provided
+      core.setLoggerBackend(config.logger ? config.logger : core.createLogger());
+      core.setLogLevel(config.logLevel !== undefined ? config.logLevel : core.LogLevel.INFO);
+
+      try {
+        configValidator.validate(config);
+        config.isValidInstance = true;
+      } catch (ex) {
+        core.getLogger().log(enums.LOG_LEVEL.ERROR, sprintf('%s: %s', MODULE_NAME, ex.message));
+        config.isValidInstance = false;
       }
 
       // Explicitly check for null or undefined
+      // prettier-ignore
       if (config.skipJSONValidation == null) { // eslint-disable-line eqeqeq
         config.skipJSONValidation = true;
       }
 
-      config = fns.assignIn({
-        clientEngine: enums.JAVASCRIPT_CLIENT_ENGINE,
-        clientVersion: enums.CLIENT_VERSION,
-        errorHandler: defaultErrorHandler,
-        eventDispatcher: defaultEventDispatcher,
-        logger: logger.createLogger({logLevel: logLevel})
-      }, config);
+      config = fns.assignIn(
+        {
+          clientEngine: enums.JAVASCRIPT_CLIENT_ENGINE,
+          eventDispatcher: defaultEventDispatcher,
+        },
+        config,
+        {
+          // always get the OptimizelyLogger facade from core
+          logger: core.getLogger(),
+        }
+      );
 
       return new Optimizely(config);
     } catch (e) {
-      config.logger.log(enums.LOG_LEVEL.ERROR, e.message);
-      config.errorHandler.handleError(e);
+      core.getLogger().handleError(e);
       return null;
     }
   },
-
-
-
 };
