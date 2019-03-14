@@ -874,7 +874,9 @@ describe('lib/core/decision_service', function() {
             var decision = decisionServiceInstance.getVariationForFeature(feature, 'user1');
             var expectedDecision = {
               experiment: {
-                'forcedVariations': {},
+                'forcedVariations': {
+                  'whitelisted_user': 'var',
+                },
                 'status': 'Running',
                 'key': 'exp_with_group',
                 'id': '595010',
@@ -937,6 +939,104 @@ describe('lib/core/decision_service', function() {
             assert.deepEqual(decision, expectedDecision);
             sinon.assert.calledWithExactly(mockLogger.log, LOG_LEVEL.DEBUG, 'DECISION_SERVICE: User user1 is not in any experiment on the feature feature_exp_no_traffic.');
           });
+
+          it('returns a decision with a variation when the user is whitelisted', function() {
+            var decision = decisionServiceInstance.getVariationForFeature(feature, 'whitelisted_user');
+            var expectedDecision = {
+              experiment: {
+                'forcedVariations': {
+                  'whitelisted_user': 'var',
+                },
+                'status': 'Running',
+                'key': 'exp_with_group',
+                'id': '595010',
+                'variations': [{ 'id': '595008', 'variables': [], 'key': 'var' }, { 'id': '595009', 'variables': [], 'key': 'con' }],
+                'audienceIds': [],
+                'trafficAllocation': [{ 'endOfRange': 5000, 'entityId': '595008' }, { 'endOfRange': 10000, 'entityId': '595009' }],
+                'layerId': '595005',
+                groupId: '595024',
+                variationKeyMap: {
+                  con: {
+                    'id': '595009',
+                    'variables': [],
+                    'key': 'con',
+                  },
+                  var: {
+                    'id': '595008',
+                    'variables': [],
+                    'key': 'var',
+                  },
+                },
+              },
+              variation: {
+                'id': '595008',
+                'variables': [],
+                'key': 'var',
+              },
+              decisionSource: DECISION_SOURCES.EXPERIMENT,
+            };
+            assert.deepEqual(decision, expectedDecision);
+          });
+
+          describe('when a forced variation was set for the user on an experiment attached to the feature', function() {
+            beforeEach(function() {
+              projectConfig.setForcedVariation(
+                decisionServiceInstance.configObj,
+                'exp_with_group',
+                'some_other_user',
+                'var',
+                mockLogger
+              );
+            });
+
+            afterEach(function() {
+              projectConfig.removeForcedVariation(
+                decisionServiceInstance.configObj,
+                'some_other_user',
+                '595010',
+                'exp_with_group',
+                mockLogger
+              );
+            });
+
+            it('returns a decision with a variation for the forced variation', function() {
+              var decision = decisionServiceInstance.getVariationForFeature(feature, 'some_other_user');
+              var expectedDecision = {
+                experiment: {
+                  'forcedVariations': {
+                    'whitelisted_user': 'var',
+                  },
+                  'status': 'Running',
+                  'key': 'exp_with_group',
+                  'id': '595010',
+                  'variations': [{ 'id': '595008', 'variables': [], 'key': 'var' }, { 'id': '595009', 'variables': [], 'key': 'con' }],
+                  'audienceIds': [],
+                  'trafficAllocation': [{ 'endOfRange': 5000, 'entityId': '595008' }, { 'endOfRange': 10000, 'entityId': '595009' }],
+                  'layerId': '595005',
+                  groupId: '595024',
+                  variationKeyMap: {
+                    con: {
+                      'id': '595009',
+                      'variables': [],
+                      'key': 'con',
+                    },
+                    var: {
+                      'id': '595008',
+                      'variables': [],
+                      'key': 'var',
+                    },
+                  },
+                },
+                variation: {
+                  'id': '595008',
+                  'variables': [],
+                  'key': 'var',
+                },
+                decisionSource: DECISION_SOURCES.EXPERIMENT,
+              };
+              assert.deepEqual(decision, expectedDecision);
+            });
+          });
         });
 
         describe('user not bucketed into the group', function() {
@@ -955,6 +1055,104 @@ describe('lib/core/decision_service', function() {
             };
             assert.deepEqual(decision, expectedDecision);
             sinon.assert.calledWithExactly(mockLogger.log, LOG_LEVEL.DEBUG, 'DECISION_SERVICE: User user1 is not in any experiment on the feature feature_with_group.');
+          });
+
+          it('returns a decision with a variation when the user is whitelisted', function() {
+            var decision = decisionServiceInstance.getVariationForFeature(feature, 'whitelisted_user');
+            var expectedDecision = {
+              experiment: {
+                'forcedVariations': {
+                  'whitelisted_user': 'var',
+                },
+                'status': 'Running',
+                'key': 'exp_with_group',
+                'id': '595010',
+                'variations': [{ 'id': '595008', 'variables': [], 'key': 'var' }, { 'id': '595009', 'variables': [], 'key': 'con' }],
+                'audienceIds': [],
+                'trafficAllocation': [{ 'endOfRange': 5000, 'entityId': '595008' }, { 'endOfRange': 10000, 'entityId': '595009' }],
+                'layerId': '595005',
+                groupId: '595024',
+                variationKeyMap: {
+                  con: {
+                    'id': '595009',
+                    'variables': [],
+                    'key': 'con',
+                  },
+                  var: {
+                    'id': '595008',
+                    'variables': [],
+                    'key': 'var',
+                  },
+                },
+              },
+              variation: {
+                'id': '595008',
+                'variables': [],
+                'key': 'var',
+              },
+              decisionSource: DECISION_SOURCES.EXPERIMENT,
+            };
+            assert.deepEqual(decision, expectedDecision);
+          });
+
+          describe('when a forced variation was set for the user on an experiment attached to the feature', function() {
+            beforeEach(function() {
+              projectConfig.setForcedVariation(
+                decisionServiceInstance.configObj,
+                'exp_with_group',
+                'some_other_user',
+                'var',
+                mockLogger
+              );
+            });
+
+            afterEach(function() {
+              projectConfig.removeForcedVariation(
+                decisionServiceInstance.configObj,
+                'some_other_user',
+                '595010',
+                'exp_with_group',
+                mockLogger
+              );
+            });
+
+            it('returns a decision with a variation for the forced variation', function() {
+              var decision = decisionServiceInstance.getVariationForFeature(feature, 'some_other_user');
+              var expectedDecision = {
+                experiment: {
+                  'forcedVariations': {
+                    'whitelisted_user': 'var',
+                  },
+                  'status': 'Running',
+                  'key': 'exp_with_group',
+                  'id': '595010',
+                  'variations': [{ 'id': '595008', 'variables': [], 'key': 'var' }, { 'id': '595009', 'variables': [], 'key': 'con' }],
+                  'audienceIds': [],
+                  'trafficAllocation': [{ 'endOfRange': 5000, 'entityId': '595008' }, { 'endOfRange': 10000, 'entityId': '595009' }],
+                  'layerId': '595005',
+                  groupId: '595024',
+                  variationKeyMap: {
+                    con: {
+                      'id': '595009',
+                      'variables': [],
+                      'key': 'con',
+                    },
+                    var: {
+                      'id': '595008',
+                      'variables': [],
+                      'key': 'var',
+                    },
+                  },
+                },
+                variation: {
+                  'id': '595008',
+                  'variables': [],
+                  'key': 'var',
+                },
+                decisionSource: DECISION_SOURCES.EXPERIMENT,
+              };
+              assert.deepEqual(decision, expectedDecision);
+            });
           });
         });
       });

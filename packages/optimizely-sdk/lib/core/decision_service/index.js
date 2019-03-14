@@ -54,6 +54,28 @@ function DecisionService(options) {
   this.logger = options.logger;
 }
 
+DecisionService.prototype.getOverrideVariation = function(experimentKey, userId) {
+  if (!this.__checkIfExperimentIsActive(experimentKey, userId)) {
+    return null;
+  }
+
+  var experiment = this.configObj.experimentKeyMap[experimentKey];
+
+  // Check for setForcedVariation calls
+  var forcedVariationKey = projectConfig.getForcedVariation(this.configObj, experimentKey, userId, this.logger);
+  if (!!forcedVariationKey) {
+    return forcedVariationKey;
+  }
+
+  // Check for user IDs whitelisted in the datafile
+  var variation = this.__getWhitelistedVariation(experiment, userId);
+  if (!!variation) {
+    return variation.key;
+  }
+
+  return null;
+};
+
 /**
  * Gets variation where visitor will be bucketed.
  * @param  {string}      experimentKey
@@ -68,16 +90,13 @@ DecisionService.prototype.getVariation = function(experimentKey, userId, attribu
   if (!this.__checkIfExperimentIsActive(experimentKey, userId)) {
     return null;
   }
-  var experiment = this.configObj.experimentKeyMap[experimentKey];
-  var forcedVariationKey = projectConfig.getForcedVariation(this.configObj, experimentKey, userId, this.logger);
-  if (!!forcedVariationKey) {
-    return forcedVariationKey;
+
+  var overrideVariation = this.getOverrideVariation(experimentKey, userId);
+  if (overrideVariation) {
+    return overrideVariation;
   }
 
-  var variation = this.__getWhitelistedVariation(experiment, userId);
-  if (!!variation) {
-    return variation.key;
-  }
+  var experiment = this.configObj.experimentKeyMap[experimentKey];
 
   // check for sticky bucketing
   var experimentBucketMap = this.__resolveExperimentBucketMap(userId, attributes);
@@ -314,6 +333,24 @@ DecisionService.prototype.getVariationForFeature = function(feature, userId, att
 DecisionService.prototype._getVariationForFeatureExperiment = function(feature, userId, attributes) {
   var experiment = null;
   var variationKey = null;
+
+  for (var i = 0; i < feature.experimentIds.length; i++) {
+    var experimentId = feature.experimentIds[i];
+    var currentFeatureExperiment = projectConfig.getExperimentFromId(this.configObj, experimentId, this.logger);
+    if (currentFeatureExperiment) {
+      var overrideVariationKey = this.getOverrideVariation(currentFeatureExperiment.key, userId);
+      if (overrideVariationKey) {
+        var overrideVariation = currentFeatureExperiment.variationKeyMap[overrideVariationKey];
+        if (overrideVariation) {
+          return {
+            experiment: currentFeatureExperiment,
+            variation: overrideVariation,
+            decisionSource: DECISION_SOURCES.EXPERIMENT,
+          };
+        }
+      }
+    }
+  }
 
   if (feature.hasOwnProperty('groupId')) {
     var group = this.configObj.groupIdMap[feature.groupId];

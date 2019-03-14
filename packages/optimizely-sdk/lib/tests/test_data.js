@@ -587,7 +587,9 @@ var configWithFeatures = {
             }
           ],
           'layerId': '595005',
-          'forcedVariations': {},
+          'forcedVariations': {
+            'whitelisted_user': 'var',
+          },
           'audienceIds': [],
           'variations': [
             {
