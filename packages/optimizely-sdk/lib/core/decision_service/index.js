@@ -54,7 +54,34 @@ function DecisionService(options) {
   this.logger = options.logger;
 }
 
-DecisionService.prototype.getOverrideVariation = function(experimentKey, userId) {
+/**
+ * Gets variation where visitor will be bucketed.
+ * @param  {string}      experimentKey
+ * @param  {string}      userId
+ * @param  {Object}      attributes
+ * @return {string|null} the variation the user is bucketed into.
+ */
+DecisionService.prototype.getVariation = function(experimentKey, userId, attributes) {
+  if (!this.__checkIfExperimentIsActive(experimentKey, userId)) {
+    return null;
+  }
+
+  var overrideVariation = this._getOverrideVariation(experimentKey, userId);
+  if (overrideVariation) {
+    return overrideVariation;
+  }
+
+  return this._getNonOverrideVariation(experimentKey, userId, attributes);
+};
+
+/**
+ * If a variation was forced or whitelisted for the given experiment and user,
+ * returns that variation's key. Otherwise, returns null.
+ * @param  {string}      experimentKey
+ * @param  {string}      userId
+ * @return {string|null} The whitelisted or forced variation
+ */
+DecisionService.prototype._getOverrideVariation = function(experimentKey, userId) {
   if (!this.__checkIfExperimentIsActive(experimentKey, userId)) {
     return null;
   }
@@ -76,10 +103,21 @@ DecisionService.prototype.getOverrideVariation = function(experimentKey, userId)
   return null;
 };
 
+/**
+ * Returns the "real" variation for the given experiment, user, and attributes, without looking
+ * at overrides.
+ * This is based on stored variations from user profile service, audience targeting, and
+ * bucketer bucketing. If the user is assigned into a variation, returns that variation's
+ * key, otherwise returns null.
+ * @param  {string}      experimentKey
+ * @param  {string}      userId
+ * @param  {Object}      attributes
+ * @return {string|null} the variation the user is assigned into.
+ */
 DecisionService.prototype._getNonOverrideVariation = function(experimentKey, userId, attributes) {
   var experiment = this.configObj.experimentKeyMap[experimentKey];
 
-  // check for sticky bucketing
+  // Check for user profile service bucketing
   var experimentBucketMap = this.__resolveExperimentBucketMap(userId, attributes);
   variation = this.__getStoredVariation(experiment, userId, experimentBucketMap);
   if (!!variation) {
@@ -87,13 +125,13 @@ DecisionService.prototype._getNonOverrideVariation = function(experimentKey, use
     return variation.key;
   }
 
-  // Perform regular targeting and bucketing
   if (!this.__checkIfUserIsInAudience(experimentKey, userId, attributes)) {
     return null;
   }
 
   // by default, the bucketing ID should be the user ID
   var bucketingId = this._getBucketingId(userId, attributes);
+
   var bucketerParams = this.__buildBucketerParams(experimentKey, bucketingId, userId);
   var variationId = bucketer.bucket(bucketerParams);
   variation = this.configObj.variationIdMap[variationId];
@@ -107,25 +145,6 @@ DecisionService.prototype._getNonOverrideVariation = function(experimentKey, use
   return variation.key;
 };
 
-/**
- * Gets variation where visitor will be bucketed.
- * @param  {string}      experimentKey
- * @param  {string}      userId
- * @param  {Object}      attributes
- * @return {string|null} the variation the user is bucketed into.
- */
-DecisionService.prototype.getVariation = function(experimentKey, userId, attributes) {
-  if (!this.__checkIfExperimentIsActive(experimentKey, userId)) {
-    return null;
-  }
-
-  var overrideVariation = this.getOverrideVariation(experimentKey, userId);
-  if (overrideVariation) {
-    return overrideVariation;
-  }
-
-  return this._getNonOverrideVariation(experimentKey, userId, attributes);
-};
 
 /**
  * Merges attributes from attributes[STICKY_BUCKETING_KEY] and userProfileService
@@ -341,7 +360,7 @@ DecisionService.prototype._getVariationForFeatureExperiment = function(feature, 
     var experimentId = feature.experimentIds[i];
     var currentFeatureExperiment = projectConfig.getExperimentFromId(this.configObj, experimentId, this.logger);
     if (currentFeatureExperiment) {
-      var overrideVariationKey = this.getOverrideVariation(currentFeatureExperiment.key, userId);
+      var overrideVariationKey = this._getOverrideVariation(currentFeatureExperiment.key, userId);
       if (overrideVariationKey) {
         var overrideVariation = currentFeatureExperiment.variationKeyMap[overrideVariationKey];
         if (overrideVariation) {
