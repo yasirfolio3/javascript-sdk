@@ -685,7 +685,7 @@ describe('lib/core/decision_service', function() {
         describe('user bucketed into this experiment', function() {
           var getVariationStub;
           beforeEach(function() {
-            getVariationStub = sandbox.stub(decisionServiceInstance, 'getVariation');
+            getVariationStub = sandbox.stub(decisionServiceInstance, '_getNonOverrideVariation');
             getVariationStub.returns(null);
             getVariationStub.withArgs('testing_my_feature', 'user1').returns('variation');
           });
@@ -839,7 +839,7 @@ describe('lib/core/decision_service', function() {
         describe('user not bucketed into this experiment', function() {
           var getVariationStub;
           beforeEach(function() {
-            getVariationStub = sandbox.stub(decisionServiceInstance, 'getVariation');
+            getVariationStub = sandbox.stub(decisionServiceInstance, '_getNonOverrideVariation');
             getVariationStub.returns(null);
           });
 
@@ -865,7 +865,7 @@ describe('lib/core/decision_service', function() {
         describe('user bucketed into an experiment in the group', function() {
           var getVariationStub;
           beforeEach(function() {
-            getVariationStub = sandbox.stub(decisionServiceInstance, 'getVariation');
+            getVariationStub = sandbox.stub(decisionServiceInstance, '_getNonOverrideVariation');
             getVariationStub.returns(null);
             getVariationStub.withArgs('exp_with_group', 'user1').returns('var');
           });
@@ -913,7 +913,7 @@ describe('lib/core/decision_service', function() {
         describe('user not bucketed into an experiment in the group', function() {
           var getVariationStub;
           beforeEach(function() {
-            getVariationStub = sandbox.stub(decisionServiceInstance, 'getVariation');
+            getVariationStub = sandbox.stub(decisionServiceInstance, '_getNonOverrideVariation');
             getVariationStub.returns(null);
           });
 

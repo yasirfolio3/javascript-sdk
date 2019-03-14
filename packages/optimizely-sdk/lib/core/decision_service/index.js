@@ -76,26 +76,7 @@ DecisionService.prototype.getOverrideVariation = function(experimentKey, userId)
   return null;
 };
 
-/**
- * Gets variation where visitor will be bucketed.
- * @param  {string}      experimentKey
- * @param  {string}      userId
- * @param  {Object}      attributes
- * @return {string|null} the variation the user is bucketed into.
- */
-DecisionService.prototype.getVariation = function(experimentKey, userId, attributes) {
-  // by default, the bucketing ID should be the user ID
-  var bucketingId = this._getBucketingId(userId, attributes);
-
-  if (!this.__checkIfExperimentIsActive(experimentKey, userId)) {
-    return null;
-  }
-
-  var overrideVariation = this.getOverrideVariation(experimentKey, userId);
-  if (overrideVariation) {
-    return overrideVariation;
-  }
-
+DecisionService.prototype._getNonOverrideVariation = function(experimentKey, userId, attributes) {
   var experiment = this.configObj.experimentKeyMap[experimentKey];
 
   // check for sticky bucketing
@@ -111,6 +92,8 @@ DecisionService.prototype.getVariation = function(experimentKey, userId, attribu
     return null;
   }
 
+  // by default, the bucketing ID should be the user ID
+  var bucketingId = this._getBucketingId(userId, attributes);
   var bucketerParams = this.__buildBucketerParams(experimentKey, bucketingId, userId);
   var variationId = bucketer.bucket(bucketerParams);
   variation = this.configObj.variationIdMap[variationId];
@@ -122,6 +105,26 @@ DecisionService.prototype.getVariation = function(experimentKey, userId, attribu
   this.__saveUserProfile(experiment, variation, userId, experimentBucketMap);
 
   return variation.key;
+};
+
+/**
+ * Gets variation where visitor will be bucketed.
+ * @param  {string}      experimentKey
+ * @param  {string}      userId
+ * @param  {Object}      attributes
+ * @return {string|null} the variation the user is bucketed into.
+ */
+DecisionService.prototype.getVariation = function(experimentKey, userId, attributes) {
+  if (!this.__checkIfExperimentIsActive(experimentKey, userId)) {
+    return null;
+  }
+
+  var overrideVariation = this.getOverrideVariation(experimentKey, userId);
+  if (overrideVariation) {
+    return overrideVariation;
+  }
+
+  return this._getNonOverrideVariation(experimentKey, userId, attributes);
 };
 
 /**
@@ -357,7 +360,7 @@ DecisionService.prototype._getVariationForFeatureExperiment = function(feature, 
     if (group) {
       experiment = this._getExperimentInGroup(group, userId);
       if (experiment && feature.experimentIds.indexOf(experiment.id) !== -1) {
-        variationKey = this.getVariation(experiment.key, userId, attributes);
+        variationKey = this._getNonOverrideVariation(experiment.key, userId, attributes);
       }
     }
   } else if (feature.experimentIds.length > 0) {
@@ -365,7 +368,7 @@ DecisionService.prototype._getVariationForFeatureExperiment = function(feature, 
     // with one experiment, so we look at the first experiment ID only
     experiment = projectConfig.getExperimentFromId(this.configObj, feature.experimentIds[0], this.logger);
     if (experiment) {
-      variationKey = this.getVariation(experiment.key, userId, attributes);
+      variationKey = this._getNonOverrideVariation(experiment.key, userId, attributes);
     }
   } else {
     this.logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.FEATURE_HAS_NO_EXPERIMENTS, MODULE_NAME, feature.key));
