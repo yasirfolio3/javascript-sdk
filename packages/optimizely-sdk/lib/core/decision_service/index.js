@@ -130,8 +130,11 @@ DecisionService.prototype._getOverrideVariation = function(experimentKey, userId
  * @return {string|null} the variation the user is assigned into.
  */
 DecisionService.prototype._getNonOverrideVariation = function(experimentKey, userId, attributes) {
-  var experiment = this.configObj.experimentKeyMap[experimentKey];
+  if (!this.__checkIfExperimentIsActive(experimentKey, userId)) {
+    return null;
+  }
 
+  var experiment = this.configObj.experimentKeyMap[experimentKey];
 
   if (!this.__checkIfUserIsInAudience(experimentKey, userId, attributes)) {
     return null;
