@@ -34,6 +34,7 @@ module.exports = {
   logging: loggerPlugin,
   errorHandler: defaultErrorHandler,
   eventDispatcher: defaultEventDispatcher,
+  retryEventDispatcher: require('./plugins/event_dispatcher/retry_dispatcher.browser'),
   enums: enums,
 
   setLogger: logging.setLogHandler,
