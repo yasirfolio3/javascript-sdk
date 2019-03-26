@@ -16,10 +16,11 @@
 // TODO change this to use Managed from js-sdk-models when available
 import { Managed } from './managed'
 import { ConversionEvent, ImpressionEvent } from './events'
-import { EventDispatcher, EventV1Request } from './eventDispatcher'
+import { HttpClient, EventV1Request } from './httpClient'
 import { EventQueue, DefaultEventQueue, SingleEventQueue } from './eventQueue'
 import { getLogger } from '@optimizely/js-sdk-logging'
-import { DispatchQueue } from './dispatchQueue';
+import { BufferedEventDispatcher, EventDispatcher } from './eventDispatcher'
+import { BrowserEventDispatcher } from './eventDispatcher.browser'
 
 const logger = getLogger('EventProcessor')
 
@@ -52,29 +53,29 @@ export abstract class AbstractEventProcessor implements EventProcessor {
   protected transformers: EventTransformer[]
   protected interceptors: EventInterceptor[]
   protected callbacks: EventCallback[]
-  protected dispatcher: EventDispatcher
   protected queue: EventQueue<ProcessableEvents>
-  protected dispatchQueue: DispatchQueue
+  protected eventDispatcher: EventDispatcher
 
   constructor({
-    dispatcher,
-    dispatchQueue,
+    httpClient,
     transformers = [],
     interceptors = [],
     callbacks = [],
     flushInterval = 30000,
     maxQueueSize = 3000,
   }: {
-    dispatcher: EventDispatcher
-    dispatchQueue: DispatchQueue
+    httpClient: HttpClient
     transformers?: EventTransformer[]
     interceptors?: EventInterceptor[]
     callbacks?: EventCallback[]
     flushInterval?: number
     maxQueueSize?: number
   }) {
-    this.dispatcher = dispatcher
-    this.dispatchQueue = dispatchQueue
+    if (process.env.BROWSER) {
+      this.eventDispatcher = new BrowserEventDispatcher({ httpClient })
+    } else {
+      this.eventDispatcher = new BufferedEventDispatcher({ httpClient })
+    }
 
     maxQueueSize = Math.max(1, maxQueueSize)
     if (maxQueueSize > 1) {
@@ -101,7 +102,7 @@ export abstract class AbstractEventProcessor implements EventProcessor {
       const formattedEvent = this.formatEvents(eventGroup)
 
       return new Promise((resolve, reject) => {
-        this.dispatchQueue.enqueue(formattedEvent, result => {
+        this.eventDispatcher.dispatch(formattedEvent, result => {
           // loop through every event in the group and run the callback handler
           // with result
           eventGroup.forEach(event => {
@@ -155,7 +156,7 @@ export abstract class AbstractEventProcessor implements EventProcessor {
     try {
       // swallow, an error stopping this queue should prevent this from stopping
       this.queue.stop()
-      this.dispatchQueue.stop()
+      this.eventDispatcher.stop()
     } catch (e) {
       logger.error('Error stopping EventProcessor: "%s"', e.message, e)
     }
@@ -164,7 +165,7 @@ export abstract class AbstractEventProcessor implements EventProcessor {
 
   start(): void {
     this.queue.start()
-    this.dispatchQueue.start()
+    this.eventDispatcher.start()
   }
 
   protected abstract groupEvents(events: ProcessableEvents[]): ProcessableEvents[][]

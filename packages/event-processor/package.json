@@ -5,8 +5,9 @@
   "author": "jordangarcia <jordan@optimizely.com>",
   "homepage": "https://github.com/optimizely/javascript-sdk/tree/master/packages/event-processor",
   "license": "MIT",
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
+  "main": "dist/event-processor.js",
+  "browser": "dist/event-processor.browser.js",
+  "types": "dist/index.d.ts",
   "directories": {
     "lib": "lib",
     "test": "test"
@@ -44,6 +45,12 @@
     "@types/jest": "^24.0.9",
     "jest": "^23.6.0",
     "ts-jest": "^23.10.5",
-    "typescript": "^3.3.3"
+    "typescript": "^3.3.3",
+    "rollup": "^1.1.0",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-node-resolve": "^4.0.0",
+    "rollup-plugin-replace": "^2.1.0",
+    "rollup-plugin-typescript2": "^0.18.1",
+    "rollup-plugin-uglify": "^6.0.1"
   }
 }

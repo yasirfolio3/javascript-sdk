@@ -1,6 +1,3 @@
-import BrowserDispatchQueue from './dispatchQueue.browser'
-import NodeDispatchQueue from './dispatchQueue.node'
-
 /**
  * Copyright 2019, Optimizely
  *
@@ -18,8 +15,7 @@ import NodeDispatchQueue from './dispatchQueue.node'
  */
 export * from './events'
 export * from './eventProcessor'
-export * from './eventDispatcher'
+export * from './httpClient'
 export * from './managed'
 export * from './v1/buildEventV1'
 export * from './v1/v1EventProcessor'
-export { BrowserDispatchQueue, NodeDispatchQueue }

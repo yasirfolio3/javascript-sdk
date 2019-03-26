@@ -13,7 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { EventV1 } from "./v1/buildEventV1";
 
-import { BaseDispatchQueue } from './dispatchQueue'
+export interface HttpClient {
+  dispatch(event: EventV1Request, callback: (success: boolean) => void): void
+}
 
-export default class NodeDispatchQueue extends BaseDispatchQueue {}
+export interface EventV1Request {
+  url: string
+  method: 'POST' | 'PUT' | 'GET' | 'PATCH'
+  headers: {
+    [key: string]: string[]
+  }
+  event: EventV1,
+}

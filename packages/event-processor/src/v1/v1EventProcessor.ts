@@ -1,6 +1,6 @@
 import { groupBy, objectValues } from '@optimizely/js-sdk-utils'
 import { AbstractEventProcessor, ProcessableEvents } from '../eventProcessor'
-import { EventV1Request } from '../eventDispatcher'
+import { EventV1Request } from '../httpClient'
 import { makeBatchedEventV1 } from './buildEventV1';
 
 export class LogTierV1EventProcessor extends AbstractEventProcessor {
