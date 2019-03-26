@@ -67,7 +67,6 @@ function Optimizely(config) {
   this.clientEngine = clientEngine;
   this.clientVersion = config.clientVersion || enums.NODE_CLIENT_VERSION;
   this.errorHandler = config.errorHandler;
-  this.eventDispatcher = new EventDispatcherBridge(config.eventDispatcher);
   this.isValidInstance = config.isValidInstance;
   this.logger = config.logger;
 
@@ -117,6 +116,7 @@ function Optimizely(config) {
 
   this.eventProcessor = new eventProcessor.LogTierV1EventProcessor({
     dispatcher: this.eventDispatcher,
+    dispatchQueue: config.dispatchQueue,
     flushInterval: config.eventFlushInterval || DEFAULT_EVENT_FLUSH_INTERVAL,
     maxQueueSize: config.eventBatchSize || DEFAULT_EVENT_MAX_QUEUE_SIZE,
   });

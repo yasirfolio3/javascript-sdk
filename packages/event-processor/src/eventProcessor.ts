@@ -16,9 +16,10 @@
 // TODO change this to use Managed from js-sdk-models when available
 import { Managed } from './managed'
 import { ConversionEvent, ImpressionEvent } from './events'
-import { EventDispatcher } from './eventDispatcher'
+import { EventDispatcher, EventV1Request } from './eventDispatcher'
 import { EventQueue, DefaultEventQueue, SingleEventQueue } from './eventQueue'
 import { getLogger } from '@optimizely/js-sdk-logging'
+import { DispatchQueue } from './dispatchQueue';
 
 const logger = getLogger('EventProcessor')
 
@@ -53,9 +54,11 @@ export abstract class AbstractEventProcessor implements EventProcessor {
   protected callbacks: EventCallback[]
   protected dispatcher: EventDispatcher
   protected queue: EventQueue<ProcessableEvents>
+  protected dispatchQueue: DispatchQueue
 
   constructor({
     dispatcher,
+    dispatchQueue,
     transformers = [],
     interceptors = [],
     callbacks = [],
@@ -63,6 +66,7 @@ export abstract class AbstractEventProcessor implements EventProcessor {
     maxQueueSize = 3000,
   }: {
     dispatcher: EventDispatcher
+    dispatchQueue: DispatchQueue
     transformers?: EventTransformer[]
     interceptors?: EventInterceptor[]
     callbacks?: EventCallback[]
@@ -70,6 +74,7 @@ export abstract class AbstractEventProcessor implements EventProcessor {
     maxQueueSize?: number
   }) {
     this.dispatcher = dispatcher
+    this.dispatchQueue = dispatchQueue
 
     maxQueueSize = Math.max(1, maxQueueSize)
     if (maxQueueSize > 1) {
@@ -96,7 +101,7 @@ export abstract class AbstractEventProcessor implements EventProcessor {
       const formattedEvent = this.formatEvents(eventGroup)
 
       return new Promise((resolve, reject) => {
-        this.dispatcher.dispatch(formattedEvent, result => {
+        this.dispatchQueue.enqueue(formattedEvent, result => {
           // loop through every event in the group and run the callback handler
           // with result
           eventGroup.forEach(event => {
@@ -149,7 +154,8 @@ export abstract class AbstractEventProcessor implements EventProcessor {
   stop(): Promise<any> {
     try {
       // swallow, an error stopping this queue should prevent this from stopping
-      return this.queue.stop()
+      this.queue.stop()
+      this.dispatchQueue.stop()
     } catch (e) {
       logger.error('Error stopping EventProcessor: "%s"', e.message, e)
     }
@@ -158,9 +164,10 @@ export abstract class AbstractEventProcessor implements EventProcessor {
 
   start(): void {
     this.queue.start()
+    this.dispatchQueue.start()
   }
 
   protected abstract groupEvents(events: ProcessableEvents[]): ProcessableEvents[][]
 
-  protected abstract formatEvents(events: ProcessableEvents[]): object
+  protected abstract formatEvents(events: ProcessableEvents[]): EventV1Request
 }
