@@ -33,6 +33,7 @@ export class BrowserEventDispatcher extends BufferedEventDispatcher {
     try {
       if (data) {
         const parsed = JSON.parse(data) as DispatchEntry[]
+        logger.info('flushing queue from previous session, num events = %s', parsed.length)
         parsed.forEach((item: DispatchEntry) => {
           this.enqueueAndDispatch(item, () => {})
         })

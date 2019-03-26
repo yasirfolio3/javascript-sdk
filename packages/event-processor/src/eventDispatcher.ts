@@ -97,8 +97,7 @@ export class BufferedEventDispatcher implements EventDispatcher {
   }
 
   protected handleFailure(uuid: string, callback: DispatchCallback) {
-    const entry = this.buffer[uuid]
-    if (!entry) {
+    if (!this.buffer[uuid]) {
       const err = new Error(`No buffer entry for uuid="${uuid}"`)
       logger.error(err)
       callback(false)
@@ -106,21 +105,25 @@ export class BufferedEventDispatcher implements EventDispatcher {
     }
 
     const updatedEntry = {
-      ...entry,
-      failureCount: entry.failureCount + 1,
-      status: EntryStatus.QUEUED,
+      ...this.buffer[uuid],
     }
+    updatedEntry.failureCount++
+    updatedEntry.status = EntryStatus.QUEUED
 
     if (updatedEntry.failureCount > MAX_FAILURE_COUNT) {
+      logger.error('Event failed to send %s times, not retrying', updatedEntry.failureCount)
       delete this.buffer[uuid]
       callback(false)
       return
     }
 
-    this.buffer[uuid] = entry
+    const nextTimeout = this.getNextTimeout(updatedEntry)
+    logger.info('Event failed to send %s times, retrying in %sms', updatedEntry.failureCount, nextTimeout)
+
+    this.buffer[uuid] = updatedEntry
     this.timeoutIds.push(setTimeout(() => {
-      this.enqueueAndDispatch(entry, callback)
-    }, this.getNextTimeout(entry)) as any)
+      this.enqueueAndDispatch(updatedEntry, callback)
+    }, nextTimeout) as any)
   }
 
   protected getNextTimeout(entry: DispatchEntry): number {

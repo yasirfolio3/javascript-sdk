@@ -16,7 +16,6 @@
 require('promise-polyfill/dist/polyfill');
 var logging = require('@optimizely/js-sdk-logging');
 var fns = require('./utils/fns');
-var eventProcessor = require('@optimizely/js-sdk-event-processor');
 var configValidator = require('./utils/config_validator');
 var defaultErrorHandler = require('./plugins/error_handler');
 var defaultEventDispatcher = require('./plugins/event_dispatcher/index.browser');
@@ -36,7 +35,6 @@ module.exports = {
   logging: loggerPlugin,
   errorHandler: defaultErrorHandler,
   eventDispatcher: defaultEventDispatcher,
-  retryEventDispatcher: require('./plugins/event_dispatcher/retry_dispatcher.browser'),
   enums: enums,
 
   setLogger: logging.setLogHandler,
@@ -86,11 +84,9 @@ module.exports = {
         config.skipJSONValidation = true;
       }
 
-      var dispatcher = new EventDispatcherBridge(defaultEventDispatcher);
       config = fns.assignIn(
         {
-          eventDispatcher: dispatcher,
-          dispatchQueue: new eventProcessor.BrowserDispatchQueue({ dispatcher: dispatcher }),
+          eventDispatcher: defaultEventDispatcher,
         },
         config,
         {

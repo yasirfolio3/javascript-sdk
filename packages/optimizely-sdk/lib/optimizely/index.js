@@ -114,9 +114,9 @@ function Optimizely(config) {
     errorHandler: this.errorHandler,
   });
 
+  var httpClient = new EventDispatcherBridge(config.eventDispatcher);
   this.eventProcessor = new eventProcessor.LogTierV1EventProcessor({
-    dispatcher: this.eventDispatcher,
-    dispatchQueue: config.dispatchQueue,
+    httpClient: httpClient,
     flushInterval: config.eventFlushInterval || DEFAULT_EVENT_FLUSH_INTERVAL,
     maxQueueSize: config.eventBatchSize || DEFAULT_EVENT_MAX_QUEUE_SIZE,
   });
