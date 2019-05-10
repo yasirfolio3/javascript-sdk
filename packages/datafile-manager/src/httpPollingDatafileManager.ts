@@ -46,14 +46,6 @@ export default abstract class HTTPPollingDatafileManager implements DatafileMana
 
   private currentDatafile: object | null
 
-  private readonly readyPromise: Promise<void>
-
-  private isReadyPromiseSettled: boolean
-
-  private readyPromiseResolver: () => void
-
-  private readyPromiseRejecter: (err: Error) => void
-
   private readonly emitter: EventEmitter
 
   private readonly autoUpdate: boolean
@@ -91,17 +83,8 @@ export default abstract class HTTPPollingDatafileManager implements DatafileMana
       urlTemplate = DEFAULT_URL_TEMPLATE,
     } = configWithDefaultsApplied
 
-    this.isReadyPromiseSettled = false
-    this.readyPromiseResolver = () => {}
-    this.readyPromiseRejecter = () => {}
-    this.readyPromise = new Promise((resolve, reject) => {
-      this.readyPromiseResolver = resolve
-      this.readyPromiseRejecter = reject
-    })
-
     if (datafile) {
       this.currentDatafile = datafile
-      this.resolveReadyPromise()
     } else {
       this.currentDatafile = null
     }
@@ -155,10 +138,6 @@ export default abstract class HTTPPollingDatafileManager implements DatafileMana
     return Promise.resolve()
   }
 
-  onReady(): Promise<void> {
-    return this.readyPromise
-  }
-
   on(eventName: string, listener: (datafileUpdate: DatafileUpdate) => void) {
     return this.emitter.on(eventName, listener)
   }
@@ -197,14 +176,10 @@ export default abstract class HTTPPollingDatafileManager implements DatafileMana
     if (datafile !== null) {
       logger.info('Updating datafile from response')
       this.currentDatafile = datafile
-      if (!this.isReadyPromiseSettled) {
-        this.resolveReadyPromise()
-      } else {
-        const datafileUpdate: DatafileUpdate = {
-          datafile,
-        }
-        this.emitter.emit(UPDATE_EVT, datafileUpdate)
+      const datafileUpdate: DatafileUpdate = {
+        datafile,
       }
+      this.emitter.emit(UPDATE_EVT, datafileUpdate)
     }
   }
 
@@ -214,11 +189,6 @@ export default abstract class HTTPPollingDatafileManager implements DatafileMana
     }
 
     this.currentRequest = null
-
-    if (!this.isReadyPromiseSettled && !this.autoUpdate) {
-      // We will never resolve ready, so reject it
-      this.rejectReadyPromise(new Error('Failed to become ready'))
-    }
 
     if (this.autoUpdate && this.syncOnCurrentRequestComplete) {
       this.syncDatafile()
@@ -251,16 +221,6 @@ export default abstract class HTTPPollingDatafileManager implements DatafileMana
     if (this.autoUpdate) {
       this.scheduleNextUpdate()
     }
-  }
-
-  private resolveReadyPromise(): void {
-    this.readyPromiseResolver()
-    this.isReadyPromiseSettled = true
-  }
-
-  private rejectReadyPromise(err: Error): void {
-    this.readyPromiseRejecter(err)
-    this.isReadyPromiseSettled = true
   }
 
   private scheduleNextUpdate(): void {

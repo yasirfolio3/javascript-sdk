@@ -67,6 +67,12 @@ describe('httpPollingDatafileManager', () => {
   afterEach(async () => {
     if (manager) {
       manager.stop()
+      for (const p of manager.responsePromises) {
+        try {
+          await p
+        } catch (ex) {
+        }
+      }
     }
     jest.clearAllMocks()
     jest.restoreAllMocks()
@@ -79,12 +85,6 @@ describe('httpPollingDatafileManager', () => {
     })
 
     it('returns the passed datafile from get', () => {
-      expect(manager.get()).toEqual({ foo: 'abcd' })
-    })
-
-    it('resolves onReady immediately', async () => {
-      manager.start()
-      await manager.onReady()
       expect(manager.get()).toEqual({ foo: 'abcd' })
     })
 
@@ -134,12 +134,6 @@ describe('httpPollingDatafileManager', () => {
       expect(manager.get()).toEqual({ foo: 'abcd' })
     })
 
-    it('after being started, resolves onReady immediately', async () => {
-      manager.start()
-      await manager.onReady()
-      expect(manager.get()).toEqual({ foo: 'abcd' })
-    })
-
     it('after being started, fetches the datafile, updates itself once, and emits an update event, but does not schedule a future update', async () => {
       manager.queuedResponses.push({
         statusCode: 200,
@@ -166,7 +160,7 @@ describe('httpPollingDatafileManager', () => {
     })
 
     describe('initial state', () => {
-      it('returns null from get before becoming ready', () => {
+      it('returns null from get', () => {
         expect(manager.get()).toBeNull()
       })
     })
@@ -182,17 +176,17 @@ describe('httpPollingDatafileManager', () => {
         manager.start()
         expect(makeGetRequestSpy).toBeCalledTimes(1)
         expect(makeGetRequestSpy.mock.calls[0][0]).toBe('https://cdn.optimizely.com/datafiles/123.json')
-        await manager.onReady()
       })
 
-      it('after being started, fetches the datafile and resolves onReady', async () => {
+      it('after being started, fetches the datafile', async () => {
         manager.queuedResponses.push({
           statusCode: 200,
           body: '{"foo": "bar"}',
           headers: {},
         })
         manager.start()
-        await manager.onReady()
+        expect(manager.responsePromises.length).toBe(1)
+        await manager.responsePromises[0]
         expect(manager.get()).toEqual({ foo: 'bar' })
       })
 
@@ -210,7 +204,8 @@ describe('httpPollingDatafileManager', () => {
           },
         )
         manager.start()
-        await manager.onReady()
+        expect(manager.responsePromises.length).toBe(1)
+        await manager.responsePromises[0]
         await advanceTimersByTime(1000)
         expect(manager.responsePromises.length).toBe(2)
         await manager.responsePromises[1]
@@ -262,22 +257,26 @@ describe('httpPollingDatafileManager', () => {
           manager.on('update', updateFn)
 
           manager.start()
-          await manager.onReady()
-          expect(manager.get()).toEqual({ foo: 'bar' })
           expect(updateFn).toBeCalledTimes(0)
 
-          await advanceTimersByTime(1000)
+          expect(manager.responsePromises.length).toBe(1)
           await manager.responsePromises[1]
           expect(updateFn).toBeCalledTimes(1)
-          expect(updateFn.mock.calls[0][0]).toEqual({ datafile: { foo2: 'bar2' } })
-          expect(manager.get()).toEqual({ foo2: 'bar2' })
-
-          updateFn.mockReset()
+          expect(updateFn.mock.calls[0][0]).toEqual({ datafile: { foo: 'bar' } })
+          expect(manager.get()).toEqual({ foo: 'bar' })
 
           await advanceTimersByTime(1000)
+          expect(manager.responsePromises.length).toBe(2)
+          await manager.responsePromises[1]
+          expect(updateFn).toBeCalledTimes(2)
+          expect(updateFn.mock.calls[1][0]).toEqual({ datafile: { foo2: 'bar2' } })
+          expect(manager.get()).toEqual({ foo2: 'bar2' })
+
+          await advanceTimersByTime(1000)
+          expect(manager.responsePromises.length).toBe(3)
           await manager.responsePromises[2]
-          expect(updateFn).toBeCalledTimes(1)
-          expect(updateFn.mock.calls[0][0]).toEqual({ datafile: { foo3: 'bar3' } })
+          expect(updateFn).toBeCalledTimes(3)
+          expect(updateFn.mock.calls[2][0]).toEqual({ datafile: { foo3: 'bar3' } })
           expect(manager.get()).toEqual({ foo3: 'bar3' })
         })
 
@@ -316,10 +315,9 @@ describe('httpPollingDatafileManager', () => {
               headers: {},
             },
           )
-
           manager.start()
-          await manager.onReady()
-
+          expect(manager.responsePromises.length).toBe(1)
+          await manager.responsePromises[0]
           expect(getTimerCount()).toBe(1)
           manager.stop()
           expect(getTimerCount()).toBe(0)
@@ -338,13 +336,11 @@ describe('httpPollingDatafileManager', () => {
               headers: {},
             },
           )
-
           manager.start()
-          await manager.onReady()
+          expect(manager.responsePromises.length).toBe(1)
+          await manager.responsePromises[0]
           expect(manager.get()).toEqual({ foo: 'bar' })
-
           advanceTimersByTime(1000)
-
           expect(manager.responsePromises.length).toBe(2)
           manager.stop()
           await manager.responsePromises[1]
@@ -369,7 +365,7 @@ describe('httpPollingDatafileManager', () => {
           expect(currentRequest.value.abort).toBeCalledTimes(1)
         })
 
-        it('can fail to become ready on the initial request, but succeed after a later polling update', async () => {
+        it('can fail to update on the initial request, but successfully update after a later polling update', async () => {
           manager.queuedResponses.push(
             {
               statusCode: 200,
@@ -386,11 +382,12 @@ describe('httpPollingDatafileManager', () => {
           manager.start()
           expect(manager.responsePromises.length).toBe(1)
           await manager.responsePromises[0]
-          // Not ready yet due to first request failed, but should have queued a live update
+          // First request failed, but should have queued a live update
           expect(getTimerCount()).toBe(1)
-          // Trigger the update, should fetch the next response which should succeed, then we get ready
+          // Trigger the update, should fetch the next response which should succeed
           advanceTimersByTime(1000)
-          await manager.onReady()
+          expect(manager.responsePromises.length).toBe(2)
+          await manager.responsePromises[1]
           expect(manager.get()).toEqual({ foo: 'bar' })
         })
 
@@ -411,14 +408,15 @@ describe('httpPollingDatafileManager', () => {
               }
             )
 
+            manager.start()
+            // First response promise is for the initial 200 response
+            expect(manager.responsePromises.length).toBe(1)
+            await manager.responsePromises[0]
+            expect(manager.get()).toEqual({ foo: 'bar' })
+
             const updateFn = jest.fn()
             manager.on('update', updateFn)
 
-            manager.start()
-            await manager.onReady()
-            expect(manager.get()).toEqual({ foo: 'bar' })
-            // First response promise was for the initial 200 response
-            expect(manager.responsePromises.length).toBe(1)
             // Trigger the queued update
             advanceTimersByTime(1000)
             // Second response promise is for the 304 response
@@ -445,7 +443,8 @@ describe('httpPollingDatafileManager', () => {
               }
             )
             manager.start()
-            await manager.onReady()
+            expect(manager.responsePromises.length).toBe(1)
+            await manager.responsePromises[0]
             const makeGetRequestSpy = jest.spyOn(manager, 'makeGetRequest')
             advanceTimersByTime(1000)
             expect(makeGetRequestSpy).toBeCalledTimes(1)
@@ -473,6 +472,7 @@ describe('httpPollingDatafileManager', () => {
               }
             )
             manager.start()
+            expect(manager.responsePromises.length).toBe(1)
             await manager.responsePromises[0]
             expect(makeGetRequestSpy).toBeCalledTimes(1)
 
@@ -494,6 +494,7 @@ describe('httpPollingDatafileManager', () => {
               }
             )
             manager.start()
+            expect(manager.responsePromises.length).toBe(1)
             await manager.responsePromises[0]
             const BackoffControllerMock = (BackoffController as unknown) as jest.Mock<BackoffController, []>
             expect(BackoffControllerMock.mock.results[0].value.countError).toBeCalledTimes(1)
@@ -502,6 +503,7 @@ describe('httpPollingDatafileManager', () => {
           it('calls countError on the backoff controller when the response promise rejects', async () => {
             manager.queuedResponses.push(new Error('Connection failed'))
             manager.start()
+            expect(manager.responsePromises.length).toBe(1)
             try {
               await manager.responsePromises[0]
             } catch (e) {
@@ -524,7 +526,8 @@ describe('httpPollingDatafileManager', () => {
             const BackoffControllerMock = (BackoffController as unknown) as jest.Mock<BackoffController, []>
             // Reset is called in start - we want to check that it is also called after the response, so reset the mock here
             BackoffControllerMock.mock.results[0].value.reset.mockReset()
-            await manager.onReady()
+            expect(manager.responsePromises.length).toBe(1)
+            await manager.responsePromises[0]
             expect(BackoffControllerMock.mock.results[0].value.reset).toBeCalledTimes(1)
           })
 
@@ -547,18 +550,19 @@ describe('httpPollingDatafileManager', () => {
       manager = new TestDatafileManager({ sdkKey: '123', autoUpdate: false })
     })
 
-    it('after being started, fetches the datafile and resolves onReady', async () => {
+    it('after being started, fetches the datafile and updates', async () => {
       manager.queuedResponses.push({
         statusCode: 200,
         body: '{"foo": "bar"}',
         headers: {},
       })
       manager.start()
-      await manager.onReady()
+      expect(manager.responsePromises.length).toBe(1)
+      await manager.responsePromises[0]
       expect(manager.get()).toEqual({ foo: 'bar' })
     })
 
-    it('does not schedule a live update after ready', async () => {
+    it('does not schedule a live update after the initial request', async () => {
       manager.queuedResponses.push({
         statusCode: 200,
         body: '{"foo": "bar"}',
@@ -567,26 +571,9 @@ describe('httpPollingDatafileManager', () => {
       const updateFn = jest.fn()
       manager.on('update', updateFn)
       manager.start()
-      await manager.onReady()
+      expect(manager.responsePromises.length).toBe(1)
+      await manager.responsePromises[0]
       expect(getTimerCount()).toBe(0)
-    })
-
-    // TODO: figure out what's wrong with this test
-    it.skip('rejects the onReady promise if the initial request promise rejects', async () => {
-      manager.queuedResponses.push({
-        statusCode: 200,
-        body: '{"foo": "bar"}',
-        headers: {},
-      })
-      manager.makeGetRequest = () => ({ abort() {}, responsePromise: Promise.reject(new Error('Could not connect')) })
-      manager.start()
-      let didReject = false
-      try {
-        await manager.onReady()
-      } catch (e) {
-        didReject = true
-      }
-      expect(didReject).toBe(true)
     })
   })
 
@@ -609,7 +596,8 @@ describe('httpPollingDatafileManager', () => {
       manager.start()
       expect(makeGetRequestSpy).toBeCalledTimes(1)
       expect(makeGetRequestSpy.mock.calls[0][0]).toBe('https://localhost:5556/datafiles/456')
-      await manager.onReady()
+      expect(manager.responsePromises.length).toBe(1)
+      await manager.responsePromises[0]
     })
   })
 
@@ -628,7 +616,6 @@ describe('httpPollingDatafileManager', () => {
       })
 
       manager.start()
-      await manager.onReady()
       expect(makeGetRequestSpy).toBeCalledTimes(1)
       await advanceTimersByTime(300000)
       expect(makeGetRequestSpy).toBeCalledTimes(2)
