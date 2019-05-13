@@ -122,6 +122,8 @@ ProjectConfigManager.prototype.__initialize = function(config) {
     if (this.__validateDatafileOptions(config.datafileOptions)) {
       fns.assign(datafileManagerConfig, config.datafileOptions);
     }
+    // TODO: left off here. how to handle this part.
+    // Probably want to refactor this area and perhaps make use of StaticDatafileManager
     if (initialDatafile && this.__configObj) {
       datafileManagerConfig.datafile = initialDatafile;
     }
