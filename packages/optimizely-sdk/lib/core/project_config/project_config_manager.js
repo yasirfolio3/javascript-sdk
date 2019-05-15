@@ -44,6 +44,23 @@ function getErrorMessage(maybeError, defaultMessage) {
 }
 
 /**
+ * Validate user-provided datafileOptions. It should be an object or undefined.
+ * @param {*} datafileOptions
+ * @returns {boolean}
+ */
+function validateDatafileOptions(datafileOptions) {
+  if (typeof datafileOptions === 'undefined') {
+    return true;
+  }
+
+  if (typeof datafileOptions === 'object') {
+    return datafileOptions !== null;
+  }
+
+  return false;
+}
+
+/**
  * ProjectConfigManager provides project config objects via its methods
  * getConfig and onUpdate. It uses a DatafileManager to fetch datafiles. It is
  * responsible for parsing and validating datafiles, and converting datafile
@@ -62,6 +79,7 @@ function ProjectConfigManager(config) {
     logger.error(ex);
     this.__updateListeners = [];
     this.__configObj = null;
+    this.datafileManager = new datafileManager.StaticDatafileManager(null);
     this.__readyPromise = Promise.resolve({
       success: false,
       reason: getErrorMessage(ex, 'Error in initialize'),
@@ -97,7 +115,22 @@ ProjectConfigManager.prototype.__initialize = function(config) {
   }
 
   var initialDatafile = this.__getDatafileFromConfig(config);
-  var projectConfigCreationEx;
+  if (config.sdkKey) {
+    var datafileManagerConfig = {
+      datafile: initialDatafile,
+      sdkKey: config.sdkKey,
+    };
+    if (validateDatafileOptions(config.datafileOptions)) {
+      fns.assign(datafileManagerConfig, config.datafileOptions);
+    }
+    this.datafileManager = new datafileManager.DatafileManager(datafileManagerConfig);
+  } else {
+    this.datafileManager = new datafileManager.StaticDatafileManager(initialDatafile);
+  }
+  this.datafileManager.start();
+  this.datafileManager.on('update', this.__onDatafileManagerUpdate.bind(this));
+
+  initialDatafile = this.datafileManager.get();
   if (initialDatafile) {
     try {
       this.__configObj = projectConfig.tryCreatingProjectConfig({
@@ -115,29 +148,19 @@ ProjectConfigManager.prototype.__initialize = function(config) {
     this.__configObj = null;
   }
 
-  if (config.sdkKey) {
-    var datafileManagerConfig = {
-      sdkKey: config.sdkKey,
-    };
-    if (this.__validateDatafileOptions(config.datafileOptions)) {
-      fns.assign(datafileManagerConfig, config.datafileOptions);
-    }
-    // TODO: left off here. how to handle this part.
-    // Probably want to refactor this area and perhaps make use of StaticDatafileManager
-    if (initialDatafile && this.__configObj) {
-      datafileManagerConfig.datafile = initialDatafile;
-    }
-    this.__readyPromise = new Promise(function(resolve) {
-      this.__readyPromiseResolver = resolve;
-    }.bind(this));
-    this.datafileManager = new datafileManager.DatafileManager(datafileManagerConfig);
-    this.datafileManager.start();
-    this.datafileManager.on('update', this.__onDatafileManagerUpdate.bind(this));
-  } else if (this.__configObj) {
+  if (this.__configObj) {
     this.__readyPromise = Promise.resolve({
       success: true,
     });
+  } else if (config.sdkKey) {
+    // We may obtain a datafile later via the non-static datafile manager, so we can
+    // still become ready
+    this.__readyPromise = new Promise(function(resolve) {
+      this.__readyPromiseResolver = resolve;
+    }.bind(this));
   } else {
+    // We have a static datafile manager, but no config object, thus we will
+    // never become ready.
     this.__readyPromise = Promise.resolve({
       success: false,
       reason: getErrorMessage(projectConfigCreationEx, 'Invalid datafile'),
@@ -191,23 +214,6 @@ ProjectConfigManager.prototype.__getDatafileFromConfig = function(config) {
     logger.error(ex);
   }
   return initialDatafile;
-};
-
-/**
- * Validate user-provided datafileOptions. It should be an object or undefined.
- * @param {*} datafileOptions
- * @returns {boolean}
- */
-ProjectConfigManager.prototype.__validateDatafileOptions = function(datafileOptions) {
-  if (typeof datafileOptions === 'undefined') {
-    return true;
-  }
-
-  if (typeof datafileOptions === 'object') {
-    return datafileOptions !== null;
-  }
-
-  return false;
 };
 
 /**
@@ -291,9 +297,7 @@ ProjectConfigManager.prototype.onUpdate = function(listener) {
  * Stop the internal datafile manager and remove all update listeners
  */
 ProjectConfigManager.prototype.stop = function() {
-  if (this.datafileManager) {
-    this.datafileManager.stop();
-  }
+  this.datafileManager.stop();
   this.__updateListeners = [];
 };
 
