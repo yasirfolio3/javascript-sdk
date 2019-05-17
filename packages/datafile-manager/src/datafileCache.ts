@@ -16,17 +16,19 @@
 
 // TODO: Log messages should be debug level instead of error?
 // TODO: Should it be a write-through cache (memory, then storage, etc.). Maybe this is overcomplicating things.
+// TODO: Accepting serialize/deserialize FNs, maybe not the best. could try refactor.
+// TODO: maxCacheAge parameter handling
 
 import { getLogger } from '@optimizely/js-sdk-logging'
 import { LOCAL_STORAGE_KEY_PREFIX } from './config'
-import { DatafileCacheEntry, default as deserializeDatafileCacheEntry } from './datafileCacheEntry'
+import { DatafileCacheEntry, DeserializationResult } from './datafileCacheEntry'
 
 const logger = getLogger('DatafileManager')
 
-// TODO: Make it not string based, but instead generic (AsyncStorage<K>)
-export interface AsyncStorage {
-  getItem(key: string): Promise<string | null>
-  setItem(key: string, value: string): Promise<void>
+// K is the type returned by getItem and accepted by setItem
+export interface AsyncStorage<K> {
+  getItem(key: string): Promise<K | null>
+  setItem(key: string, value: K): Promise<void>
   removeItem(key: string): Promise<void>
 }
 
@@ -39,22 +41,34 @@ function logError(maybeErr: any, messageTemplate: string): void {
   }
 }
 
-export interface DatafileCacheConfig {
-  storage: AsyncStorage,
+export interface DatafileCacheConfig<K> {
+  // TODO: Does this need to return Promise, or can be sync?
+  deserialize(storedItem: K): Promise<DeserializationResult<DatafileCacheEntry>>,
   sdkKey: string,
+  serialize(entry: DatafileCacheEntry): Promise<K>
+  storage: AsyncStorage<K>,
 }
 
-export default class DatafileCache {
+// K is the type used in the storage interface (for example, string for localStorage, maybe Object for localForage)
+export default class DatafileCache<K> {
   private currentTimeouts: (() => void)[]
 
-  private storage: AsyncStorage
+  private deserialize: (storedItem: K) => Promise<DeserializationResult<DatafileCacheEntry>>
+
+  private serialize: (entry: DatafileCacheEntry) => Promise<K>
+
+  private storage: AsyncStorage<K>
 
   private storageKey: string
 
   constructor({
-    storage,
+    deserialize,
+    serialize,
     sdkKey,
-  }: DatafileCacheConfig) {
+    storage,
+  }: DatafileCacheConfig<K>) {
+    this.deserialize = deserialize
+    this.serialize = serialize
     this.storage = storage
     this.currentTimeouts = []
     this.storage = storage
@@ -63,19 +77,26 @@ export default class DatafileCache {
 
   // TODO: Comment explaining why we don't use a memory cache and instead call getItem every time
   async get(): Promise<DatafileCacheEntry | null> {
-    let entryString: string | null
+    let storedValue: K | null
     try {
-      entryString = await this.storage.getItem(this.storageKey)
+      storedValue = await this.storage.getItem(this.storageKey)
     } catch (e) {
       logError(e, 'storage getItem error: %s')
       return null
     }
 
-    if (entryString === null) {
+    if (storedValue === null) {
       return null
     }
 
-    const result = deserializeDatafileCacheEntry(entryString)
+    let result: DeserializationResult<DatafileCacheEntry>
+    try {
+      result = await this.deserialize(storedValue)
+    } catch(ex) {
+      logError(ex, 'Error deserializing stored entry: %s')
+      return null
+    }
+
     if (result.type === 'failure') {
       logError(result.error, 'Error parsing cache entry')
       return null
@@ -99,19 +120,13 @@ export default class DatafileCache {
     })
   }
 
-  private saveToStorage(entry: DatafileCacheEntry): void {
-    let entryString: string
-    try {
-      entryString = JSON.stringify(entry)
-    } catch (e) {
-      logError(e, 'error serializing entry: %s')
-      return
-    }
+  private async saveToStorage(entry: DatafileCacheEntry): Promise<void> {
+    const itemToStore = await this.serialize(entry)
     const storageKey = this.storageKey
     try {
       // TODO: Should schedule another idle callback after serializing (which could have been expensive)
       // before doing this setItem?
-      this.storage.setItem(storageKey, entryString)
+      await this.storage.setItem(storageKey, itemToStore)
     } catch (err) {
       logError(err, 'storage setItem error: %s')
     }

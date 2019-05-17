@@ -4,7 +4,7 @@ export interface DatafileCacheEntry {
   lastModified?: string
 }
 
-export default function deserialize(val: any): DeserializationResult {
+export default function deserialize(val: any): DeserializationResult<DatafileCacheEntry> {
   if (typeof val !== 'object' || val === null) {
     return { type: 'failure', error: new Error('Not an object') }
   }
@@ -44,9 +44,9 @@ export interface DeserializationFailure {
   error: Error
 }
 
-export interface DeserializationSuccess {
+export interface DeserializationSuccess<K> {
   type: 'success'
-  entry: DatafileCacheEntry
+  entry: K
 }
 
-export type DeserializationResult = DeserializationFailure | DeserializationSuccess
+export type DeserializationResult<K> = DeserializationFailure | DeserializationSuccess<K>
