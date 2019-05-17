@@ -23,3 +23,5 @@ export const DEFAULT_URL_TEMPLATE = `https://cdn.optimizely.com/datafiles/%s.jso
 export const BACKOFF_BASE_WAIT_SECONDS_BY_ERROR_COUNT = [0, 8, 16, 32, 64, 128, 256, 512]
 
 export const REQUEST_TIMEOUT_MS = 60 * 1000 // 1 minute
+
+export const LOCAL_STORAGE_KEY_PREFIX = 'optly_js_sdk_datafile_'
