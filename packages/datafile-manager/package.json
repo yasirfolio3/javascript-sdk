@@ -37,7 +37,8 @@
   },
   "dependencies": {
     "@optimizely/js-sdk-logging": "^0.1.0",
-    "@optimizely/js-sdk-utils": "^0.1.0"
+    "@optimizely/js-sdk-utils": "^0.1.0",
+    "localforage": "^1.7.3"
   },
   "scripts": {
     "test": "jest",
