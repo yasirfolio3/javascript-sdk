@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+// TODO: localForage/IndexedDB can store full objects.
+// We can store the actual configObj, not the datafile, for fast initialization
+
 import { makeGetRequest } from './browserRequest'
 import HttpPollingDatafileManager from './httpPollingDatafileManager'
 import { Headers, AbortableRequest, Response } from './http'
@@ -27,6 +30,8 @@ const logger = getLogger('CachingDatafileManager')
 export enum CacheRefreshDirective {
   ONLY_IF_CACHE_MISS = 'ONLY_IF_CACHE_MISS',
   YES_DONT_AWAIT = 'YES_DONT_AWAIT',
+  // TODO: The YES_WAIT option is equivalent to not using the cache, so it should be removed.
+  // Maybe this whole thing should be replaced with a boolean instead since there are only two valid options.
   YES_AWAIT = 'YES_AWAIT',
 }
 
@@ -80,7 +85,9 @@ export default class BrowserCachingDatafileManager extends HttpPollingDatafileMa
         // TODO: it's weird...this is not really an HTTP response
         // Might need to change the types around a bit here
         statusCode: 200,
-        body: cacheEntry.datafile,
+        // TODO: This is wrong. Stringifyin it just to parse it again later
+        // Need to change around types
+        body: JSON.stringify(cacheEntry.datafile),
         headers: fakeHeaders,
       }
     }
@@ -107,14 +114,28 @@ export default class BrowserCachingDatafileManager extends HttpPollingDatafileMa
     // TODO: Only save cache entry if valid. Needs same logic that checks response in HttpPollingDatafileManager
     const response = await request.responsePromise
     if (response.body) {
+      let responseObj: object
+      try {
+        responseObj = JSON.parse(response.body)
+      } catch (ex) {
+        logger.error('Error parsing response body: %s', ex)
+        return
+      }
+      if (responseObj === null || typeof responseObj !== 'object') {
+        logger.error('Error parsing response body: wrong type')
+        return
+      }
+
       const cacheEntry = {
         timestamp: Date.now(),
-        datafile: response.body,
+        datafile: responseObj,
         lastModified:
           response.headers['Last-Modified'] || response.headers['last-modified'],
       }
       logger.debug('Saving cache entry: %s', () => JSON.stringify(cacheEntry))
       this.datafileCache.set(cacheEntry)
+    } else {
+      logger.debug('Response had no body')
     }
   }
 

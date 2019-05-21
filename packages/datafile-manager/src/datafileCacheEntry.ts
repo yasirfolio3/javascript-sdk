@@ -1,6 +1,6 @@
 export interface DatafileCacheEntry {
   timestamp: number
-  datafile: string
+  datafile: object
   lastModified?: string
 }
 
@@ -18,10 +18,10 @@ export function deserializeObject(val: any): DeserializationResult<DatafileCache
   const timestamp: number = maybeTimestamp
 
   const maybeDatafile: any = obj.datafile
-  if (typeof maybeDatafile !== 'string') {
+  if (typeof maybeDatafile !== 'object' || maybeDatafile === null) {
     return { type: 'failure', error: new Error('Invalid datafile') }
   }
-  const datafile: string = maybeDatafile
+  const datafile: object = maybeDatafile
 
   const maybeLastModified: any = obj.lastModified
   let lastModified: string | undefined = undefined

@@ -36,7 +36,7 @@ describe('datafileCache', () => {
       cache = new DatafileCache(config)
       const cacheEntry = {
         timestamp: 1553273928953,
-        datafile: '{"foo":"bar"}',
+        datafile: {"foo":"bar"},
       }
       cache.set(cacheEntry)
       await advanceTimersByTime(1)

@@ -127,6 +127,7 @@ ProjectConfigManager.prototype.__initialize = function(config) {
     }
     // TODO: Don't always use this. Allow passing in
     this.datafileManager = new datafileManager.CachingDatafileManager(datafileManagerConfig);
+    // this.datafileManager = new datafileManager.DatafileManager(datafileManagerConfig);
     this.datafileManager.start();
     this.__readyPromise = this.datafileManager.onReady().then(
       this.__onDatafileManagerReadyFulfill.bind(this),
