@@ -1,8 +1,7 @@
 import DatafileStorage from "./datafileStorage";
 import { Response } from './http'
-import { getResponseOfCacheEntry, getCacheEntryOfResponse } from './datafileCacheEntry'
+import { DatafileCacheEntrySerializer, getResponseOfCacheEntry, getCacheEntryOfResponse } from './datafileCacheEntry'
 import { AsyncStorage } from './storage'
-import { DatafileCacheEntrySerializer } from './datafileCacheSerializer'
 
 export default class DatafileResponseStorage<K> implements AsyncStorage<Response> {
   private datafileStorage: DatafileStorage<K>

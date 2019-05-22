@@ -1,5 +1,3 @@
-// TODO: Circular import problem?
-import { DeserializationResult } from './datafileCacheSerializer'
 import { Response, Headers } from './http'
 
 // TODO: Add & use version number
@@ -8,6 +6,23 @@ export interface DatafileCacheEntry {
   datafile: string
   lastModified?: string
 }
+
+export interface DatafileCacheEntrySerializer<K> {
+  serialize(entry: DatafileCacheEntry): K
+  deserialize(value: K): DeserializationResult
+}
+
+export interface DeserializationFailure {
+  type: 'failure'
+  error: Error
+}
+
+export interface DeserializationSuccess {
+  type: 'success'
+  entry: DatafileCacheEntry
+}
+
+export type DeserializationResult = DeserializationFailure | DeserializationSuccess
 
 export function deserializeObject(val: any): DeserializationResult {
   if (typeof val !== 'object' || val === null) {

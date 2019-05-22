@@ -16,8 +16,7 @@
 
 import { getLogger } from '@optimizely/js-sdk-logging'
 import { AsyncStorage } from './storage'
-import { DatafileCacheEntry } from './datafileCacheEntry';
-import { DatafileCacheEntrySerializer } from './datafileCacheSerializer';
+import { DatafileCacheEntry, DatafileCacheEntrySerializer } from './datafileCacheEntry';
 
 const logger = getLogger('DatafileManager')
 
