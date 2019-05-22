@@ -17,4 +17,3 @@
 export * from './datafileManager'
 export { default as DatafileManager } from './browserDatafileManager'
 export { default as StaticDatafileManager } from './staticDatafileManager';
-export { default as CachingDatafileManager } from './browserCachingDatafileManager'

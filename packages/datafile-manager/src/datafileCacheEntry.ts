@@ -3,6 +3,7 @@ import { DeserializationResult } from './datafileCacheSerializer'
 import { Response, Headers } from './http'
 
 // TODO: Add & use version number
+// TODO: Change to string
 export interface DatafileCacheEntry {
   timestamp: number
   datafile: object
@@ -42,6 +43,20 @@ export function deserializeObject(val: any): DeserializationResult {
       lastModified,
     },
   }
+}
+
+export function deserializeJsonString(val: any): DeserializationResult {
+  let parseResult: any
+  try {
+    parseResult = JSON.parse(val)
+  } catch (ex) {
+    return { type: 'failure', error: ex }
+  }
+  return deserializeObject(parseResult)
+}
+
+export function serializeToJsonString(entry: DatafileCacheEntry): string {
+  return JSON.stringify(entry)
 }
 
 export function getResponseOfCacheEntry(entry: DatafileCacheEntry): Response {

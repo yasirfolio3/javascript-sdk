@@ -16,6 +16,7 @@
 
 import { DatafileCacheEntry } from "./datafileCacheEntry";
 
+// TODO: Move these into datafileCacheEntry.ts and delete this file
 export interface DatafileCacheEntrySerializer<K> {
   serialize(entry: DatafileCacheEntry): K
   deserialize(value: K): DeserializationResult
