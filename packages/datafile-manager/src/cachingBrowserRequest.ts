@@ -18,7 +18,7 @@
 
 import { makeGetRequest as makeRealGetRequest } from './browserRequest'
 import { AbortableRequest, Headers, Response } from './http'
-import { ResponseStorage } from './responseStorage';
+import { AsyncStorage } from './storage'
 
 export enum CacheDirective {
   CACHE_FIRST = 'CACHE_FIRST',
@@ -30,7 +30,7 @@ export enum CacheDirective {
 export function makeGetRequestThroughCache(
   reqUrl: string,
   headers: Headers,
-  cache: ResponseStorage,
+  cache: AsyncStorage<Response>,
   directive: CacheDirective,
 ): AbortableRequest {
   switch (directive) {
@@ -48,7 +48,7 @@ export function makeGetRequestThroughCache(
 function makeCacheFirstRequest(
   reqUrl: string,
   headers: Headers,
-  cache: ResponseStorage
+  cache: AsyncStorage<Response>
 ): AbortableRequest {
   let isAborted = false
   let realReq: AbortableRequest | undefined
@@ -64,6 +64,8 @@ function makeCacheFirstRequest(
       return
     }
     realReq = makeRealGetRequest(reqUrl, headers)
+    // TODO: Implement saving responses to cache - but how & where? Perhaps not here.
+    // We would probably want the same logic from httpPollingDatafileManager to determine whether a response should be cached.
     resolve(realReq.responsePromise)
   })
 
