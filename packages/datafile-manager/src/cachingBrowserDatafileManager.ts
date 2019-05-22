@@ -38,13 +38,19 @@ export default class CachingBrowserDatafileManager<
   }
 
   makeGetRequest(reqUrl: string, headers: Headers): AbortableRequest {
-    return makeGetRequestThroughCache(
+    const request = makeGetRequestThroughCache(
       reqUrl,
       headers,
       this.config.storage,
       this.config.cacheDirective,
     )
     // TODO: Use LOCAL_STORAGE_KEY_PREFIX
+
+    request.responsePromise.then(response => {
+      // TODO: save response to cache
+    })
+
+    return request
   }
 
   protected getConfigDefaults(): Partial<DatafileManagerConfig> {

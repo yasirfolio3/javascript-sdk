@@ -3,10 +3,9 @@ import { DeserializationResult } from './datafileCacheSerializer'
 import { Response, Headers } from './http'
 
 // TODO: Add & use version number
-// TODO: Change to string
 export interface DatafileCacheEntry {
   timestamp: number
-  datafile: object
+  datafile: string
   lastModified?: string
 }
 
@@ -24,10 +23,10 @@ export function deserializeObject(val: any): DeserializationResult {
   const timestamp: number = maybeTimestamp
 
   const maybeDatafile: any = obj.datafile
-  if (typeof maybeDatafile !== 'object' || maybeDatafile === null) {
+  if (typeof maybeDatafile !== 'string') {
     return { type: 'failure', error: new Error('Invalid datafile') }
   }
-  const datafile: object = maybeDatafile
+  const datafile: string = maybeDatafile
 
   const maybeLastModified: any = obj.lastModified
   let lastModified: string | undefined = undefined
@@ -66,17 +65,16 @@ export function getResponseOfCacheEntry(entry: DatafileCacheEntry): Response {
   }
   return {
     statusCode: 200,
-    // TODO: Stringify and then parse again - bad
-    body: JSON.stringify(entry.datafile),
+    body: entry.datafile,
     headers,
   }
 }
 
+// TODO: Should use DatafileResponse type that is known to be valid & cacheable?
 export function getCacheEntryOfResponse(response: Response): DatafileCacheEntry {
   const entry: DatafileCacheEntry = {
     timestamp: Date.now(),
-    // TODO: MAke type of datafile string in DatafileCacheEntry. Makes it easier, fixes other TODO above too.
-    datafile: JSON.parse(response.body),
+    datafile: response.body,
   }
   const lastModified =
     response.headers['last-modified'] || response.headers['Last-Modified']
