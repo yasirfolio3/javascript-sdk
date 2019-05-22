@@ -1,10 +1,15 @@
+// TODO: Circular import problem?
+import { DeserializationResult } from './datafileCacheSerializer'
+import { Response, Headers } from './http'
+
+// TODO: Add & use version number
 export interface DatafileCacheEntry {
   timestamp: number
   datafile: object
   lastModified?: string
 }
 
-export function deserializeObject(val: any): DeserializationResult<DatafileCacheEntry> {
+export function deserializeObject(val: any): DeserializationResult {
   if (typeof val !== 'object' || val === null) {
     return { type: 'failure', error: new Error('Not an object') }
   }
@@ -39,14 +44,29 @@ export function deserializeObject(val: any): DeserializationResult<DatafileCache
   }
 }
 
-export interface DeserializationFailure {
-  type: 'failure'
-  error: Error
+export function getResponseOfCacheEntry(entry: DatafileCacheEntry): Response {
+  const headers: Headers = {}
+  if (entry.lastModified) {
+    headers['last-modified'] = entry.lastModified
+  }
+  return {
+    statusCode: 200,
+    // TODO: Stringify and then parse again - bad
+    body: JSON.stringify(entry.datafile),
+    headers,
+  }
 }
 
-export interface DeserializationSuccess<K> {
-  type: 'success'
-  entry: K
+export function getCacheEntryOfResponse(response: Response): DatafileCacheEntry {
+  const entry: DatafileCacheEntry = {
+    timestamp: Date.now(),
+    // TODO: MAke type of datafile string in DatafileCacheEntry. Makes it easier, fixes other TODO above too.
+    datafile: JSON.parse(response.body),
+  }
+  const lastModified =
+    response.headers['last-modified'] || response.headers['Last-Modified']
+  if (lastModified) {
+    entry.lastModified = lastModified
+  }
+  return entry
 }
-
-export type DeserializationResult<K> = DeserializationFailure | DeserializationSuccess<K>
