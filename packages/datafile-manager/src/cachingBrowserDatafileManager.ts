@@ -1,11 +1,3 @@
-import HttpPollingDatafileManager from './httpPollingDatafileManager'
-import { Headers, AbortableRequest } from './http'
-import { DatafileManagerConfig } from './datafileManager'
-import DatafileResponseStorage from './datafileResponseStorage'
-import { makeGetRequestThroughCache, CacheDirective } from './cachingBrowserRequest'
-import LocalStorage from './localStorage';
-import { serializeToJsonString, deserializeJsonString } from './datafileCacheEntry';
-
 /**
  * Copyright 2019, Optimizely
  *
@@ -22,9 +14,17 @@ import { serializeToJsonString, deserializeJsonString } from './datafileCacheEnt
  * limitations under the License.
  */
 
+import HttpPollingDatafileManager from './httpPollingDatafileManager'
+import { Headers, AbortableRequest } from './http'
+import { DatafileManagerConfig } from './datafileManager'
+import DatafileResponseStorage from './datafileResponseStorage'
+import { CacheDirective, makeGetRequestThroughCache } from './cachingBrowserRequest'
+import localStorage from './localStorage';
+import { serializeToJsonString, deserializeJsonString } from './datafileCacheEntry';
+
 export interface CachingBrowserDatafileManagerConfig<K> extends DatafileManagerConfig {
-  storage: DatafileResponseStorage<K>
   cacheDirective: CacheDirective
+  storage: DatafileResponseStorage<K>
 }
 
 export default class CachingBrowserDatafileManager<
@@ -42,7 +42,7 @@ export default class CachingBrowserDatafileManager<
       reqUrl,
       headers,
       this.config.storage,
-      this.config.cacheDirective,
+      this.config.cacheDirective || CacheDirective.CACHE_FIRST,
     )
     // TODO: Use LOCAL_STORAGE_KEY_PREFIX
 
@@ -63,7 +63,7 @@ export default class CachingBrowserDatafileManager<
     return new CachingBrowserDatafileManager({
       ...config,
       storage: new DatafileResponseStorage(
-        new LocalStorage(),
+        localStorage,
         {
           serialize: serializeToJsonString,
           deserialize: deserializeJsonString,

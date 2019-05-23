@@ -16,16 +16,18 @@
 
 import { AsyncStorage } from './storage'
 
-export default class LocalStorage implements AsyncStorage<string> {
+const asyncLocalStorage: AsyncStorage<string> = {
   async getItem(key: string): Promise<string | null> {
     return Promise.resolve(localStorage.getItem(key))
-  }
+  },
 
   setItem(key: string, value: string): Promise<void> {
     return Promise.resolve(localStorage.setItem(key, value))
-  }
+  },
 
   removeItem(key: string): Promise<void> {
     return Promise.resolve(localStorage.removeItem(key))
-  }
+  },
 }
+
+export default asyncLocalStorage
