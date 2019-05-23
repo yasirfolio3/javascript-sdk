@@ -59,7 +59,7 @@ export function deserializeObject(val: any): DeserializationResult {
   }
 }
 
-export function deserializeJsonString(val: any): DeserializationResult {
+function deserializeJsonString(val: any): DeserializationResult {
   let parseResult: any
   try {
     parseResult = JSON.parse(val)
@@ -69,8 +69,13 @@ export function deserializeJsonString(val: any): DeserializationResult {
   return deserializeObject(parseResult)
 }
 
-export function serializeToJsonString(entry: DatafileCacheEntry): string {
+function serializeToJsonString(entry: DatafileCacheEntry): string {
   return JSON.stringify(entry)
+}
+
+export const jsonStringSerializer: DatafileCacheEntrySerializer<string> = {
+  serialize: serializeToJsonString,
+  deserialize: deserializeJsonString,
 }
 
 export function getResponseOfCacheEntry(entry: DatafileCacheEntry): Response {
