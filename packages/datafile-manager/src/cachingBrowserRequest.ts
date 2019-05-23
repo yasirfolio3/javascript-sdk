@@ -48,7 +48,7 @@ export function makeGetRequestThroughCache(
 function makeCacheFirstRequest(
   reqUrl: string,
   headers: Headers,
-  cache: AsyncStorage<Response>
+  cache: AsyncStorage<Response>,
 ): AbortableRequest {
   let isAborted = false
   let realReq: AbortableRequest | undefined
@@ -59,6 +59,7 @@ function makeCacheFirstRequest(
       reject(new Error('Request aborted'))
       return
     }
+    // TODO: Must check that cache entry is not expired before using
     if (cacheEntry) {
       resolve(cacheEntry)
       return
@@ -78,4 +79,32 @@ function makeCacheFirstRequest(
     },
     responsePromise,
   }
+}
+
+export function saveResponseToCache(
+  cache: AsyncStorage<Response>,
+  reqUrl: string,
+  response: Response,
+): boolean {
+  let shouldCacheResponse = false
+  if (
+    typeof response.statusCode !== 'undefined' &&
+    response.statusCode >= 200 &&
+    response.statusCode < 400 &&
+    response.body !== ''
+  ) {
+    try {
+      JSON.parse(response.body)
+      shouldCacheResponse = false
+    } catch (ex) {
+    }
+  }
+
+  if (shouldCacheResponse) {
+    // TODO: Don't want to cache it if the body is not valid JSON
+    // How to implement this?
+    cache.setItem(reqUrl, response)
+  }
+
+  return shouldCacheResponse
 }

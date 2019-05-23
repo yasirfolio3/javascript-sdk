@@ -15,12 +15,12 @@
  */
 
 import HttpPollingDatafileManager from './httpPollingDatafileManager'
-import { Headers, AbortableRequest } from './http'
+import { AbortableRequest, Headers } from './http'
 import { DatafileManagerConfig } from './datafileManager'
 import DatafileResponseStorage from './datafileResponseStorage'
-import { CacheDirective, makeGetRequestThroughCache } from './cachingBrowserRequest'
-import localStorage from './localStorage';
-import { serializeToJsonString, deserializeJsonString } from './datafileCacheEntry';
+import { CacheDirective, makeGetRequestThroughCache, saveResponseToCache } from './cachingBrowserRequest'
+import localStorage from './localStorage'
+import { serializeToJsonString, deserializeJsonString } from './datafileCacheEntry'
 
 export interface CachingBrowserDatafileManagerConfig<K> extends DatafileManagerConfig {
   cacheDirective: CacheDirective
@@ -38,16 +38,21 @@ export default class CachingBrowserDatafileManager<
   }
 
   makeGetRequest(reqUrl: string, headers: Headers): AbortableRequest {
+    // TODO: Use LOCAL_STORAGE_KEY_PREFIX to form a cache key
+
     const request = makeGetRequestThroughCache(
       reqUrl,
       headers,
       this.config.storage,
       this.config.cacheDirective || CacheDirective.CACHE_FIRST,
     )
-    // TODO: Use LOCAL_STORAGE_KEY_PREFIX
 
     request.responsePromise.then(response => {
-      // TODO: save response to cache
+      saveResponseToCache(
+        this.config.storage,
+        reqUrl,
+        response
+      )
     })
 
     return request
@@ -59,16 +64,15 @@ export default class CachingBrowserDatafileManager<
     }
   }
 
-  static defaultInstance(config: DatafileManagerConfig): CachingBrowserDatafileManager<string> {
+  static defaultInstance(
+    config: DatafileManagerConfig,
+  ): CachingBrowserDatafileManager<string> {
     return new CachingBrowserDatafileManager({
       ...config,
-      storage: new DatafileResponseStorage(
-        localStorage,
-        {
-          serialize: serializeToJsonString,
-          deserialize: deserializeJsonString,
-        }
-      ),
+      storage: new DatafileResponseStorage(localStorage, {
+        serialize: serializeToJsonString,
+        deserialize: deserializeJsonString,
+      }),
       cacheDirective: CacheDirective.CACHE_FIRST,
     })
   }
