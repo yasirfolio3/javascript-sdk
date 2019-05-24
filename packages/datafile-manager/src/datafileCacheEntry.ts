@@ -24,7 +24,7 @@ export interface DeserializationSuccess {
 
 export type DeserializationResult = DeserializationFailure | DeserializationSuccess
 
-export function deserializeObject(val: any): DeserializationResult {
+function deserializeObject(val: any): DeserializationResult {
   if (typeof val !== 'object' || val === null) {
     return { type: 'failure', error: new Error('Not an object') }
   }
@@ -102,4 +102,17 @@ export function getCacheEntryOfResponse(response: Response): DatafileCacheEntry 
     entry.lastModified = lastModified
   }
   return entry
+}
+
+function serializeToPlainObject(entry: DatafileCacheEntry): object {
+  return entry
+}
+
+function deserializeFromPlainObject(serializedEntry: object): DeserializationResult {
+  return deserializeObject(serializedEntry)
+}
+
+export const plainObjectSerializer: DatafileCacheEntrySerializer<object> = {
+  serialize: serializeToPlainObject,
+  deserialize: deserializeFromPlainObject,
 }

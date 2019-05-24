@@ -16,6 +16,7 @@
 
 // TODO: The K type variable is leaking everywhere. Make it so most consumers don't need to care
 
+import { getLogger } from '@optimizely/js-sdk-logging'
 import { AbortableRequest, Headers, Response } from './http'
 import { AsyncStorage } from './storage'
 
@@ -24,6 +25,8 @@ export enum CacheDirective {
   NETWORK_FIRST = 'NETWORK_FIRST',
   STALE_WHILE_REVALIDATE = 'STALE_WHILE_REVALIDATE',
 }
+
+const logger = getLogger('DatafileManager')
 
 // TODO: Implement maxCacheAge parameter
 export function makeGetRequestThroughCache(
@@ -62,9 +65,14 @@ function makeCacheFirstRequest(
     }
     // TODO: Must check that cache entry is not expired before using
     if (cacheEntry) {
+      logger.debug('Cache hit for request url %s', reqUrl)
       resolve(cacheEntry)
+      // TODO: Is this even right? Do I refresh the cache when there's a hit?
       return
     }
+
+    logger.debug('Cache miss for request url %s', reqUrl)
+
     realReq = makeRealGetRequest(reqUrl, headers)
     // TODO: Implement saving responses to cache - but how & where? Perhaps not here.
     // We would probably want the same logic from httpPollingDatafileManager to determine whether a response should be cached.
@@ -96,7 +104,7 @@ export function saveResponseToCache(
   ) {
     try {
       JSON.parse(response.body)
-      shouldCacheResponse = false
+      shouldCacheResponse = true
     } catch (ex) {
     }
   }
@@ -104,6 +112,7 @@ export function saveResponseToCache(
   if (shouldCacheResponse) {
     // TODO: Don't want to cache it if the body is not valid JSON
     // How to implement this?
+    logger.debug('Saving response to cache, request url %s, response %s', reqUrl, response.statusCode)
     cache.setItem(reqUrl, response)
   }
 
