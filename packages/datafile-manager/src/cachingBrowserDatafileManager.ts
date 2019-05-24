@@ -18,9 +18,10 @@ import HttpPollingDatafileManager from './httpPollingDatafileManager'
 import { AbortableRequest, Headers } from './http'
 import { DatafileManagerConfig } from './datafileManager'
 import DatafileResponseStorage from './datafileResponseStorage'
-import { CacheDirective, makeGetRequestThroughCache, saveResponseToCache } from './cachingBrowserRequest'
+import { CacheDirective, makeGetRequestThroughCache, saveResponseToCache } from './cachingRequest'
 import localStorage from './localStorage'
 import { jsonStringSerializer } from './datafileCacheEntry'
+import { makeGetRequest } from './browserRequest';
 
 export interface CachingBrowserDatafileManagerConfig<K> extends DatafileManagerConfig {
   cacheDirective: CacheDirective
@@ -41,10 +42,11 @@ export default class CachingBrowserDatafileManager<
     // TODO: Use LOCAL_STORAGE_KEY_PREFIX to form a cache key
 
     const request = makeGetRequestThroughCache(
+      this.config.storage,
       reqUrl,
       headers,
-      this.config.storage,
       this.config.cacheDirective || CacheDirective.CACHE_FIRST,
+      makeGetRequest
     )
 
     request.responsePromise.then(response => {

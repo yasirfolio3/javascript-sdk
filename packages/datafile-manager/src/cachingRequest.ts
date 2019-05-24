@@ -16,7 +16,6 @@
 
 // TODO: The K type variable is leaking everywhere. Make it so most consumers don't need to care
 
-import { makeGetRequest as makeRealGetRequest } from './browserRequest'
 import { AbortableRequest, Headers, Response } from './http'
 import { AsyncStorage } from './storage'
 
@@ -28,14 +27,15 @@ export enum CacheDirective {
 
 // TODO: Implement maxCacheAge parameter
 export function makeGetRequestThroughCache(
+  cache: AsyncStorage<Response>,
   reqUrl: string,
   headers: Headers,
-  cache: AsyncStorage<Response>,
   directive: CacheDirective,
+  makeRealGetRequest: (reqUrl: string, headers: Headers) => AbortableRequest
 ): AbortableRequest {
   switch (directive) {
     case CacheDirective.CACHE_FIRST:
-      return makeCacheFirstRequest(reqUrl, headers, cache)
+      return makeCacheFirstRequest(reqUrl, headers, cache, makeRealGetRequest)
 
     default:
       return {
@@ -49,6 +49,7 @@ function makeCacheFirstRequest(
   reqUrl: string,
   headers: Headers,
   cache: AsyncStorage<Response>,
+  makeRealGetRequest: (reqUrl: string, headers: Headers) => AbortableRequest
 ): AbortableRequest {
   let isAborted = false
   let realReq: AbortableRequest | undefined
