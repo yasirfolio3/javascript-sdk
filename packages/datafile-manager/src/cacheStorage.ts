@@ -16,20 +16,26 @@
 
 import { AsyncStorage } from './storage'
 
-// TODO: Add key prefix in here
+function openCache() {
+  return caches.open('optimizely_js_sdk_datafiles_v1')
+}
 
-const asyncLocalStorage: AsyncStorage<string> = {
-  async getItem(key: string): Promise<string | null> {
-    return Promise.resolve(localStorage.getItem(key))
+const cacheInterface: AsyncStorage<Response> = {
+  async getItem(key: string): Promise<Response | null> {
+    const cache = await openCache()
+    const response = await cache.match(key)
+    return response || null
   },
 
-  setItem(key: string, value: string): Promise<void> {
-    return Promise.resolve(localStorage.setItem(key, value))
+  async setItem(key: string, response: Response): Promise<void> {
+    const cache = await openCache()
+    cache.put(key, response)
   },
 
-  removeItem(key: string): Promise<void> {
-    return Promise.resolve(localStorage.removeItem(key))
+  async removeItem(key: string): Promise<void> {
+    const cache = await openCache()
+    cache.delete(key)
   },
 }
 
-export default asyncLocalStorage
+export default cacheInterface

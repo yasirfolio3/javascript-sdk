@@ -29,6 +29,7 @@ export enum CacheDirective {
 const logger = getLogger('DatafileManager')
 
 // TODO: Implement maxCacheAge parameter
+// TODO: We could expect freshness to be implemented inside the storage adapter. IF we did this, would it "just work" in the Cache-based adapter?
 export function makeGetRequestThroughCache(
   cache: AsyncStorage<Response>,
   reqUrl: string,

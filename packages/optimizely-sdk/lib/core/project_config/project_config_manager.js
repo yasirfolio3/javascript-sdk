@@ -127,7 +127,8 @@ ProjectConfigManager.prototype.__initialize = function(config) {
       datafileManagerConfig.datafile = initialDatafile;
     }
     // TODO: Don't always use this. Allow passing in
-    this.datafileManager = CachingDatafileManager.default.localForageBasedInstance(datafileManagerConfig);
+    // this.datafileManager = CachingDatafileManager.default.localForageBasedInstance(datafileManagerConfig);
+    this.datafileManager = CachingDatafileManager.default.cacheBasedInstance(datafileManagerConfig);
     // this.datafileManager = new datafileManager.DatafileManager(datafileManagerConfig);
     this.datafileManager.start();
     this.__readyPromise = this.datafileManager.onReady().then(

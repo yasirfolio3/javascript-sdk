@@ -1,15 +1,21 @@
-import { Response, Headers } from './http'
+// TODO: Most of the functions in here could use some scrutiny.
+// Given how these deserializers might be used:
+//  What expectations do deserializers have on the input they accept?
+//  What validations must they do
 
-// TODO: Add & use version number
+import { Response as OptlyResponse, Headers as OptlyHeaders } from './http'
+
+// TODO: Maybe add & use version number
 export interface DatafileCacheEntry {
+  // TODO: Is there a better name than timestamp, maybe taken from the existing vocabulary like "TTL"?
   timestamp: number
   datafile: string
   lastModified?: string
 }
 
 export interface DatafileCacheEntrySerializer<K> {
-  serialize(entry: DatafileCacheEntry): K
-  deserialize(value: K): DeserializationResult
+  serialize(entry: DatafileCacheEntry): Promise<K>
+  deserialize(value: K): Promise<DeserializationResult>
 }
 
 export interface DeserializationFailure {
@@ -59,7 +65,7 @@ function deserializeObject(val: any): DeserializationResult {
   }
 }
 
-function deserializeJsonString(val: any): DeserializationResult {
+async function deserializeJsonString(val: any): Promise<DeserializationResult> {
   let parseResult: any
   try {
     parseResult = JSON.parse(val)
@@ -69,8 +75,8 @@ function deserializeJsonString(val: any): DeserializationResult {
   return deserializeObject(parseResult)
 }
 
-function serializeToJsonString(entry: DatafileCacheEntry): string {
-  return JSON.stringify(entry)
+function serializeToJsonString(entry: DatafileCacheEntry): Promise<string> {
+  return Promise.resolve(JSON.stringify(entry))
 }
 
 export const jsonStringSerializer: DatafileCacheEntrySerializer<string> = {
@@ -78,8 +84,8 @@ export const jsonStringSerializer: DatafileCacheEntrySerializer<string> = {
   deserialize: deserializeJsonString,
 }
 
-export function getResponseOfCacheEntry(entry: DatafileCacheEntry): Response {
-  const headers: Headers = {}
+export function getResponseOfCacheEntry(entry: DatafileCacheEntry): OptlyResponse {
+  const headers: OptlyHeaders = {}
   if (entry.lastModified) {
     headers['last-modified'] = entry.lastModified
   }
@@ -91,7 +97,7 @@ export function getResponseOfCacheEntry(entry: DatafileCacheEntry): Response {
 }
 
 // TODO: Should use DatafileResponse type that is known to be valid & cacheable?
-export function getCacheEntryOfResponse(response: Response): DatafileCacheEntry {
+export function getCacheEntryOfResponse(response: OptlyResponse): DatafileCacheEntry {
   const entry: DatafileCacheEntry = {
     timestamp: Date.now(),
     datafile: response.body,
@@ -104,15 +110,67 @@ export function getCacheEntryOfResponse(response: Response): DatafileCacheEntry 
   return entry
 }
 
-function serializeToPlainObject(entry: DatafileCacheEntry): object {
+async function serializeToPlainObject(entry: DatafileCacheEntry): Promise<object> {
   return entry
 }
 
-function deserializeFromPlainObject(serializedEntry: object): DeserializationResult {
-  return deserializeObject(serializedEntry)
+async function deserializeFromPlainObject(val: any): Promise<DeserializationResult> {
+  return deserializeObject(val)
 }
 
 export const plainObjectSerializer: DatafileCacheEntrySerializer<object> = {
   serialize: serializeToPlainObject,
   deserialize: deserializeFromPlainObject,
+}
+
+async function serializeToNativeResponse(entry: DatafileCacheEntry): Promise<Response> {
+  const headerPairs: string[][] = [
+    ['x-timestamp', String(entry.timestamp)],
+    ['content-length', String(entry.datafile.length)],
+  ]
+  if (entry.lastModified) {
+    headerPairs.push(['last-modified', entry.lastModified])
+  }
+  const resp = new Response(entry.datafile, {
+    status: 200,
+    headers: new Headers(headerPairs),
+  })
+  return resp
+}
+
+async function deserializeFromNativeResponse(
+  response: Response,
+): Promise<DeserializationResult> {
+  if (response.status < 200 || response.status >= 300) {
+    return { type: 'failure', error: new Error(`Response status ${response.status}`) }
+  }
+
+  const datafile = await response.text()
+  if (datafile === '') {
+    return { type: 'failure', error: new Error(`Empty response body`) }
+  }
+
+  const timestampStr = response.headers.get('x-timestamp')
+  const timestamp = timestampStr !== null ? parseInt(timestampStr, 10) : NaN
+  if (isNaN(timestamp)) {
+    return {
+      type: 'failure',
+      error: new Error(`Invalid timestamp ${timestampStr}`),
+    }
+  }
+
+  return {
+    type: 'success',
+    entry: {
+      datafile,
+      timestamp,
+      lastModified:
+        response.headers.get('last-modified') || response.headers.get('Last-Modified') || undefined,
+    },
+  }
+}
+
+export const nativeResponseSerializer: DatafileCacheEntrySerializer<Response> = {
+  serialize: serializeToNativeResponse,
+  deserialize: deserializeFromNativeResponse,
 }

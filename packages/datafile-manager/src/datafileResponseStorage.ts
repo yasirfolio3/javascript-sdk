@@ -41,10 +41,11 @@ export default class DatafileResponseStorage<K> implements AsyncStorage<Response
       return null
     }
 
-    const result = this.serializer.deserialize(serializedEntry)
+    const result = await this.serializer.deserialize(serializedEntry)
 
     if (result.type === 'failure') {
-      logger.error('Error deserializing stored datafile: %s', result.error)
+      logger.error('Error deserializing stored datafile: %s', result.error.message, result.error)
+      // TODO: Should delete corrupted cache entry?
       return null
     }
 
@@ -54,10 +55,10 @@ export default class DatafileResponseStorage<K> implements AsyncStorage<Response
   // TODO: Validation. This could be any response, but only want to cache certain ones.
   // Not sure this validation belongs here. If not, then it should accept a DatafileResponse
   // type which is known to be valid & cacheable.
-  setItem(key: string, response: Response): Promise<void> {
+  async setItem(key: string, response: Response): Promise<void> {
     const cacheEntry = getCacheEntryOfResponse(response)
-    const serializedEntry = this.serializer.serialize(cacheEntry)
-    return this.storage.setItem(key, serializedEntry)
+    const serializedEntry = await this.serializer.serialize(cacheEntry)
+    this.storage.setItem(key, serializedEntry)
   }
 
   removeItem(key: string): Promise<void> {

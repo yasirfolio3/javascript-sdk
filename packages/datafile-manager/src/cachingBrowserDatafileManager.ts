@@ -21,7 +21,8 @@ import DatafileResponseStorage from './datafileResponseStorage'
 import { CacheDirective, makeGetRequestThroughCache, saveResponseToCache } from './cachingRequest'
 import localForage from './localForage'
 import localStorage from './localStorage'
-import { jsonStringSerializer, plainObjectSerializer } from './datafileCacheEntry'
+import cacheStorage from './cacheStorage'
+import { nativeResponseSerializer, jsonStringSerializer, plainObjectSerializer } from './datafileCacheEntry'
 import { makeGetRequest } from './browserRequest';
 
 export interface CachingBrowserDatafileManagerConfig<K> extends DatafileManagerConfig {
@@ -83,6 +84,16 @@ export default class CachingBrowserDatafileManager<
     return new CachingBrowserDatafileManager({
       ...config,
       storage: new DatafileResponseStorage(localForage, plainObjectSerializer),
+      cacheDirective: CacheDirective.CACHE_FIRST,
+    })
+  }
+
+  static cacheBasedInstance(
+    config: DatafileManagerConfig
+  ): CachingBrowserDatafileManager<Response> {
+    return new CachingBrowserDatafileManager({
+      ...config,
+      storage: new DatafileResponseStorage(cacheStorage, nativeResponseSerializer),
       cacheDirective: CacheDirective.CACHE_FIRST,
     })
   }
