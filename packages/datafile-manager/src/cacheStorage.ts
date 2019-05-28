@@ -16,6 +16,8 @@
 
 import { AsyncStorage } from './storage'
 
+// TODO: Use LOCAL_STORAGE_KEY_PREFIX to form a cache key?
+
 function openCache() {
   return caches.open('optimizely_js_sdk_datafiles_v1')
 }

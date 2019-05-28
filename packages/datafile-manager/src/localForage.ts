@@ -17,6 +17,8 @@
 import localForage from 'localforage'
 import { AsyncStorage } from './storage'
 
+// TODO: Use LOCAL_STORAGE_KEY_PREFIX to form a cache key?
+
 localForage.config({
   name: 'optimizely_js_sdk_datafiles_v1',
   storeName: 'optimizely_js_sdk_datafiles_v1',

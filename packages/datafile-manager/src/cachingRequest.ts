@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-// TODO: The K type variable is leaking everywhere. Make it so most consumers don't need to care
-
 import { getLogger } from '@optimizely/js-sdk-logging'
 import { AbortableRequest, Headers, Response } from './http'
 import { AsyncStorage } from './storage'
@@ -29,7 +27,6 @@ export enum CacheDirective {
 const logger = getLogger('DatafileManager')
 
 // TODO: Implement maxCacheAge parameter
-// TODO: We could expect freshness to be implemented inside the storage adapter. IF we did this, would it "just work" in the Cache-based adapter?
 export function makeGetRequestThroughCache(
   cache: AsyncStorage<Response>,
   reqUrl: string,
@@ -75,8 +72,6 @@ function makeCacheFirstRequest(
     logger.debug('Cache miss for request url %s', reqUrl)
 
     realReq = makeRealGetRequest(reqUrl, headers)
-    // TODO: Implement saving responses to cache - but how & where? Perhaps not here.
-    // We would probably want the same logic from httpPollingDatafileManager to determine whether a response should be cached.
     resolve(realReq.responsePromise)
   })
 
@@ -104,6 +99,7 @@ export function saveResponseToCache(
     response.body !== ''
   ) {
     try {
+      // TODO: As an optimization, figure out how to avoid parsing the body here (we already parse it in httpPollingDatafileManager handling the response)
       JSON.parse(response.body)
       shouldCacheResponse = true
     } catch (ex) {
@@ -111,8 +107,6 @@ export function saveResponseToCache(
   }
 
   if (shouldCacheResponse) {
-    // TODO: Don't want to cache it if the body is not valid JSON
-    // How to implement this?
     logger.debug('Saving response to cache, request url %s, response %s', reqUrl, response.statusCode)
     cache.setItem(reqUrl, response)
   }

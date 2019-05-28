@@ -41,8 +41,6 @@ export default class CachingBrowserDatafileManager<
   }
 
   makeGetRequest(reqUrl: string, headers: Headers): AbortableRequest {
-    // TODO: Use LOCAL_STORAGE_KEY_PREFIX to form a cache key
-
     const request = makeGetRequestThroughCache(
       this.config.storage,
       reqUrl,
