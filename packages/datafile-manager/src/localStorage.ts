@@ -18,6 +18,10 @@ import { AsyncStorage } from './storage'
 
 // TODO: Add key prefix in here
 
+// TODO: getItem and setItem can throw errors - must handle
+
+// TODO: Implement size limit and LRU semantics? Should this be done for all storage adapters or at a higher level?
+
 const asyncLocalStorage: AsyncStorage<string> = {
   async getItem(key: string): Promise<string | null> {
     return Promise.resolve(localStorage.getItem(key))
