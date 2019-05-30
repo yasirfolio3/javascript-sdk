@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import HttpPollingDatafileManager from './httpPollingDatafileManager'
-import { AbortableRequest, Headers } from './http'
+import HttpPollingDatafileManager, { UPDATE_EVT, VALIDATION_FAILURE_EVT } from './httpPollingDatafileManager'
+import { AbortableRequest, Headers, Response } from './http'
 import { DatafileManagerConfig } from './datafileManager'
 import DatafileResponseStorage from './datafileResponseStorage'
 import { CacheDirective, makeGetRequestThroughCache, saveResponseToCache } from './cachingRequest'
@@ -38,10 +38,27 @@ export default class CachingBrowserDatafileManager<
   constructor(config: CachingBrowserDatafileManagerConfig<K>) {
     super(config)
     this.config = config
+
+    this.onReady().then(() => {
+      // Save to storage
+    }).catch(() => {
+      // Handle error
+    })
+
+    this.on(UPDATE_EVT, () => {
+      // save to storage
+    })
+
+    // TODO: Event listener FN should not be tied to DatafileUpdate type
+    this.on(VALIDATION_FAILURE_EVT, (response: Response) => {
+      // Delete from storage
+      // TODO: delete what key?
+      // makeGetRequestThroughCache is using reqUrl as the key
+    })
   }
 
   makeGetRequest(reqUrl: string, headers: Headers): AbortableRequest {
-    const request = makeGetRequestThroughCache(
+    return makeGetRequestThroughCache(
       this.config.storage,
       reqUrl,
       headers,
@@ -49,15 +66,15 @@ export default class CachingBrowserDatafileManager<
       makeGetRequest
     )
 
-    request.responsePromise.then(response => {
-      saveResponseToCache(
-        this.config.storage,
-        reqUrl,
-        response
-      )
-    })
+    // request.responsePromise.then(response => {
+    //   saveResponseToCache(
+    //     this.config.storage,
+    //     reqUrl,
+    //     response
+    //   )
+    // })
 
-    return request
+    // return request
   }
 
   protected getConfigDefaults(): Partial<DatafileManagerConfig> {

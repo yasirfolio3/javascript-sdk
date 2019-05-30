@@ -24,7 +24,9 @@ import BackoffController from './backoffController';
 
 const logger = getLogger('DatafileManager')
 
-const UPDATE_EVT = 'update'
+export const UPDATE_EVT = 'update'
+
+export const VALIDATION_FAILURE_EVT = 'validation_failure'
 
 function isValidUpdateInterval(updateInterval: number): boolean {
   return updateInterval >= MIN_UPDATE_INTERVAL
@@ -205,6 +207,8 @@ export default abstract class HTTPPollingDatafileManager implements DatafileMana
         }
         this.emitter.emit(UPDATE_EVT, datafileUpdate)
       }
+    } else {
+      this.emitter.emit(VALIDATION_FAILURE_EVT, response)
     }
   }
 

@@ -92,6 +92,7 @@ function getResponseFromRequest(request: http.ClientRequest): Promise<Response> 
         clearTimeout(timeout)
 
         resolve({
+          requestUrl,
           statusCode: incomingMessage.statusCode,
           body: responseData,
           headers: createHeadersFromNodeIncomingMessage(incomingMessage),
