@@ -664,7 +664,7 @@ Optimizely.prototype.getEnabledFeatures = function(userId, attributes) {
 
 Optimizely.prototype.getFeatureVariable = function(featureKey, variableKey, userId, attributes) {
   try {
-    return this._getFeatureVariableForType(featureKey, variableKey, null, userId, attributes);
+    return this._getFeatureVariableForType(featureKey, variableKey, FEATURE_VARIABLE_TYPES.STRING, userId, attributes);
   } catch (e) {
     this.logger.log(LOG_LEVEL.ERROR, e.message);
     this.errorHandler.handleError(e);
