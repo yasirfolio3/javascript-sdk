@@ -15,14 +15,17 @@
  */
 var uuid = require('uuid');
 var MAX_NUMBER_LIMIT = Math.pow(2, 53);
+var assign = require('core-js-pure/features/object/assign');
+var numberIsFinite = require('core-js-pure/features/number/is-finite');
 
 module.exports = {
+  assign: assign,
   cloneDeep: require('lodash/cloneDeep'),
   currentTimestamp: function() {
     return Math.round(new Date().getTime());
   },
   isFinite: function(number) {
-    return Number.isFinite(number) && Math.abs(number) <= MAX_NUMBER_LIMIT;
+    return numberIsFinite(number) && Math.abs(number) <= MAX_NUMBER_LIMIT;
   },
   keyBy: function(items, itemKeyKey) {
     var itemsByKey = {};

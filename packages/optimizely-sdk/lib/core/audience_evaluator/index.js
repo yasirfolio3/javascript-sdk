@@ -15,6 +15,7 @@
  */
 var conditionTreeEvaluator = require('../condition_tree_evaluator');
 var customAttributeConditionEvaluator = require('../custom_attribute_condition_evaluator');
+var fns = require('../../utils/fns/');
 var enums = require('../../utils/enums');
 var sprintf = require('@optimizely/js-sdk-utils').sprintf;
 var logging = require('@optimizely/js-sdk-logging');
@@ -34,7 +35,7 @@ var MODULE_NAME = 'AUDIENCE_EVALUATOR';
  * @constructor
  */
 function AudienceEvaluator(UNSTABLE_conditionEvaluators) {
-  this.typeToEvaluatorMap = Object.assign({}, UNSTABLE_conditionEvaluators, {
+  this.typeToEvaluatorMap = fns.assign({}, UNSTABLE_conditionEvaluators, {
     'custom_attribute': customAttributeConditionEvaluator
   });
 }
