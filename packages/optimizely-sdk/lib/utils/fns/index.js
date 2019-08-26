@@ -29,7 +29,6 @@ module.exports = {
     return _isFinite(number) && Math.abs(number) <= MAX_NUMBER_LIMIT;
   },
   keyBy: require('lodash/keyBy'),
-  forEach: require('lodash/forEach'),
   forOwn: require('lodash/forOwn'),
   map: require('lodash/map'),
   uuid: function() {

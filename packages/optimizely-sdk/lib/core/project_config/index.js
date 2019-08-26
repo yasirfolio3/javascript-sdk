@@ -42,7 +42,7 @@ module.exports = {
      * Conditions of audiences in projectConfig.typedAudiences are not
      * expected to be string-encoded as they are here in projectConfig.audiences.
      */
-    fns.forEach(projectConfig.audiences, function(audience) {
+    (projectConfig.audiences || []).forEach(function(audience) {
       audience.conditions = JSON.parse(audience.conditions);
     });
     projectConfig.audiencesById = fns.keyBy(projectConfig.audiences, 'id');
@@ -53,16 +53,17 @@ module.exports = {
     projectConfig.groupIdMap = fns.keyBy(projectConfig.groups, 'id');
 
     var experiments;
-    fns.forEach(projectConfig.groupIdMap, function(group, Id) {
+    Object.keys(projectConfig.groupIdMap).forEach(function(id) {
+      var group = projectConfig.groupIdMap[id];
       experiments = fns.cloneDeep(group.experiments);
-      fns.forEach(experiments, function(experiment) {
-        projectConfig.experiments.push(fns.assignIn(experiment, {groupId: Id}));
+      (experiments || []).forEach(function(experiment) {
+        projectConfig.experiments.push(fns.assignIn(experiment, {groupId: id}));
       });
     });
 
     projectConfig.rolloutIdMap = fns.keyBy(projectConfig.rollouts || [], 'id');
     fns.forOwn(projectConfig.rolloutIdMap, function(rollout) {
-      fns.forEach(rollout.experiments || [], function(experiment) {
+      (rollout.experiments || []).forEach(function(experiment) {
         projectConfig.experiments.push(fns.cloneDeep(experiment));
         // Creates { <variationKey>: <variation> } map inside of the experiment
         experiment.variationKeyMap = fns.keyBy(experiment.variations, 'key');
@@ -74,7 +75,7 @@ module.exports = {
 
     projectConfig.variationIdMap = {};
     projectConfig.variationVariableUsageMap = {};
-    fns.forEach(projectConfig.experiments, function(experiment) {
+    (projectConfig.experiments || []).forEach(function(experiment) {
       // Creates { <variationKey>: <variation> } map inside of the experiment
       experiment.variationKeyMap = fns.keyBy(experiment.variations, 'key');
 
@@ -95,14 +96,14 @@ module.exports = {
     projectConfig.featureKeyMap = fns.keyBy(projectConfig.featureFlags || [], 'key');
     fns.forOwn(projectConfig.featureKeyMap, function(feature) {
       feature.variableKeyMap = fns.keyBy(feature.variables, 'key');
-      fns.forEach(feature.experimentIds || [], function(experimentId) {
+      (feature.experimentIds || []).forEach( function(experimentId) {
         // Add this experiment in experiment-feature map.
         if (projectConfig.experimentFeatureMap[experimentId]) {
-          projectConfig.experimentFeatureMap[experimentId].push(feature.id);  
+          projectConfig.experimentFeatureMap[experimentId].push(feature.id);
         } else {
           projectConfig.experimentFeatureMap[experimentId] = [feature.id];
         }
-        
+
         var experimentInFeature = projectConfig.experimentIdMap[experimentId];
         if (experimentInFeature.groupId) {
           feature.groupId = experimentInFeature.groupId;

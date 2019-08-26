@@ -61,6 +61,9 @@ describe('lib/optimizely', function() {
     };
     logging.setErrorHandler(globalStubErrorHandler);
     ProjectConfigManagerStub = sinon.stub(projectConfigManager, 'ProjectConfigManager').callsFake(function(config) {
+      if (typeof config.datafile === 'string') {
+        config.datafile = JSON.parse(config.datafile);
+      }
       var currentConfig = config.datafile ? projectConfig.createProjectConfig(config.datafile) : null;
       return {
         stop: sinon.stub(),
