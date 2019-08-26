@@ -62,7 +62,7 @@ module.exports = {
     });
 
     projectConfig.rolloutIdMap = fns.keyBy(projectConfig.rollouts || [], 'id');
-    fns.forOwn(projectConfig.rolloutIdMap, function(rollout) {
+    Object.values(projectConfig.rolloutIdMap).forEach(function(rollout) {
       (rollout.experiments || []).forEach(function(experiment) {
         projectConfig.experiments.push(fns.cloneDeep(experiment));
         // Creates { <variationKey>: <variation> } map inside of the experiment
@@ -82,7 +82,7 @@ module.exports = {
       // Creates { <variationId>: { key: <variationKey>, id: <variationId> } } mapping for quick lookup
       fns.assignIn(projectConfig.variationIdMap, fns.keyBy(experiment.variations, 'id'));
 
-      fns.forOwn(experiment.variationKeyMap, function(variation) {
+      Object.values(experiment.variationKeyMap).forEach(function(variation) {
         if (variation.variables) {
           projectConfig.variationVariableUsageMap[variation.id] = fns.keyBy(variation.variables, 'id');
         }
@@ -94,7 +94,7 @@ module.exports = {
     projectConfig.experimentFeatureMap = {};
 
     projectConfig.featureKeyMap = fns.keyBy(projectConfig.featureFlags || [], 'key');
-    fns.forOwn(projectConfig.featureKeyMap, function(feature) {
+    Object.values(projectConfig.featureKeyMap).forEach(function(feature) {
       feature.variableKeyMap = fns.keyBy(feature.variables, 'key');
       (feature.experimentIds || []).forEach( function(experimentId) {
         // Add this experiment in experiment-feature map.

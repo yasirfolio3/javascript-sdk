@@ -61,7 +61,9 @@ function getCommonEventParams(options) {
   };
 
   // Omit attribute values that are not supported by the log endpoint.
-  fns.forOwn(attributes, function(attributeValue, attributeKey) {
+  Object.entries(attributes || {}).forEach(function(attributePair) {
+    var attributeKey = attributePair[0];
+    var attributeValue = attributePair[1];
     if (attributeValidator.isAttributeValid(attributeKey, attributeValue)) {
       var attributeId = projectConfig.getAttributeId(options.configObj, attributeKey, options.logger);
       if (attributeId) {

@@ -629,9 +629,7 @@ Optimizely.prototype.getEnabledFeatures = function(userId, attributes) {
       return enabledFeatures;
     }
 
-    fns.forOwn(
-      configObj.featureKeyMap,
-      function(feature) {
+    Object.values(configObj.featureKeyMap).forEach(function(feature) {
         if (this.isFeatureEnabled(feature.key, userId, attributes)) {
           enabledFeatures.push(feature.key);
         }

@@ -19,7 +19,6 @@
  */
 
 var sprintf = require('@optimizely/js-sdk-utils').sprintf;
-var lodashForOwn = require('lodash/forOwn');
 var fns = require('../../utils/fns');
 
 var ERROR_MESSAGES = require('../enums').ERROR_MESSAGES;
@@ -34,8 +33,10 @@ module.exports = {
    */
   validate: function(attributes) {
     if (typeof attributes === 'object' && !Array.isArray(attributes) && attributes !== null) {
-      lodashForOwn(attributes, function(value, key) {
+      Object.entries(attributes).forEach(function(attributePair) {
+        var value = attributePair[1];
         if (typeof value === 'undefined') {
+          var key = attributePair[0];
           throw new Error(sprintf(ERROR_MESSAGES.UNDEFINED_ATTRIBUTE, MODULE_NAME, key));
         }
       });

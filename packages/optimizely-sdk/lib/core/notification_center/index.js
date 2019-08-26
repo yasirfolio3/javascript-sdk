@@ -37,7 +37,7 @@ function NotificationCenter(options) {
   this.logger = options.logger;
   this.errorHandler = options.errorHandler;
   this.__notificationListeners = {};
-  fns.forOwn(enums.NOTIFICATION_TYPES, function(notificationTypeEnum) {
+  Object.values(enums.NOTIFICATION_TYPES).forEach(function(notificationTypeEnum) {
     this.__notificationListeners[notificationTypeEnum] = [];
   }.bind(this));
   this.__listenerId = 1;
@@ -101,7 +101,9 @@ NotificationCenter.prototype.removeNotificationListener = function (listenerId) 
   try {
     var indexToRemove;
     var typeToRemove;
-    fns.forOwn(this.__notificationListeners, function (listenersForType, notificationType) {
+    Object.entries(this.__notificationListeners).forEach(function (listenerPair) {
+      var notificationType = listenerPair[0];
+      var listenersForType = listenerPair[1];
       listenersForType.forEach(function (listenerEntry, i) {
         if (listenerEntry.id === listenerId) {
           indexToRemove = i;
@@ -130,7 +132,7 @@ NotificationCenter.prototype.removeNotificationListener = function (listenerId) 
  */
 NotificationCenter.prototype.clearAllNotificationListeners = function () {
   try{
-    fns.forOwn(enums.NOTIFICATION_TYPES, function (notificationTypeEnum) {
+    Object.values(enums.NOTIFICATION_TYPES).forEach(function (notificationTypeEnum) {
       this.__notificationListeners[notificationTypeEnum] = [];
     }.bind(this));
   } catch (e) {
