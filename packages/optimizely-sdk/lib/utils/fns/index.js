@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 var uuid = require('uuid');
-var _isFinite = require('lodash/isFinite');
 var MAX_NUMBER_LIMIT = Math.pow(2, 53);
+
+var _isFinite = function(value) {
+  return typeof value === 'number' && isFinite(value);
+};
 
 module.exports = {
   cloneDeep: require('lodash/cloneDeep'),
