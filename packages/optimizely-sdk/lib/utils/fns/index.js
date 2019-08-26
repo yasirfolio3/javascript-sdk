@@ -18,8 +18,6 @@ var _isFinite = require('lodash/isFinite');
 var MAX_NUMBER_LIMIT = Math.pow(2, 53);
 
 module.exports = {
-  assign: require('lodash/assign'),
-  assignIn: require('lodash/assignIn'),
   cloneDeep: require('lodash/cloneDeep'),
   currentTimestamp: function() {
     return Math.round(new Date().getTime());

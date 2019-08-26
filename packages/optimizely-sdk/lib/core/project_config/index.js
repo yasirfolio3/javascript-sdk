@@ -46,7 +46,7 @@ module.exports = {
       audience.conditions = JSON.parse(audience.conditions);
     });
     projectConfig.audiencesById = fns.keyBy(projectConfig.audiences, 'id');
-    fns.assign(projectConfig.audiencesById, fns.keyBy(projectConfig.typedAudiences, 'id'));
+    Object.assign(projectConfig.audiencesById, fns.keyBy(projectConfig.typedAudiences, 'id'));
 
     projectConfig.attributeKeyMap = fns.keyBy(projectConfig.attributes, 'key');
     projectConfig.eventKeyMap = fns.keyBy(projectConfig.events, 'key');
@@ -57,7 +57,7 @@ module.exports = {
       var group = projectConfig.groupIdMap[id];
       experiments = fns.cloneDeep(group.experiments);
       (experiments || []).forEach(function(experiment) {
-        projectConfig.experiments.push(fns.assignIn(experiment, {groupId: id}));
+        projectConfig.experiments.push(Object.assign(experiment, {groupId: id}));
       });
     });
 
@@ -80,7 +80,7 @@ module.exports = {
       experiment.variationKeyMap = fns.keyBy(experiment.variations, 'key');
 
       // Creates { <variationId>: { key: <variationKey>, id: <variationId> } } mapping for quick lookup
-      fns.assignIn(projectConfig.variationIdMap, fns.keyBy(experiment.variations, 'id'));
+      Object.assign(projectConfig.variationIdMap, fns.keyBy(experiment.variations, 'id'));
 
       Object.values(experiment.variationKeyMap).forEach(function(variation) {
         if (variation.variables) {
