@@ -16,17 +16,13 @@
 var uuid = require('uuid');
 var MAX_NUMBER_LIMIT = Math.pow(2, 53);
 
-var _isFinite = function(value) {
-  return typeof value === 'number' && isFinite(value);
-};
-
 module.exports = {
   cloneDeep: require('lodash/cloneDeep'),
   currentTimestamp: function() {
     return Math.round(new Date().getTime());
   },
   isFinite: function(number) {
-    return _isFinite(number) && Math.abs(number) <= MAX_NUMBER_LIMIT;
+    return Number.isFinite(number) && Math.abs(number) <= MAX_NUMBER_LIMIT;
   },
   keyBy: function(items, itemKeyKey) {
     var itemsByKey = {};
