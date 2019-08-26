@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var fns = require('../../utils/fns');
+var utils = require('@optimizely/js-sdk-utils');
 
 var POST_METHOD = 'POST';
 var GET_METHOD = 'GET';
@@ -67,7 +67,7 @@ module.exports = {
 };
 
 var toQueryString = function(obj) {
-  return Object.entries(obj).map(function(pair) {
+  return utils.objectEntries(obj).map(function(pair) {
     var k = pair[0];
     var v = pair[1];
     return encodeURIComponent(k) + '=' + encodeURIComponent(v);

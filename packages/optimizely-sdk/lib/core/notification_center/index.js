@@ -15,8 +15,9 @@
  */
 
 var enums = require('../../utils/enums');
-var fns = require('../../utils/fns');
-var sprintf = require('@optimizely/js-sdk-utils').sprintf;
+var utils = require('@optimizely/js-sdk-utils');
+
+var sprintf = utils.sprintf;
 
 var LOG_LEVEL = enums.LOG_LEVEL;
 var LOG_MESSAGES = enums.LOG_MESSAGES;
@@ -37,7 +38,7 @@ function NotificationCenter(options) {
   this.logger = options.logger;
   this.errorHandler = options.errorHandler;
   this.__notificationListeners = {};
-  Object.values(enums.NOTIFICATION_TYPES).forEach(function(notificationTypeEnum) {
+  utils.objectValues(enums.NOTIFICATION_TYPES).forEach(function(notificationTypeEnum) {
     this.__notificationListeners[notificationTypeEnum] = [];
   }.bind(this));
   this.__listenerId = 1;
@@ -55,7 +56,7 @@ function NotificationCenter(options) {
  */
 NotificationCenter.prototype.addNotificationListener = function (notificationType, callback) {
   try {
-    var isNotificationTypeValid = Object.values(enums.NOTIFICATION_TYPES)
+    var isNotificationTypeValid = utils.objectValues(enums.NOTIFICATION_TYPES)
       .indexOf(notificationType) > -1;
     if (!isNotificationTypeValid) {
       return -1;
@@ -101,7 +102,7 @@ NotificationCenter.prototype.removeNotificationListener = function (listenerId) 
   try {
     var indexToRemove;
     var typeToRemove;
-    Object.entries(this.__notificationListeners).forEach(function (listenerPair) {
+    utils.objectEntries(this.__notificationListeners).forEach(function (listenerPair) {
       var notificationType = listenerPair[0];
       var listenersForType = listenerPair[1];
       listenersForType.forEach(function (listenerEntry, i) {
@@ -132,7 +133,7 @@ NotificationCenter.prototype.removeNotificationListener = function (listenerId) 
  */
 NotificationCenter.prototype.clearAllNotificationListeners = function () {
   try{
-    Object.values(enums.NOTIFICATION_TYPES).forEach(function (notificationTypeEnum) {
+    utils.objectValues(enums.NOTIFICATION_TYPES).forEach(function (notificationTypeEnum) {
       this.__notificationListeners[notificationTypeEnum] = [];
     }.bind(this));
   } catch (e) {

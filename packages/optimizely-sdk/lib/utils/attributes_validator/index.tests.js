@@ -15,8 +15,10 @@
  */
 var chai = require('chai');
 var assert = chai.assert;
-var sprintf = require('@optimizely/js-sdk-utils').sprintf;
+var utils = require('@optimizely/js-sdk-utils');
 var attributesValidator = require('./');
+
+var sprintf = utils.sprintf;
 
 var ERROR_MESSAGES = require('../enums').ERROR_MESSAGES;
 
@@ -71,7 +73,7 @@ describe('lib/utils/attributes_validator', function() {
           '': 'javascript',
         };
 
-        Object.entries(userAttributes).forEach(function(attributePair) {
+        utils.objectEntries(userAttributes).forEach(function(attributePair) {
           var key = attributePair[0];
           var value = attributePair[1];
           assert.isTrue(attributesValidator.isAttributeValid(key, value));
@@ -89,7 +91,7 @@ describe('lib/utils/attributes_validator', function() {
           'outOfBound': Math.pow(2, 53) + 2,
         };
 
-        Object.entries(userAttributes).forEach(function(attributePair) {
+        utils.objectEntries(userAttributes).forEach(function(attributePair) {
           var key = attributePair[0];
           var value = attributePair[1];
           assert.isFalse(attributesValidator.isAttributeValid(key, value));

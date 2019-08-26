@@ -24,10 +24,12 @@ var eventProcessor = require('@optimizely/js-sdk-event-processor');
 var eventTagsValidator = require('../utils/event_tags_validator');
 var notificationCenter = require('../core/notification_center');
 var projectConfig = require('../core/project_config');
-var sprintf = require('@optimizely/js-sdk-utils').sprintf;
+var utils = require('@optimizely/js-sdk-utils');
 var userProfileServiceValidator = require('../utils/user_profile_service_validator');
 var stringValidator = require('../utils/string_value_validator');
 var projectConfigManager = require('../core/project_config/project_config_manager');
+
+var sprintf = utils.sprintf;
 
 var ERROR_MESSAGES = enums.ERROR_MESSAGES;
 var LOG_LEVEL = enums.LOG_LEVEL;
@@ -629,7 +631,7 @@ Optimizely.prototype.getEnabledFeatures = function(userId, attributes) {
       return enabledFeatures;
     }
 
-    Object.values(configObj.featureKeyMap).forEach(function(feature) {
+    utils.objectValues(configObj.featureKeyMap).forEach(function(feature) {
         if (this.isFeatureEnabled(feature.key, userId, attributes)) {
           enabledFeatures.push(feature.key);
         }

@@ -15,9 +15,11 @@
  */
 var fns = require('../../utils/fns');
 var enums = require('../../utils/enums');
-var sprintf = require('@optimizely/js-sdk-utils').sprintf;
+var utils = require('@optimizely/js-sdk-utils');
 var configValidator = require('../../utils/config_validator');
 var projectConfigSchema = require('./project_config_schema');
+
+var sprintf = utils.sprintf;
 
 var EXPERIMENT_LAUNCHED_STATUS = 'Launched';
 var EXPERIMENT_RUNNING_STATUS = 'Running';
@@ -62,7 +64,7 @@ module.exports = {
     });
 
     projectConfig.rolloutIdMap = fns.keyBy(projectConfig.rollouts || [], 'id');
-    Object.values(projectConfig.rolloutIdMap).forEach(function(rollout) {
+    utils.objectValues(projectConfig.rolloutIdMap).forEach(function(rollout) {
       (rollout.experiments || []).forEach(function(experiment) {
         projectConfig.experiments.push(fns.cloneDeep(experiment));
         // Creates { <variationKey>: <variation> } map inside of the experiment
@@ -82,7 +84,7 @@ module.exports = {
       // Creates { <variationId>: { key: <variationKey>, id: <variationId> } } mapping for quick lookup
       Object.assign(projectConfig.variationIdMap, fns.keyBy(experiment.variations, 'id'));
 
-      Object.values(experiment.variationKeyMap).forEach(function(variation) {
+      utils.objectValues(experiment.variationKeyMap).forEach(function(variation) {
         if (variation.variables) {
           projectConfig.variationVariableUsageMap[variation.id] = fns.keyBy(variation.variables, 'id');
         }
@@ -94,7 +96,7 @@ module.exports = {
     projectConfig.experimentFeatureMap = {};
 
     projectConfig.featureKeyMap = fns.keyBy(projectConfig.featureFlags || [], 'key');
-    Object.values(projectConfig.featureKeyMap).forEach(function(feature) {
+    utils.objectValues(projectConfig.featureKeyMap).forEach(function(feature) {
       feature.variableKeyMap = fns.keyBy(feature.variables, 'key');
       (feature.experimentIds || []).forEach( function(experimentId) {
         // Add this experiment in experiment-feature map.

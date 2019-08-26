@@ -18,6 +18,7 @@ var fns = require('../../utils/fns');
 var eventTagUtils = require('../../utils/event_tag_utils');
 var projectConfig = require('../project_config');
 var attributeValidator = require('../../utils/attributes_validator');
+var utils = require('@optimizely/js-sdk-utils');
 
 var ACTIVATE_EVENT_KEY = 'campaign_activated';
 var CUSTOM_ATTRIBUTE_FEATURE_TYPE = 'custom';
@@ -61,7 +62,7 @@ function getCommonEventParams(options) {
   };
 
   // Omit attribute values that are not supported by the log endpoint.
-  Object.entries(attributes || {}).forEach(function(attributePair) {
+  utils.objectEntries(attributes || {}).forEach(function(attributePair) {
     var attributeKey = attributePair[0];
     var attributeValue = attributePair[1];
     if (attributeValidator.isAttributeValid(attributeKey, attributeValue)) {

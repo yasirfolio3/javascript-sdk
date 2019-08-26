@@ -18,8 +18,10 @@
  * Provides utility method for validating that the attributes user has provided are valid
  */
 
-var sprintf = require('@optimizely/js-sdk-utils').sprintf;
+var utils = require('@optimizely/js-sdk-utils');
 var fns = require('../../utils/fns');
+
+var sprintf = utils.sprintf;
 
 var ERROR_MESSAGES = require('../enums').ERROR_MESSAGES;
 var MODULE_NAME = 'ATTRIBUTES_VALIDATOR';
@@ -33,7 +35,7 @@ module.exports = {
    */
   validate: function(attributes) {
     if (typeof attributes === 'object' && !Array.isArray(attributes) && attributes !== null) {
-      Object.entries(attributes).forEach(function(attributePair) {
+      utils.objectEntries(attributes).forEach(function(attributePair) {
         var value = attributePair[1];
         if (typeof value === 'undefined') {
           var key = attributePair[0];
