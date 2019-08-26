@@ -28,7 +28,14 @@ module.exports = {
   isFinite: function(number) {
     return _isFinite(number) && Math.abs(number) <= MAX_NUMBER_LIMIT;
   },
-  keyBy: require('lodash/keyBy'),
+  keyBy: function(items, itemKeyKey) {
+    var itemsByKey = {};
+    (items || []).forEach(function(item) {
+      var itemKey = item[itemKeyKey];
+      itemsByKey[itemKey] = item;
+    });
+    return itemsByKey;
+  },
   uuid: function() {
     return uuid.v4();
   },
