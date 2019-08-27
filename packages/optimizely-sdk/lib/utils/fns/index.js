@@ -20,7 +20,6 @@ var numberIsFinite = require('core-js-pure/features/number/is-finite');
 
 module.exports = {
   assign: assign,
-  cloneDeep: require('lodash/cloneDeep'),
   currentTimestamp: function() {
     return Math.round(new Date().getTime());
   },
