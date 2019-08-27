@@ -263,13 +263,14 @@ DecisionService.prototype.__saveUserProfile = function(experiment, variation, us
   }
 
   try {
-    experimentBucketMap[experiment.id] = {
+    var newBucketMap = fns.cloneDeep(experimentBucketMap);
+    newBucketMap[experiment.id] = {
       variation_id: variation.id
     };
 
     this.userProfileService.save({
       user_id: userId,
-      experiment_bucket_map: experimentBucketMap,
+      experiment_bucket_map: newBucketMap,
     });
 
     this.logger.log(LOG_LEVEL.INFO, sprintf(LOG_MESSAGES.SAVED_VARIATION, MODULE_NAME, variation.key, experiment.key, userId));

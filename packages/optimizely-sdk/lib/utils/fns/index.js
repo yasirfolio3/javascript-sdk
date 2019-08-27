@@ -17,9 +17,11 @@ var uuid = require('uuid');
 var MAX_NUMBER_LIMIT = Math.pow(2, 53);
 var assign = require('core-js-pure/features/object/assign');
 var numberIsFinite = require('core-js-pure/features/number/is-finite');
+var cloneDeep = require('lodash.clonedeep');
 
 module.exports = {
   assign: assign,
+  cloneDeep: cloneDeep,
   currentTimestamp: function() {
     return Math.round(new Date().getTime());
   },
