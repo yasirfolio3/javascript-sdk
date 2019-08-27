@@ -38,5 +38,4 @@ module.exports = {
   uuid: function() {
     return uuid.v4();
   },
-  isNumber: require('lodash/isNumber'),
 };

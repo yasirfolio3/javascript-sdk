@@ -80,7 +80,7 @@ function evaluate(condition, userAttributes, logger) {
  */
 function isValueTypeValidForExactConditions(value) {
   return typeof value === 'string' || typeof value === 'boolean' ||
-    fns.isNumber(value);
+    typeof value === 'number';
 }
 
 /**
@@ -101,7 +101,7 @@ function exactEvaluator(condition, userAttributes, logger) {
   var userValue = userAttributes[conditionName];
   var userValueType = typeof userValue;
 
-  if (!isValueTypeValidForExactConditions(conditionValue) || (fns.isNumber(conditionValue) && !fns.isFinite(conditionValue))) {
+  if (!isValueTypeValidForExactConditions(conditionValue) || (conditionValueType === 'number' && !fns.isFinite(conditionValue))) {
     logger.log(LOG_LEVEL.WARNING, sprintf(LOG_MESSAGES.UNEXPECTED_CONDITION_VALUE, MODULE_NAME, JSON.stringify(condition)));
     return null;
   }
@@ -116,7 +116,7 @@ function exactEvaluator(condition, userAttributes, logger) {
     return null;
   }
 
-  if (fns.isNumber(userValue) && !fns.isFinite(userValue)) {
+  if (userValueType === 'number' && !fns.isFinite(userValue)) {
     logger.log(LOG_LEVEL.WARNING, sprintf(LOG_MESSAGES.OUT_OF_BOUNDS, MODULE_NAME, JSON.stringify(condition), conditionName));
     return null;
   }
@@ -164,7 +164,7 @@ function greaterThanEvaluator(condition, userAttributes, logger) {
     return null;
   }
 
-  if (!fns.isNumber(userValue)) {
+  if (userValueType !== 'number') {
     logger.log(LOG_LEVEL.WARNING, sprintf(LOG_MESSAGES.UNEXPECTED_TYPE, MODULE_NAME, JSON.stringify(condition), userValueType, conditionName));
     return null;
   }
@@ -203,7 +203,7 @@ function lessThanEvaluator(condition, userAttributes, logger) {
     return null;
   }
 
-  if (!fns.isNumber(userValue)) {
+  if (userValueType !== 'number') {
     logger.log(LOG_LEVEL.WARNING, sprintf(LOG_MESSAGES.UNEXPECTED_TYPE, MODULE_NAME, JSON.stringify(condition), userValueType, conditionName));
     return null;
   }
