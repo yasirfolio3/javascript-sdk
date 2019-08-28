@@ -18,10 +18,8 @@
  * Provides utility method for validating that the attributes user has provided are valid
  */
 
-var utils = require('@optimizely/js-sdk-utils');
+var sprintf = require('@optimizely/js-sdk-utils').sprintf;
 var fns = require('../../utils/fns');
-
-var sprintf = utils.sprintf;
 
 var ERROR_MESSAGES = require('../enums').ERROR_MESSAGES;
 var MODULE_NAME = 'ATTRIBUTES_VALIDATOR';

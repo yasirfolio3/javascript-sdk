@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var utils = require('@optimizely/js-sdk-utils');
 
 var POST_METHOD = 'POST';
 var GET_METHOD = 'GET';

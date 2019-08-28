@@ -15,10 +15,8 @@
  */
 var chai = require('chai');
 var assert = chai.assert;
-var utils = require('@optimizely/js-sdk-utils');
+var sprintf = require('@optimizely/js-sdk-utils').sprintf;
 var attributesValidator = require('./');
-
-var sprintf = utils.sprintf;
 
 var ERROR_MESSAGES = require('../enums').ERROR_MESSAGES;
 
