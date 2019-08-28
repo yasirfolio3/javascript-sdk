@@ -41,6 +41,7 @@
     "lodash": "^4.17.11",
     "lodash.clonedeep": "^4.5.0",
     "murmurhash": "0.0.2",
+    "object-assign": "^4.1.1",
     "promise-polyfill": "8.1.0",
     "uuid": "^3.3.2"
   },

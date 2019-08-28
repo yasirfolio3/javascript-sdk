@@ -15,8 +15,7 @@
  */
 var uuid = require('uuid');
 var MAX_NUMBER_LIMIT = Math.pow(2, 53);
-var assign = require('core-js-pure/features/object/assign');
-var numberIsFinite = require('core-js-pure/features/number/is-finite');
+var assign = require('object-assign');
 var cloneDeep = require('lodash.clonedeep');
 
 module.exports = {
@@ -25,8 +24,8 @@ module.exports = {
   currentTimestamp: function() {
     return Math.round(new Date().getTime());
   },
-  isFinite: function(number) {
-    return numberIsFinite(number) && Math.abs(number) <= MAX_NUMBER_LIMIT;
+  isFinite: function(value) {
+    return typeof value === 'number' && isFinite(value) && Math.abs(value) <= MAX_NUMBER_LIMIT;
   },
   keyBy: function(items, itemKeyKey) {
     var itemsByKey = {};
