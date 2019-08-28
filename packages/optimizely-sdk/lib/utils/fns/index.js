@@ -22,7 +22,7 @@ var MAX_NUMBER_LIMIT = Math.pow(2, 53);
 
 module.exports = {
   assign: assign,
-  // TODO: Consider using { proto: true } with rfdc for performance
+  // TODO(Matt): Consider using { proto: true } with rfdc for performance
   cloneDeep: rfdc(),
   currentTimestamp: function() {
     return Math.round(new Date().getTime());

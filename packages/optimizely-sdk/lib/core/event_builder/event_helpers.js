@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 var logging = require('@optimizely/js-sdk-logging');
-var utils = require('@optimizely/js-sdk-utils');
 
 var attributesValidator = require('../../utils/attributes_validator');
 var fns = require('../../utils/fns');

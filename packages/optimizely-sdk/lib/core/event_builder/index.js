@@ -18,7 +18,6 @@ var fns = require('../../utils/fns');
 var eventTagUtils = require('../../utils/event_tag_utils');
 var projectConfig = require('../project_config');
 var attributeValidator = require('../../utils/attributes_validator');
-var utils = require('@optimizely/js-sdk-utils');
 
 var ACTIVATE_EVENT_KEY = 'campaign_activated';
 var CUSTOM_ATTRIBUTE_FEATURE_TYPE = 'custom';
