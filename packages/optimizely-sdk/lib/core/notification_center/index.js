@@ -102,9 +102,8 @@ NotificationCenter.prototype.removeNotificationListener = function (listenerId) 
   try {
     var indexToRemove;
     var typeToRemove;
-    utils.objectEntries(this.__notificationListeners).forEach(function (listenerPair) {
-      var notificationType = listenerPair[0];
-      var listenersForType = listenerPair[1];
+    Object.keys(this.__notificationListeners).forEach(function (notificationType) {
+      var listenersForType = this.__notificationListeners[notificationType];
       listenersForType.forEach(function (listenerEntry, i) {
         if (listenerEntry.id === listenerId) {
           indexToRemove = i;
@@ -115,7 +114,7 @@ NotificationCenter.prototype.removeNotificationListener = function (listenerId) 
       if (indexToRemove !== undefined && typeToRemove !== undefined) {
         return false;
       }
-    });
+    }.bind(this));
 
     if (indexToRemove !== undefined && typeToRemove !== undefined) {
       this.__notificationListeners[typeToRemove].splice(indexToRemove, 1);

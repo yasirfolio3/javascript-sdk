@@ -35,10 +35,9 @@ module.exports = {
    */
   validate: function(attributes) {
     if (typeof attributes === 'object' && !Array.isArray(attributes) && attributes !== null) {
-      utils.objectEntries(attributes).forEach(function(attributePair) {
-        var value = attributePair[1];
+      Object.keys(attributes).forEach(function(key) {
+        var value = attributes[key];
         if (typeof value === 'undefined') {
-          var key = attributePair[0];
           throw new Error(sprintf(ERROR_MESSAGES.UNDEFINED_ATTRIBUTE, MODULE_NAME, key));
         }
       });

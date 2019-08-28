@@ -36,7 +36,7 @@ var HTTP_VERB = 'POST';
  * @return {Object}                       Common params with properties that are used in both conversion and impression events
  */
 function getCommonEventParams(options) {
-  var attributes = options.attributes;
+  var attributes = options.attributes || {};
   var configObj = options.configObj;
   var anonymize_ip = configObj.anonymizeIP;
   var botFiltering = configObj.botFiltering;
@@ -62,9 +62,8 @@ function getCommonEventParams(options) {
   };
 
   // Omit attribute values that are not supported by the log endpoint.
-  utils.objectEntries(attributes || {}).forEach(function(attributePair) {
-    var attributeKey = attributePair[0];
-    var attributeValue = attributePair[1];
+  Object.keys(attributes).forEach(function(attributeKey) {
+    var attributeValue = attributes[attributeKey];
     if (attributeValidator.isAttributeValid(attributeKey, attributeValue)) {
       var attributeId = projectConfig.getAttributeId(options.configObj, attributeKey, options.logger);
       if (attributeId) {

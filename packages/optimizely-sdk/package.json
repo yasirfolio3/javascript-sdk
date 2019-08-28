@@ -37,6 +37,7 @@
     "@optimizely/js-sdk-logging": "^0.1.0",
     "@optimizely/js-sdk-utils": "^0.2.0",
     "json-schema": "^0.2.3",
+    "lodash.isnumber": "^3.0.3",
     "murmurhash": "0.0.2",
     "object-assign": "^4.1.1",
     "promise-polyfill": "8.1.0",

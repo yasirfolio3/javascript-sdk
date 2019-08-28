@@ -73,9 +73,8 @@ describe('lib/utils/attributes_validator', function() {
           '': 'javascript',
         };
 
-        utils.objectEntries(userAttributes).forEach(function(attributePair) {
-          var key = attributePair[0];
-          var value = attributePair[1];
+        Object.keys(userAttributes).forEach(function(key) {
+          var value = userAttributes[key];
           assert.isTrue(attributesValidator.isAttributeValid(key, value));
         });
       });
@@ -91,9 +90,8 @@ describe('lib/utils/attributes_validator', function() {
           'outOfBound': Math.pow(2, 53) + 2,
         };
 
-        utils.objectEntries(userAttributes).forEach(function(attributePair) {
-          var key = attributePair[0];
-          var value = attributePair[1];
+        Object.keys(userAttributes).forEach(function(key) {
+          var value = userAttributes[key];
           assert.isFalse(attributesValidator.isAttributeValid(key, value));
         });
       });

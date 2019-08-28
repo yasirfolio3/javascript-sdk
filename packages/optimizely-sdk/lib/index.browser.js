@@ -15,11 +15,11 @@
  */
 require('promise-polyfill/dist/polyfill');
 var logging = require('@optimizely/js-sdk-logging');
+var fns = require('./utils/fns');
 var configValidator = require('./utils/config_validator');
 var defaultErrorHandler = require('./plugins/error_handler');
 var defaultEventDispatcher = require('./plugins/event_dispatcher/index.browser');
 var enums = require('./utils/enums');
-var fns = require('./utils/fns');
 var eventProcessor = require('@optimizely/js-sdk-event-processor');
 var loggerPlugin = require('./plugins/logger');
 var Optimizely = require('./optimizely');

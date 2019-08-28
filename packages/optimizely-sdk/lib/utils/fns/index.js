@@ -13,13 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var uuid = require('uuid');
-var MAX_NUMBER_LIMIT = Math.pow(2, 53);
 var assign = require('object-assign');
+var isNumber = require('lodash.isnumber');
 var rfdc = require('rfdc');
+var uuid = require('uuid');
+
+var MAX_NUMBER_LIMIT = Math.pow(2, 53);
 
 module.exports = {
   assign: assign,
+  // TODO: Consider using { proto: true } with rfdc for performance
   cloneDeep: rfdc(),
   currentTimestamp: function() {
     return Math.round(new Date().getTime());
@@ -27,6 +30,7 @@ module.exports = {
   isFinite: function(value) {
     return typeof value === 'number' && isFinite(value) && Math.abs(value) <= MAX_NUMBER_LIMIT;
   },
+  isNumber: isNumber,
   keyBy: function(items, itemKeyKey) {
     var itemsByKey = {};
     (items || []).forEach(function(item) {

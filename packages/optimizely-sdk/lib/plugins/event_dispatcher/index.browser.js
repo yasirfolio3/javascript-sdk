@@ -67,9 +67,8 @@ module.exports = {
 };
 
 var toQueryString = function(obj) {
-  return utils.objectEntries(obj).map(function(pair) {
-    var k = pair[0];
-    var v = pair[1];
+  return Object.keys(obj).map(function(k) {
+    var v = obj[k];
     return encodeURIComponent(k) + '=' + encodeURIComponent(v);
   }).join('&');
 };

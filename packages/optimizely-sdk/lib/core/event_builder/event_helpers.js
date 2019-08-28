@@ -141,9 +141,9 @@ exports.buildConversionEvent = function buildConversionEvent(config) {
 function buildVisitorAttributes(configObj, attributes) {
   var builtAttributes = [];
   // Omit attribute values that are not supported by the log endpoint.
-  utils.objectEntries(attributes || {}).forEach(function(attributePair) {
-    var attributeKey = attributePair[0];
-    var attributeValue = attributePair[1];
+  attributes = attributes || {};
+  Object.keys(attributes).forEach(function(attributeKey) {
+    var attributeValue = attributes[attributeKey];
     if (attributesValidator.isAttributeValid(attributeKey, attributeValue)) {
       var attributeId = projectConfig.getAttributeId(configObj, attributeKey, logger);
       if (attributeId) {
