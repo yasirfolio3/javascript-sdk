@@ -16,11 +16,11 @@
 var uuid = require('uuid');
 var MAX_NUMBER_LIMIT = Math.pow(2, 53);
 var assign = require('object-assign');
-var cloneDeep = require('lodash.clonedeep');
+var rfdc = require('rfdc');
 
 module.exports = {
   assign: assign,
-  cloneDeep: cloneDeep,
+  cloneDeep: rfdc(),
   currentTimestamp: function() {
     return Math.round(new Date().getTime());
   },
