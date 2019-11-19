@@ -337,9 +337,7 @@ describe('httpPollingDatafileManager', () => {
           expect(manager.responsePromises.length).toBe(1)
         })
 
-        // TODO: Fails because of how async/await is compiled for ES5 target
-        // Rewrite to not use async/await
-        it.skip('cancels reactions to a pending fetch when stop is called', async () => {
+        it('cancels reactions to a pending fetch when stop is called', async () => {
           manager.queuedResponses.push(
             {
               statusCode: 200,
@@ -352,7 +350,7 @@ describe('httpPollingDatafileManager', () => {
           await manager.onReady()
           expect(manager.get()).toEqual({ foo: 'bar' })
 
-          const delayedResponsePromise = timeoutPromise(1000).then(() => ({
+          const delayedResponsePromise = timeoutPromise(1001).then(() => ({
             statusCode: 200,
             body: '{"foo2": "bar2"}',
             headers: {},
