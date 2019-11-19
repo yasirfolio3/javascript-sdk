@@ -20,6 +20,10 @@ export function advanceTimersByTime(waitMs: number): Promise<void> {
   return timeoutPromise
 }
 
+export function timeoutPromise(waitMs: number): Promise<void> {
+  return new Promise(res => setTimeout(res, waitMs))
+}
+
 export function getTimerCount(): number {
   // Type definition for jest doesn't include this, but it exists
   // https://jestjs.io/docs/en/jest-object#jestgettimercount
