@@ -286,31 +286,24 @@ describe('httpPollingDatafileManager', () => {
         })
 
         describe('when the update interval time fires before the request is complete', () => {
-          // TODO: This fails because of how async/await is compiled for ES5 target
-          // Change this file to not use async/await
-          it.skip('waits until the request is complete before making the next request', async () => {
-            let resolveResponsePromise: (resp: Response) => void
-            const responsePromise: Promise<Response> = new Promise(res => {
-              resolveResponsePromise = res
-            })
-            const makeGetRequestSpy = jest.spyOn(manager, 'makeGetRequest').mockReturnValueOnce({
-              abort() {},
-              responsePromise,
-            })
-
-            manager.start()
-            expect(makeGetRequestSpy).toBeCalledTimes(1)
-
-            await timeoutPromise(1000)
-            expect(makeGetRequestSpy).toBeCalledTimes(1)
-
-            resolveResponsePromise!({
+          it('waits until the request is complete before making the next request', async () => {
+            const delayedResponsePromise = timeoutPromise(2000).then(() => ({
               statusCode: 200,
               body: '{"foo": "bar"}',
               headers: {},
+            }))
+            const makeGetReqSpy = jest.spyOn(manager, 'makeGetRequest').mockImplementation(() => {
+              return {
+                abort() {},
+                responsePromise: delayedResponsePromise,
+              }
             })
-            await responsePromise
-            expect(makeGetRequestSpy).toBeCalledTimes(2)
+            manager.start()
+            expect(makeGetReqSpy).toBeCalledTimes(1)
+            await timeoutPromise(1000)
+            expect(makeGetReqSpy).toBeCalledTimes(1)
+            await timeoutPromise(2000)
+            expect(makeGetReqSpy.mock.calls.length).toBeGreaterThanOrEqual(2)
           })
         })
 
@@ -350,7 +343,7 @@ describe('httpPollingDatafileManager', () => {
           await manager.onReady()
           expect(manager.get()).toEqual({ foo: 'bar' })
 
-          const delayedResponsePromise = timeoutPromise(1001).then(() => ({
+          const delayedResponsePromise = timeoutPromise(2000).then(() => ({
             statusCode: 200,
             body: '{"foo2": "bar2"}',
             headers: {},
@@ -366,7 +359,7 @@ describe('httpPollingDatafileManager', () => {
 
           expect(makeGetReqSpy).toBeCalledTimes(1)
           manager.stop()
-          await delayedResponsePromise
+          await timeoutPromise(2000)
           // // Should not have updated datafile since manager was stopped
           expect(manager.get()).toEqual({ foo: 'bar' })
         })
