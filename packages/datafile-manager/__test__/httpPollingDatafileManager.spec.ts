@@ -475,7 +475,7 @@ describe('httpPollingDatafileManager', () => {
           it('uses the delay from the backoff controller getDelay method when greater than updateInterval', async () => {
             const BackoffControllerMock = (BackoffController as unknown) as jest.Mock<BackoffController, []>
             const getDelayMock = BackoffControllerMock.mock.results[0].value.getDelay
-            getDelayMock.mockImplementationOnce(() => 1432)
+            getDelayMock.mockImplementationOnce(() => 1500)
 
             const makeGetRequestSpy = jest.spyOn(manager, 'makeGetRequest')
 
@@ -494,9 +494,9 @@ describe('httpPollingDatafileManager', () => {
             await timeoutPromise(1000)
             expect(makeGetRequestSpy).toBeCalledTimes(1)
 
-            // But after another 500ms, another request should be made
-            await timeoutPromise(500)
-            expect(makeGetRequestSpy).toBeCalledTimes(2)
+            // But after another 1000, another request should be made
+            await timeoutPromise(1000)
+            expect(makeGetRequestSpy.mock.calls.length).toBeGreaterThanOrEqual(2)
           })
 
           it('calls countError on the backoff controller when a non-success status code response is received', async () => {
