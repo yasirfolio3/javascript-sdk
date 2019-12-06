@@ -6,8 +6,9 @@ import optimizelyClient from './optimizely';
  * The new design consumes data from a new version of an API endpoint.
  * We represent the API version as a string feature variable in Optimizely.
  *
- * projectsDashboardConfig returns an object describing the data source
- * configuration for the argument user when they visit the projects dashboard.
+ * When rendering the projects dashboard, projectsDashboardConfig is called to
+ * obtain an object describing the data source configuration for the argument user
+ * when they visit this page.
  *
  * @param {optimizely.Client} optimizelyClient
  * @param {Object} user
