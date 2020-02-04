@@ -15,7 +15,7 @@
  */
 
 var assert = require('chai').assert;
-var datafileManager = require('@optimizely/js-sdk-datafile-manager');
+var datafileManager = require('../datafile-manager');
 var logging = require('@optimizely/js-sdk-logging');
 var sinon = require('sinon');
 var sprintf = require('@optimizely/js-sdk-utils').sprintf;
