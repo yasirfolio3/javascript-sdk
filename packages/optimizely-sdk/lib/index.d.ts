@@ -15,7 +15,7 @@
  */
 
 declare module "@optimizely/optimizely-sdk" {
-  import { LogHandler, ErrorHandler } from "@optimizely/js-sdk-logging";
+  import { LogHandler, ErrorHandler } from "@optimizely/js-sdk-logging"
   import * as enums from "@optimizely/optimizely-sdk/lib/utils/enums";
   import * as logging from "@optimizely/optimizely-sdk/lib/plugins/logger";
   export { enums, logging };
@@ -115,7 +115,7 @@ declare module "@optimizely/optimizely-sdk" {
     onReady(options?: {
       timeout?: number;
     }): Promise<{ success: boolean; reason?: string }>;
-    close(): void;    
+    close(): void;
   }
 
   // An event to be submitted to Optimizely, enabling tracking the reach and impact of
@@ -225,7 +225,7 @@ declare module "@optimizely/optimizely-sdk" {
     type: string;
     value: string;
   }
-  
+
   export interface OptimizelyVariation {
     id: string;
     key: string;

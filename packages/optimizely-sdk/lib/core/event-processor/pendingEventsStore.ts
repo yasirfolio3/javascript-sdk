@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { objectValues } from '@optimizely/js-sdk-utils'
-import { getLogger } from '@optimizely/js-sdk-logging';
+import { objectValues } from '../../utils/misc'
+import { getLogger } from '../logging';
 
 const logger = getLogger('EventProcessor')
 

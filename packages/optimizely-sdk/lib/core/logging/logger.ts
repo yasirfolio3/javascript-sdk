@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { getErrorHandler } from './errorHandler'
-import { isValidEnum, sprintf } from '@optimizely/js-sdk-utils'
+import { isValidEnum, sprintf } from '../../utils/misc'
 
 import { LogLevel, LoggerFacade, LogManager, LogHandler } from './models'
 

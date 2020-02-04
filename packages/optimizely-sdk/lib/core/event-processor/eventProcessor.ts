@@ -18,8 +18,8 @@ import { Managed } from './managed'
 import { ConversionEvent, ImpressionEvent, areEventContextsEqual } from './events'
 import { EventDispatcher, EventV1Request } from './eventDispatcher'
 import { EventQueue, DefaultEventQueue, SingleEventQueue } from './eventQueue'
-import { getLogger } from '@optimizely/js-sdk-logging'
-import { NOTIFICATION_TYPES, NotificationCenter } from '@optimizely/js-sdk-utils'
+import { getLogger } from '../logging'
+import { NOTIFICATION_TYPES, NotificationCenter } from '../../utils/misc'
 
 const logger = getLogger('EventProcessor')
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { getLogger } from '@optimizely/js-sdk-logging'
+import { getLogger } from '../logging'
 // TODO change this to use Managed from js-sdk-models when available
 import { Managed } from './managed'
 
