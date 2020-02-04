@@ -17,7 +17,7 @@ var conditionTreeEvaluator = require('../condition_tree_evaluator');
 var customAttributeConditionEvaluator = require('../custom_attribute_condition_evaluator');
 var enums = require('../../utils/enums');
 var fns = require('../../utils/fns');
-var sprintf = require('@optimizely/js-sdk-utils').sprintf;
+var sprintf = require('../../utils/misc').sprintf;
 var logging = require('../logging');
 var logger = logging.getLogger();
 

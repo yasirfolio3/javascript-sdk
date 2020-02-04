@@ -27,7 +27,7 @@ var chai = require('chai');
 var assert = chai.assert;
 var loggerPlugin = require('../../plugins/logger');
 var sinon = require('sinon');
-var sprintf = require('@optimizely/js-sdk-utils').sprintf;
+var sprintf = require('../../utils/misc').sprintf;
 
 var ERROR_MESSAGES = enums.ERROR_MESSAGES;
 var FEATURE_VARIABLE_TYPES = enums.FEATURE_VARIABLE_TYPES;

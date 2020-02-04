@@ -17,7 +17,7 @@ var bucketer = require('./');
 var enums = require('../../utils/enums');
 var logger = require('../../plugins/logger');
 var projectConfig = require('../project_config');
-var sprintf = require('@optimizely/js-sdk-utils').sprintf;
+var sprintf = require('../../utils/misc').sprintf;
 var testData = require('../../tests/test_data').getTestProjectConfig();
 
 var chai = require('chai');

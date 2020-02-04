@@ -15,7 +15,7 @@
  */
 var fns = require('../fns');
 var validate = require('json-schema').validate;
-var sprintf = require('@optimizely/js-sdk-utils').sprintf;
+var sprintf = require('../../utils/misc').sprintf;
 
 var ERROR_MESSAGES = require('../enums').ERROR_MESSAGES;
 var MODULE_NAME = 'JSON_SCHEMA_VALIDATOR';

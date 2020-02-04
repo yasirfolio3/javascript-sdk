@@ -19,7 +19,7 @@
  */
 var enums = require('../../utils/enums');
 var murmurhash = require('murmurhash');
-var sprintf = require('@optimizely/js-sdk-utils').sprintf;
+var sprintf = require('../../utils/misc').sprintf;
 
 var ERROR_MESSAGES = enums.ERROR_MESSAGES;
 var HASH_SEED = 1;

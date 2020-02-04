@@ -36,7 +36,7 @@ var logging = require('../core/logging');
 var chai = require('chai');
 var assert = chai.assert;
 var sinon = require('sinon');
-var sprintf = require('@optimizely/js-sdk-utils').sprintf;
+var sprintf = require('../../utils/misc').sprintf;
 var uuid = require('uuid');
 
 var ERROR_MESSAGES = enums.ERROR_MESSAGES;

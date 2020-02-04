@@ -21,7 +21,7 @@ var fns = require('../../utils/fns');
 var projectConfig = require('../project_config');
 var stringValidator = require('../../utils/string_value_validator');
 
-var sprintf = require('@optimizely/js-sdk-utils').sprintf;
+var sprintf = require('../../utils/misc').sprintf;
 
 var MODULE_NAME = 'DECISION_SERVICE';
 var ERROR_MESSAGES = enums.ERROR_MESSAGES;

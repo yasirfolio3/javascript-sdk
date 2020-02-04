@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 var LogLevel = require('../../core/logging').LogLevel;
-var sprintf = require('@optimizely/js-sdk-utils').sprintf;
+var sprintf = require('../../utils/misc').sprintf;
 
 function getLogLevelName(level) {
   switch(level) {

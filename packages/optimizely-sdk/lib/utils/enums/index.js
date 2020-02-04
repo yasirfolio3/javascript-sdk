@@ -14,7 +14,7 @@
  * limitations under the License.                                           *
  ***************************************************************************/
 
-var jsSdkUtils = require('@optimizely/js-sdk-utils');
+var jsSdkUtils = require('../../utils/misc');
 
 /**
  * Contains global enums used throughout the library

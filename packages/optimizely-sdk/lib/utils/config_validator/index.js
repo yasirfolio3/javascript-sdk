@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var sprintf = require('@optimizely/js-sdk-utils').sprintf;
+var sprintf = require('../../utils/misc').sprintf;
 
 var ERROR_MESSAGES = require('../enums').ERROR_MESSAGES;
 var MODULE_NAME = 'CONFIG_VALIDATOR';

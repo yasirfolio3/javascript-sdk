@@ -15,7 +15,7 @@
  */
 var fns = require('../../utils/fns');
 var enums = require('../../utils/enums');
-var sprintf = require('@optimizely/js-sdk-utils').sprintf;
+var sprintf = require('../../utils/misc').sprintf;
 var configValidator = require('../../utils/config_validator');
 var projectConfigSchema = require('./project_config_schema');
 

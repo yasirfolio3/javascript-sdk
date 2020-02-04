@@ -15,7 +15,7 @@
  */
 
 var fns = require('../../utils/fns');
-var sprintf = require('@optimizely/js-sdk-utils').sprintf;
+var sprintf = require('../../utils/misc').sprintf;
 var logging = require('../logging');
 var configValidator = require('../../utils/config_validator');
 var datafileManager = require('../datafile-manager');
