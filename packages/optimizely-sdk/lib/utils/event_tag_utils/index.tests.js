@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var chai = require('chai');
+import chai from 'chai';
 var assert = chai.assert;
-var sinon = require('sinon');
-var eventTagUtils = require('./');
+import sinon from 'sinon';
+import eventTagUtils from './';
 
 describe('lib/utils/event_tag_utils', function() {
   var mockLogger;

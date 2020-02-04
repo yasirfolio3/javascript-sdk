@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var enums = require('../../utils/enums');
-var fns = require('../../utils/fns');
-var eventTagUtils = require('../../utils/event_tag_utils');
-var projectConfig = require('../project_config');
-var attributeValidator = require('../../utils/attributes_validator');
+import * as enums from '../../utils/enums';
+import fns from '../../utils/fns';
+import eventTagUtils from '../../utils/event_tag_utils';
+import projectConfig from '../project_config';
+import attributeValidator from '../../utils/attributes_validator';
 
 var ACTIVATE_EVENT_KEY = 'campaign_activated';
 var CUSTOM_ATTRIBUTE_FEATURE_TYPE = 'custom';
@@ -150,7 +150,7 @@ function getVisitorSnapshot(configObj, eventKey, eventTags, logger) {
   return snapshot;
 }
 
-module.exports = {
+export default {
   /**
    * Create impression event params to be sent to the logging endpoint
    * @param  {Object} options               Object containing values needed to build impression event

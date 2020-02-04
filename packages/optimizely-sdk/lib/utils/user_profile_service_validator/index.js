@@ -18,12 +18,12 @@
  * Provides utility method for validating that the given user profile service implementation is valid.
  */
 
-var sprintf = require('../../utils/misc').sprintf;
+import { sprintf } from '../../utils/misc';
 
-var ERROR_MESSAGES = require('../enums').ERROR_MESSAGES;
+import { ERROR_MESSAGES } from '../enums';
 var MODULE_NAME = 'USER_PROFILE_SERVICE_VALIDATOR';
 
-module.exports = {
+export default {
   /**
    * Validates user's provided user profile service instance
    * @param  {Object}  userProfileServiceInstance

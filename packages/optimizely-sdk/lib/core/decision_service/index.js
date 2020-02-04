@@ -14,14 +14,13 @@
  * limitations under the License.                                           *
  ***************************************************************************/
 
-var AudienceEvaluator = require('../audience_evaluator');
-var bucketer = require('../bucketer');
-var enums = require('../../utils/enums');
-var fns = require('../../utils/fns');
-var projectConfig = require('../project_config');
-var stringValidator = require('../../utils/string_value_validator');
+import AudienceEvaluator from '../audience_evaluator';
+import bucketer from '../bucketer';
+import * as enums from '../../utils/enums';
+import projectConfig from '../project_config';
+import stringValidator from '../../utils/string_value_validator';
 
-var sprintf = require('../../utils/misc').sprintf;
+import { sprintf } from '../../utils/misc';
 
 var MODULE_NAME = 'DECISION_SERVICE';
 var ERROR_MESSAGES = enums.ERROR_MESSAGES;
@@ -611,7 +610,7 @@ DecisionService.prototype.setForcedVariation = function(configObj, experimentKey
   }
 };
 
-module.exports = {
+export default {
   /**
    * Creates an instance of the DecisionService.
    * @param  {Object} options               Configuration options

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-var fns = require('../fns');
+import fns from '../fns';
 
 /**
  * Return true if the argument is a valid event batch size, false otherwise
@@ -34,7 +34,4 @@ function validateEventFlushInterval(eventFlushInterval) {
   return fns.isFinite(eventFlushInterval) && eventFlushInterval > 0;
 }
 
-module.exports = {
-  validateEventBatchSize: validateEventBatchSize,
-  validateEventFlushInterval: validateEventFlushInterval,
-};
+export { validateEventBatchSize, validateEventFlushInterval };

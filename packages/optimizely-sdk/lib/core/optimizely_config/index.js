@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var projectConfig = require('../project_config');
+import projectConfig from '../project_config';
 
 // Get Experiment Ids which are part of rollouts
 function getRolloutExperimentIds(rollouts) {
@@ -109,7 +109,7 @@ function getFeaturesMap(configObj, allExperiments) {
   }, {});
 }
 
-module.exports = {
+export default {
   getOptimizelyConfig: function(configObj) {
     // Fetch all feature variables from feature flags to merge them with variation variables
     var experimentsMap = getExperimentsMap(configObj);

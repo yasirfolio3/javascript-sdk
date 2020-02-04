@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-var assert = require('chai').assert;
-var datafileManager = require('../datafile-manager');
-var logging = require('../logging');
-var sinon = require('sinon');
-var sprintf = require('../../utils/misc').sprintf;
-var enums = require('../../utils/enums');
-var jsonSchemaValidator = require('../../utils/json_schema_validator');
-var projectConfig = require('./index');
-var optimizelyConfig = require('../optimizely_config/index');
-var projectConfigManager = require('./project_config_manager');
-var testData = require('../../tests/test_data');
+import { assert } from 'chai';
+import datafileManager from '../datafile-manager';
+import logging from '../logging';
+import sinon from 'sinon';
+import { sprintf } from '../../utils/misc';
+import enums from '../../utils/enums';
+import jsonSchemaValidator from '../../utils/json_schema_validator';
+import projectConfig from './index';
+import optimizelyConfig from '../optimizely_config/index';
+import projectConfigManager from './project_config_manager';
+import testData from '../../tests/test_data';
 
 var ERROR_MESSAGES = enums.ERROR_MESSAGES;
 var LOG_MESSAGES = enums.LOG_MESSAGES;

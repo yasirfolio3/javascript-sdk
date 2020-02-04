@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var chai = require('chai');
+import chai from 'chai';
 var assert = chai.assert;
-var sprintf = require('../../utils/misc').sprintf;
-var eventTagsValidator = require('./');
+import { sprintf } from '../../utils/misc';
+import eventTagsValidator from './';
 
-var ERROR_MESSAGES = require('../enums').ERROR_MESSAGES;
+import { ERROR_MESSAGES } from '../enums';
 
 describe('lib/utils/event_tags_validator', function() {
   describe('APIs', function() {

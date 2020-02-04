@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var http = require('http');
-var https = require('https');
-var url = require('url');
+import http from 'http';
+import https from 'https';
+import url from 'url';
 
-module.exports = {
+export default {
   /**
    * Dispatch an HTTP request to the given url and the specified options
    * @param {Object}  eventObj          Event object containing

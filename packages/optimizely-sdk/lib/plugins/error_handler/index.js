@@ -17,7 +17,7 @@
 /**
  * Default error handler implementation
  */
-module.exports = {
+export default {
   /**
    * Handle given exception
    * @param  {Object} exception An exception object

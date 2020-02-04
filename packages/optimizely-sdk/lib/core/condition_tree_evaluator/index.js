@@ -120,6 +120,4 @@ function orEvaluator(conditions, leafEvaluator) {
   return sawNullResult ? null : false;
 }
 
-module.exports = {
-  evaluate: evaluate,
-};
+export { evaluate };

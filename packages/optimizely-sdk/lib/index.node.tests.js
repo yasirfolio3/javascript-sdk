@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var logging = require('./core/logging');
-var configValidator = require('./utils/config_validator');
-var enums = require('./utils/enums');
-var loggerPlugin = require('./plugins/logger');
-var Optimizely = require('./optimizely');
-var optimizelyFactory = require('./index.node');
-var testData = require('./tests/test_data');
-var eventProcessor = require('./core/event-processor');
+import logging from './core/logging';
+import configValidator from './utils/config_validator';
+import enums from './utils/enums';
+import loggerPlugin from './plugins/logger';
+import Optimizely from './optimizely';
+import optimizelyFactory from './index.node';
+import testData from './tests/test_data';
+import eventProcessor from './core/event-processor';
 
-var chai = require('chai');
+import chai from 'chai';
 var assert = chai.assert;
-var sinon = require('sinon');
+import sinon from 'sinon';
 
 describe('optimizelyFactory', function() {
   describe('APIs', function() {

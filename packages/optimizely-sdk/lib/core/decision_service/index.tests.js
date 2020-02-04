@@ -14,24 +14,24 @@
  * limitations under the License.                                           *
  ***************************************************************************/
 
-var Optimizely = require('../../optimizely');
-var eventBuilder = require('../../core/event_builder/index.js');
-var eventDispatcher = require('../../plugins/event_dispatcher/index.node');
-var errorHandler = require('../../plugins/error_handler');
-var bucketer = require('../bucketer');
-var DecisionService = require('./');
-var enums = require('../../utils/enums');
-var fns = require('../../utils/fns');
-var logger = require('../../plugins/logger');
-var projectConfig = require('../project_config');
-var sprintf = require('../../utils/misc').sprintf;
+import Optimizely from '../../optimizely';
+import eventBuilder from '../../core/event_builder/index.js';
+import eventDispatcher from '../../plugins/event_dispatcher/index.node';
+import errorHandler from '../../plugins/error_handler';
+import bucketer from '../bucketer';
+import DecisionService from './';
+import enums from '../../utils/enums';
+import fns from '../../utils/fns';
+import logger from '../../plugins/logger';
+import projectConfig from '../project_config';
+import { sprintf } from '../../utils/misc';
 var testData = require('../../tests/test_data').getTestProjectConfig();
 var testDataWithFeatures = require('../../tests/test_data').getTestProjectConfigWithFeatures();
-var jsonSchemaValidator = require('../../utils/json_schema_validator');
-var AudienceEvaluator = require('../audience_evaluator');
+import jsonSchemaValidator from '../../utils/json_schema_validator';
+import AudienceEvaluator from '../audience_evaluator';
 
-var chai = require('chai');
-var sinon = require('sinon');
+import chai from 'chai';
+import sinon from 'sinon';
 var assert = chai.assert;
 
 var LOG_LEVEL = enums.LOG_LEVEL;

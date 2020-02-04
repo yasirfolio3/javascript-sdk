@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-var fns = require('../../utils/fns');
-var sprintf = require('../../utils/misc').sprintf;
-var logging = require('../logging');
-var configValidator = require('../../utils/config_validator');
-var enums = require('../../utils/enums');
-var projectConfig = require('../../core/project_config');
-var optimizelyConfig = require('../optimizely_config');
+import { sprintf } from '../../utils/misc';
+import * as logging from '../logging';
+import configValidator from '../../utils/config_validator';
+import * as enums from '../../utils/enums';
+import projectConfig from '../../core/project_config';
+import optimizelyConfig from '../optimizely_config';
 
 var logger = logging.getLogger();
 
@@ -347,6 +346,4 @@ ProjectConfigManager.prototype.stop = function() {
   this.__updateListeners = [];
 };
 
-module.exports = {
-  ProjectConfigManager: ProjectConfigManager,
-};
+export { ProjectConfigManager };

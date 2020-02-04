@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-var enums = require('../../utils/enums');
-var fns = require('../../utils/fns');
-var miscUtils = require('../../utils/misc') ;
-var sprintf = miscUtils.sprintf;
-var objectValues = miscUtils.objectValues;
+import * as enums from '../../utils/enums';
+import { sprintf, objectValues } from '../../utils/misc';
 
 var LOG_LEVEL = enums.LOG_LEVEL;
 var LOG_MESSAGES = enums.LOG_MESSAGES;
@@ -177,7 +174,7 @@ NotificationCenter.prototype.sendNotifications = function (notificationType, not
   }
 };
 
-module.exports = {
+export default {
   /**
    * Create an instance of NotificationCenter
    * @param {Object} options

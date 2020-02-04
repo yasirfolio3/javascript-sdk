@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var projectConfig = require('./');
-var enums = require('../../utils/enums');
-var testDatafile = require('../../tests/test_data');
-var configValidator = require('../../utils/config_validator');
-var logging = require('../logging');
+import projectConfig from './';
+import enums from '../../utils/enums';
+import testDatafile from '../../tests/test_data';
+import configValidator from '../../utils/config_validator';
+import logging from '../logging';
 
 var logger = logging.getLogger();
 

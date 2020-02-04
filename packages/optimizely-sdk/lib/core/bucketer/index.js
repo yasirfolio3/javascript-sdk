@@ -17,9 +17,9 @@
 /**
  * Bucketer API for determining the variation id from the specified parameters
  */
-var enums = require('../../utils/enums');
-var murmurhash = require('murmurhash');
-var sprintf = require('../../utils/misc').sprintf;
+import * as enums from '../../utils/enums';
+import murmurhash from 'murmurhash';
+import { sprintf } from '../../utils/misc';
 
 var ERROR_MESSAGES = enums.ERROR_MESSAGES;
 var HASH_SEED = 1;
@@ -30,7 +30,7 @@ var MAX_TRAFFIC_VALUE = 10000;
 var MODULE_NAME = 'BUCKETER';
 var RANDOM_POLICY = 'random';
 
-module.exports = {
+export default {
   /**
    * Determines ID of variation to be shown for the given input params
    * @param  {Object}         bucketerParams

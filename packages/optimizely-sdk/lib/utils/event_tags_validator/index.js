@@ -18,12 +18,12 @@
  * Provides utility method for validating that event tags user has provided are valid
  */
 
-var sprintf = require('../../utils/misc').sprintf;
+import { sprintf } from '../../utils/misc';
 
-var ERROR_MESSAGES = require('../enums').ERROR_MESSAGES;
+import { ERROR_MESSAGES } from '../enums';
 var MODULE_NAME = 'EVENT_TAGS_VALIDATOR';
 
-module.exports = {
+export default {
   /**
    * Validates user's provided event tags
    * @param  {Object}  event tags

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var cloneDeep = require('lodash/cloneDeep');
+import cloneDeep from 'lodash/cloneDeep';
 
 var config = {
   revision: '42',
@@ -2578,13 +2578,4 @@ var getMutexFeatureTestsConfig = function() {
   return cloneDeep(mutexFeatureTestsConfig);
 };
 
-module.exports = {
-  getTestProjectConfig: getTestProjectConfig,
-  getParsedAudiences: getParsedAudiences,
-  getTestProjectConfigWithFeatures: getTestProjectConfigWithFeatures,
-  datafileWithFeaturesExpectedData: datafileWithFeaturesExpectedData,
-  getUnsupportedVersionConfig: getUnsupportedVersionConfig,
-  getTypedAudiencesConfig: getTypedAudiencesConfig,
-  typedAudiencesById: typedAudiencesById,
-  getMutexFeatureTestsConfig: getMutexFeatureTestsConfig,
-};
+export { getTestProjectConfig, getParsedAudiences, getTestProjectConfigWithFeatures, datafileWithFeaturesExpectedData, getUnsupportedVersionConfig, getTypedAudiencesConfig, typedAudiencesById, getMutexFeatureTestsConfig };

@@ -14,10 +14,10 @@
  * limitations under the License.                                           *
  ***************************************************************************/
 
-var chai = require('chai');
-var sinon = require('sinon');
+import chai from 'chai';
+import sinon from 'sinon';
 var assert = chai.assert;
-var conditionTreeEvaluator = require('./');
+import conditionTreeEvaluator from './';
 
 var conditionA = {
   name: 'browser_type',

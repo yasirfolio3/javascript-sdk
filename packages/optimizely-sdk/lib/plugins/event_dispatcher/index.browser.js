@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var fns = require('../../utils/fns');
+import fns from '../../utils/fns';
 
 var POST_METHOD = 'POST';
 var GET_METHOD = 'GET';
 var READYSTATE_COMPLETE = 4;
 
-module.exports = {
+export default {
   /**
    * Sample event dispatcher implementation for tracking impression and conversions
    * Users of the SDK can provide their own implementation

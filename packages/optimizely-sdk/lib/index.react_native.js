@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var logging = require('./core/logging');
-var fns = require('./utils/fns');
-var configValidator = require('./utils/config_validator');
-var defaultErrorHandler = require('./plugins/error_handler');
-var defaultEventDispatcher = require('./plugins/event_dispatcher/index.browser');
-var enums = require('./utils/enums');
-var loggerPlugin = require('./plugins/logger/index.react_native');
-var Optimizely = require('./optimizely');
-var eventProcessorConfigValidator = require('./utils/event_processor_config_validator');
-var datafileManager = require('./core/datafile-manager/index.browser');
+import logging from './core/logging';
+import fns from './utils/fns';
+import configValidator from './utils/config_validator';
+import defaultErrorHandler from './plugins/error_handler';
+import defaultEventDispatcher from './plugins/event_dispatcher/index.browser';
+import enums from './utils/enums';
+import loggerPlugin from './plugins/logger/index.react_native';
+import Optimizely from './optimizely';
+import eventProcessorConfigValidator from './utils/event_processor_config_validator';
+import datafileManager from './core/datafile-manager/index.browser';
 
 var logger = logging.getLogger();
 logging.setLogHandler(loggerPlugin.createLogger());
@@ -34,7 +34,7 @@ var DEFAULT_EVENT_FLUSH_INTERVAL = 1000; // Unit is ms, default is 1s
 /**
  * Entry point into the Optimizely Javascript SDK for React Native
  */
-module.exports = {
+export default {
   logging: loggerPlugin,
   errorHandler: defaultErrorHandler,
   eventDispatcher: defaultEventDispatcher,

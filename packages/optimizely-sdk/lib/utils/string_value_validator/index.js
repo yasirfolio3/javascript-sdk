@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-module.exports = {
+export default {
   /**
    * Validates provided value is a non-empty string
    * @param  {string}  input

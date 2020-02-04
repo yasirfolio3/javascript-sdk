@@ -14,13 +14,13 @@
  * limitations under the License.                                           *
  ***************************************************************************/
 
-var customAttributeEvaluator = require('./');
-var enums = require('../../utils/enums');
+import customAttributeEvaluator from './';
+import enums from '../../utils/enums';
 var LOG_LEVEL = enums.LOG_LEVEL;
-var logger = require('../../plugins/logger');
+import logger from '../../plugins/logger';
 
-var chai = require('chai');
-var sinon = require('sinon');
+import chai from 'chai';
+import sinon from 'sinon';
 var assert = chai.assert;
 
 var browserConditionSafari = {

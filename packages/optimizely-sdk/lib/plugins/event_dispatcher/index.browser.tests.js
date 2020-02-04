@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var eventDispatcher = require('./index.browser');
-var chai = require('chai');
+import eventDispatcher from './index.browser';
+import chai from 'chai';
 var assert = chai.assert;
-var sinon = require('sinon');
+import sinon from 'sinon';
 
 describe('lib/plugins/event_dispatcher/browser', function() {
   describe('APIs', function() {

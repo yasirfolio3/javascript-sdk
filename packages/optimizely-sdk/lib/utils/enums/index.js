@@ -14,12 +14,12 @@
  * limitations under the License.                                           *
  ***************************************************************************/
 
-var jsSdkUtils = require('../../utils/misc');
+import * as jsSdkUtils from '../../utils/misc';
 
 /**
  * Contains global enums used throughout the library
  */
-exports.LOG_LEVEL = {
+export let LOG_LEVEL = {
   NOTSET: 0,
   DEBUG: 1,
   INFO: 2,
@@ -27,7 +27,7 @@ exports.LOG_LEVEL = {
   ERROR: 4,
 };
 
-exports.ERROR_MESSAGES = {
+export let ERROR_MESSAGES = {
   CONDITION_EVALUATOR_ERROR: '%s: Error evaluating audience condition of type %s: %s',
   DATAFILE_AND_SDK_KEY_MISSING: '%s: You must provide at least one of sdkKey or datafile. Cannot start Optimizely',
   EXPERIMENT_KEY_NOT_IN_DATAFILE: '%s: Experiment key %s is not in datafile.',
@@ -67,7 +67,7 @@ exports.ERROR_MESSAGES = {
   INVALID_VARIATION_KEY: '%s: Provided variation key is in an invalid format.',
 };
 
-exports.LOG_MESSAGES = {
+export let LOG_MESSAGES = {
   ACTIVATE_USER: '%s: Activating user %s in experiment %s.',
   DISPATCH_CONVERSION_EVENT: '%s: Dispatching conversion event to URL %s with params %s.',
   DISPATCH_IMPRESSION_EVENT: '%s: Dispatching impression event to URL %s with params %s.',
@@ -144,32 +144,32 @@ exports.LOG_MESSAGES = {
   UNABLE_TO_ATTACH_UNLOAD: '%s: unable to bind optimizely.close() to page unload event: "%s"',
 };
 
-exports.RESERVED_EVENT_KEYWORDS = {
+export let RESERVED_EVENT_KEYWORDS = {
   REVENUE: 'revenue',
   VALUE: 'value',
 };
 
-exports.CONTROL_ATTRIBUTES = {
+export let CONTROL_ATTRIBUTES = {
   BOT_FILTERING: '$opt_bot_filtering',
   BUCKETING_ID: '$opt_bucketing_id',
   STICKY_BUCKETING_KEY: '$opt_experiment_bucket_map',
   USER_AGENT: '$opt_user_agent',
 };
 
-exports.JAVASCRIPT_CLIENT_ENGINE = 'javascript-sdk';
-exports.NODE_CLIENT_ENGINE = 'node-sdk';
-exports.REACT_CLIENT_ENGINE = 'react-sdk';
-exports.NODE_CLIENT_VERSION = '3.4.1';
+export let JAVASCRIPT_CLIENT_ENGINE = 'javascript-sdk';
+export let NODE_CLIENT_ENGINE = 'node-sdk';
+export let REACT_CLIENT_ENGINE = 'react-sdk';
+export let NODE_CLIENT_VERSION = '3.4.1';
 
-exports.VALID_CLIENT_ENGINES = [
+export let VALID_CLIENT_ENGINES = [
   exports.NODE_CLIENT_ENGINE,
   exports.REACT_CLIENT_ENGINE,
   exports.JAVASCRIPT_CLIENT_ENGINE,
 ];
 
-exports.NOTIFICATION_TYPES = jsSdkUtils.NOTIFICATION_TYPES;
+export let NOTIFICATION_TYPES = jsSdkUtils.NOTIFICATION_TYPES;
 
-exports.DECISION_NOTIFICATION_TYPES = {
+export let DECISION_NOTIFICATION_TYPES = {
   AB_TEST: 'ab-test',
   FEATURE: 'feature',
   FEATURE_TEST: 'feature-test',
@@ -182,7 +182,7 @@ exports.DECISION_NOTIFICATION_TYPES = {
  * source is used to decide whether to dispatch an impression event to
  * Optimizely.
  */
-exports.DECISION_SOURCES = {
+export let DECISION_SOURCES = {
   FEATURE_TEST: 'feature-test',
   ROLLOUT: 'rollout',
 };
@@ -190,7 +190,7 @@ exports.DECISION_SOURCES = {
 /*
  * Possible types of variables attached to features
  */
-exports.FEATURE_VARIABLE_TYPES = {
+export let FEATURE_VARIABLE_TYPES = {
   BOOLEAN: 'boolean',
   DOUBLE: 'double',
   INTEGER: 'integer',
@@ -200,7 +200,7 @@ exports.FEATURE_VARIABLE_TYPES = {
 /*
  * Supported datafile versions
  */
-exports.DATAFILE_VERSIONS = {
+export let DATAFILE_VERSIONS = {
   V2: '2',
   V3: '3',
   V4: '4',

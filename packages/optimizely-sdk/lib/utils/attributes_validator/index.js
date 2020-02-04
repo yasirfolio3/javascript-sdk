@@ -18,13 +18,13 @@
  * Provides utility method for validating that the attributes user has provided are valid
  */
 
-var sprintf = require('../../utils/misc').sprintf;
-var fns = require('../../utils/fns');
+import { sprintf } from '../../utils/misc';
+import fns from '../../utils/fns';
 
-var ERROR_MESSAGES = require('../enums').ERROR_MESSAGES;
+import { ERROR_MESSAGES } from '../enums';
 var MODULE_NAME = 'ATTRIBUTES_VALIDATOR';
 
-module.exports = {
+export default {
   /**
    * Validates user's provided attributes
    * @param  {Object}  attributes

@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var chai = require('chai');
+import chai from 'chai';
 var assert = chai.assert;
-var jsonSchemaValidator = require('./');
-var projectConfigSchema = require('../../core/project_config/project_config_schema');
-var sprintf = require('../../utils/misc').sprintf;
-var testData = require('../../tests/test_data.js');
+import jsonSchemaValidator from './';
+import projectConfigSchema from '../../core/project_config/project_config_schema';
+import { sprintf } from '../../utils/misc';
+import testData from '../../tests/test_data.js';
 
-var ERROR_MESSAGES = require('../enums').ERROR_MESSAGES;
+import { ERROR_MESSAGES } from '../enums';
 
 describe('lib/utils/json_schema_validator', function() {
   describe('APIs', function() {

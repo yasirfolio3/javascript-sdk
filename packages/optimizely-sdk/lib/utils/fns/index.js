@@ -20,7 +20,7 @@ var _isFinite = function(value) {
   return typeof value == 'number' && isFinite(value);
 }
 
-module.exports = {
+export default {
   currentTimestamp: function() {
     return Math.round(new Date().getTime());
   },

@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var eventBuilder = require('./index.js');
-var packageJSON = require('../../../package.json');
-var projectConfig = require('../project_config');
-var testData = require('../../tests/test_data');
+import eventBuilder from './index.js';
+import packageJSON from '../../../package.json';
+import projectConfig from '../project_config';
+import testData from '../../tests/test_data';
 
-var chai = require('chai');
+import chai from 'chai';
 var assert = chai.assert;
-var sinon = require('sinon');
-var uuid = require('uuid');
+import sinon from 'sinon';
+import uuid from 'uuid';
 
 
 describe('lib/core/event_builder', function() {

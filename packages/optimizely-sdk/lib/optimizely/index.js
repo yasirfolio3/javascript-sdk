@@ -14,22 +14,20 @@
  * limitations under the License.                                           *
  ***************************************************************************/
 
-var fns = require('../utils/fns');
-var attributesValidator = require('../utils/attributes_validator');
-var decisionService = require('../core/decision_service');
-var enums = require('../utils/enums');
-var eventBuilder = require('../core/event_builder/index.js');
-var eventHelpers = require('../core/event_builder/event_helpers');
-var eventProcessor = require('../core/event-processor');
-var eventTagsValidator = require('../utils/event_tags_validator');
-var notificationCenter = require('../core/notification_center');
-var projectConfig = require('../core/project_config');
-var miscUtils = require('../utils/misc');
-var sprintf = miscUtils.sprintf;
-var objectValues = miscUtils.objectValues;
-var userProfileServiceValidator = require('../utils/user_profile_service_validator');
-var stringValidator = require('../utils/string_value_validator');
-var projectConfigManager = require('../core/project_config/project_config_manager');
+import fns from '../utils/fns';
+import attributesValidator from '../utils/attributes_validator';
+import decisionService from '../core/decision_service';
+import * as enums from '../utils/enums';
+import eventBuilder from '../core/event_builder/index.js';
+import * as eventHelpers from '../core/event_builder/event_helpers';
+import * as eventProcessor from '../core/event-processor';
+import eventTagsValidator from '../utils/event_tags_validator';
+import notificationCenter from '../core/notification_center';
+import projectConfig from '../core/project_config';
+import { sprintf, objectValues } from '../utils/misc';
+import userProfileServiceValidator from '../utils/user_profile_service_validator';
+import stringValidator from '../utils/string_value_validator';
+import * as projectConfigManager from '../core/project_config/project_config_manager';
 
 var ERROR_MESSAGES = enums.ERROR_MESSAGES;
 var LOG_LEVEL = enums.LOG_LEVEL;
@@ -1075,4 +1073,4 @@ Optimizely.prototype.onReady = function(options) {
   return Promise.race([this.__readyPromise, timeoutPromise]);
 };
 
-module.exports = Optimizely;
+export default Optimizely;

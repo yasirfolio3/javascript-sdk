@@ -18,7 +18,7 @@
 /**
  * Project Config JSON Schema file used to validate the project json datafile
  */
-module.exports = {
+export default {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
   "properties": {

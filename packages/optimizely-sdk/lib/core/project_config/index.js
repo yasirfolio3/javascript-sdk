@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var fns = require('../../utils/fns');
-var enums = require('../../utils/enums');
-var miscUtils = require('../../utils/misc');
-var sprintf = miscUtils.sprintf;
-var objectValues = miscUtils.objectValues;
-var configValidator = require('../../utils/config_validator');
-var projectConfigSchema = require('./project_config_schema');
+import fns from '../../utils/fns';
+import * as enums from '../../utils/enums';
+import { sprintf, objectValues } from '../../utils/misc';
+import configValidator from '../../utils/config_validator';
+import projectConfigSchema from './project_config_schema';
 
 var EXPERIMENT_RUNNING_STATUS = 'Running';
 var RESERVED_ATTRIBUTE_PREFIX = '$opt_';
@@ -30,7 +28,7 @@ var LOG_MESSAGES = enums.LOG_MESSAGES;
 var LOG_LEVEL = enums.LOG_LEVEL;
 var FEATURE_VARIABLE_TYPES = enums.FEATURE_VARIABLE_TYPES;
 
-module.exports = {
+export default {
   /**
    * Creates projectConfig object to be used for quick project property lookup
    * @param  {Object} datafile JSON datafile representing the project

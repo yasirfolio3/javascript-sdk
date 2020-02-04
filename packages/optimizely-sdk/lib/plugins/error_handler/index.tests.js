@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var errorHandler = require('./');
+import errorHandler from './';
 
-var chai = require('chai');
+import chai from 'chai';
 var assert = chai.assert;
 
 describe('lib/plugins/error_handler', function() {

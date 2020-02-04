@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var AudienceEvaluator = require('./');
-var chai = require('chai');
-var conditionTreeEvaluator = require('../condition_tree_evaluator');
-var customAttributeConditionEvaluator = require('../custom_attribute_condition_evaluator');
-var sinon = require('sinon');
+import AudienceEvaluator from './';
+import chai from 'chai';
+import conditionTreeEvaluator from '../condition_tree_evaluator';
+import customAttributeConditionEvaluator from '../custom_attribute_condition_evaluator';
+import sinon from 'sinon';
 var assert = chai.assert;
-var logging = require('../logging');
+import logging from '../logging';
 var mockLogger = logging.getLogger();
 var enums = require('../../utils/enums');
 var LOG_LEVEL = enums.LOG_LEVEL;

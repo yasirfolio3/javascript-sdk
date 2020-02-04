@@ -14,30 +14,30 @@
  * limitations under the License.                                           *
  ***************************************************************************/
 
-var Optimizely = require('./');
-var AudienceEvaluator = require('../core/audience_evaluator');
-var bluebird = require('bluebird');
-var bucketer = require('../core/bucketer');
-var projectConfigManager = require('../core/project_config/project_config_manager');
-var enums = require('../utils/enums');
-var eventBuilder = require('../core/event_builder/index.js');
-var eventDispatcher = require('../plugins/event_dispatcher/index.node');
-var eventProcessor = require('../core/event-processor');
-var errorHandler = require('../plugins/error_handler');
-var fns = require('../utils/fns');
-var jsonSchemaValidator = require('../utils/json_schema_validator');
-var logger = require('../plugins/logger');
-var decisionService = require('../core/decision_service');
-var testData = require('../tests/test_data');
-var jsonSchemaValidator = require('../utils/json_schema_validator');
-var projectConfig = require('../core/project_config');
-var logging = require('../core/logging');
+import Optimizely from './';
+import AudienceEvaluator from '../core/audience_evaluator';
+import bluebird from 'bluebird';
+import bucketer from '../core/bucketer';
+import projectConfigManager from '../core/project_config/project_config_manager';
+import enums from '../utils/enums';
+import eventBuilder from '../core/event_builder/index.js';
+import eventDispatcher from '../plugins/event_dispatcher/index.node';
+import eventProcessor from '../core/event-processor';
+import errorHandler from '../plugins/error_handler';
+import fns from '../utils/fns';
+import jsonSchemaValidator from '../utils/json_schema_validator';
+import logger from '../plugins/logger';
+import decisionService from '../core/decision_service';
+import testData from '../tests/test_data';
+import jsonSchemaValidator from '../utils/json_schema_validator';
+import projectConfig from '../core/project_config';
+import logging from '../core/logging';
 
-var chai = require('chai');
+import chai from 'chai';
 var assert = chai.assert;
-var sinon = require('sinon');
-var sprintf = require('../../utils/misc').sprintf;
-var uuid = require('uuid');
+import sinon from 'sinon';
+import { sprintf } from '../../utils/misc';
+import uuid from 'uuid';
 
 var ERROR_MESSAGES = enums.ERROR_MESSAGES;
 var LOG_LEVEL = enums.LOG_LEVEL;

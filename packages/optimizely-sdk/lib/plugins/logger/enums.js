@@ -13,4 +13,4 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-exports.LOG_LEVEL = require('../../core/logging').LogLevel;
+export let LOG_LEVEL = require('../../core/logging').LogLevel;

@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var logger = require('./');
-var chai = require('chai');
-var enums = require('../../utils/enums');
+import logger from './';
+import chai from 'chai';
+import enums from '../../utils/enums';
 var assert = chai.assert;
 var expect = chai.expect;
-var sinon = require('sinon');
+import sinon from 'sinon';
 
 var LOG_LEVEL = enums.LOG_LEVEL;
 describe('lib/plugins/logger', function() {

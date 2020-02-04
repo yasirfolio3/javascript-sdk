@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var logger = require('./index.react_native');
-var chai = require('chai');
-var enums = require('../../utils/enums');
+import logger from './index.react_native';
+import chai from 'chai';
+import enums from '../../utils/enums';
 var assert = chai.assert;
-var sinon = require('sinon');
+import sinon from 'sinon';
 
 var LOG_LEVEL = enums.LOG_LEVEL;
 describe('lib/plugins/logger/react_native', function() {

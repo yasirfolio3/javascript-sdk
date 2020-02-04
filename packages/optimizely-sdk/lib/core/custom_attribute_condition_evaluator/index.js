@@ -14,9 +14,9 @@
  * limitations under the License.                                           *
  ***************************************************************************/
 
-var fns = require('../../utils/fns');
-var enums = require('../../utils/enums');
-var sprintf = require('../../utils/misc').sprintf;
+import fns from '../../utils/fns';
+import * as enums from '../../utils/enums';
+import { sprintf } from '../../utils/misc';
 
 var LOG_LEVEL = enums.LOG_LEVEL;
 var LOG_MESSAGES = enums.LOG_MESSAGES;
@@ -248,6 +248,4 @@ function substringEvaluator(condition, userAttributes, logger) {
   return userValue.indexOf(conditionValue) !== -1;
 }
 
-module.exports = {
-  evaluate: evaluate
-};
+export { evaluate };

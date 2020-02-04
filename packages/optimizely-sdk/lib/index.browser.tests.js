@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var logging = require('./core/logging');
-var configValidator = require('./utils/config_validator');
-var eventProcessor = require('./core/event-processor');
-var Optimizely = require('./optimizely');
-var optimizelyFactory = require('./index.browser');
-var packageJSON = require('../package.json');
-var testData = require('./tests/test_data');
-var eventProcessor = require('@optimizely/js-sdk-event-processor');
-var eventProcessorConfigValidator = require('./utils/event_processor_config_validator');
+import logging from './core/logging';
+import configValidator from './utils/config_validator';
+import eventProcessor from './core/event-processor';
+import Optimizely from './optimizely';
+import optimizelyFactory from './index.browser';
+import packageJSON from '../package.json';
+import testData from './tests/test_data';
+import eventProcessor from '@optimizely/js-sdk-event-processor';
+import eventProcessorConfigValidator from './utils/event_processor_config_validator';
 
-var chai = require('chai');
+import chai from 'chai';
 var assert = chai.assert;
-var find = require('lodash/find');
-var sinon = require('sinon');
+import find from 'lodash/find';
+import sinon from 'sinon';
 
 var LocalStoragePendingEventsDispatcher = eventProcessor.LocalStoragePendingEventsDispatcher;
 

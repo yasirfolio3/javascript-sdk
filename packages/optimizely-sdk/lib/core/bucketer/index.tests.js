@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var bucketer = require('./');
-var enums = require('../../utils/enums');
-var logger = require('../../plugins/logger');
-var projectConfig = require('../project_config');
-var sprintf = require('../../utils/misc').sprintf;
+import bucketer from './';
+import enums from '../../utils/enums';
+import logger from '../../plugins/logger';
+import projectConfig from '../project_config';
+import { sprintf } from '../../utils/misc';
 var testData = require('../../tests/test_data').getTestProjectConfig();
 
-var chai = require('chai');
+import chai from 'chai';
 var assert = chai.assert;
 var expect = chai.expect;
-var cloneDeep = require('lodash/cloneDeep');
-var sinon = require('sinon');
+import cloneDeep from 'lodash/cloneDeep';
+import sinon from 'sinon';
 
 var ERROR_MESSAGES = enums.ERROR_MESSAGES;
 var LOG_LEVEL = enums.LOG_LEVEL;

@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var assert = require('chai').assert;
+import { assert } from 'chai';
 
 var datafile = require('../../tests/test_data').getTestProjectConfigWithFeatures();
-var projectConfig = require('../project_config');
-var optimizelyConfig = require('./index');
+import projectConfig from '../project_config';
+import optimizelyConfig from './index';
 
 var getAllExperimentsFromDatafile = function(datafile) {
   var allExperiments = [];

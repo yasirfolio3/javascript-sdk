@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var LogLevel = require('../../core/logging').LogLevel;
-var sprintf = require('../../utils/misc').sprintf;
+import { LogLevel } from '../../core/logging';
+import { sprintf } from '../../utils/misc';
 
 function getLogLevelName(level) {
   switch(level) {
@@ -43,7 +43,7 @@ function NoOpLogger() {}
 
 NoOpLogger.prototype.log = function() {};
 
-module.exports = {
+export default {
   createLogger: function() {
     return new ReactNativeLogger();
   },

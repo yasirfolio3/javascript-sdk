@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var sprintf = require('../../utils/misc').sprintf;
+import { sprintf } from '../../utils/misc';
 
-var ERROR_MESSAGES = require('../enums').ERROR_MESSAGES;
+import { ERROR_MESSAGES } from '../enums';
 var MODULE_NAME = 'CONFIG_VALIDATOR';
-var DATAFILE_VERSIONS = require('../enums').DATAFILE_VERSIONS;
+import { DATAFILE_VERSIONS } from '../enums';
 
 var SUPPORTED_VERSIONS = [
   DATAFILE_VERSIONS.V2,
@@ -28,7 +28,7 @@ var SUPPORTED_VERSIONS = [
 /**
  * Provides utility methods for validating that the configuration options are valid
  */
-module.exports = {
+export default {
   /**
    * Validates the given config options
    * @param  {Object} config

@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var chai = require('chai');
+import chai from 'chai';
 var assert = chai.assert;
-var stringInputValidator = require('./');
+import stringInputValidator from './';
 
 describe('lib/utils/string_input_validator', function() {
   describe('APIs', function() {

@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var eventDispatcher = require('./index.node');
-var chai = require('chai');
+import eventDispatcher from './index.node';
+import chai from 'chai';
 var assert = chai.assert;
-var nock = require('nock');
-var sinon = require('sinon');
+import nock from 'nock';
+import sinon from 'sinon';
 
 describe('lib/plugins/event_dispatcher/node', function() {
   describe('APIs', function() {

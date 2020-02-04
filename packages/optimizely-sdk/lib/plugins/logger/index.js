@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var logging = require('../../core/logging');
+import * as logging from '../../core/logging';
 
 function NoOpLogger() {}
 
 NoOpLogger.prototype.log = function() {};
 
-module.exports = {
+export default {
   createLogger: function(opts) {
     return new logging.ConsoleLogHandler(opts);
   },

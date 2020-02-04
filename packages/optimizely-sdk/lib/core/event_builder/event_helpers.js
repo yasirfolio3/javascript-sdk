@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var logging = require('../logging');
+import * as logging from '../logging';
 
-var attributesValidator = require('../../utils/attributes_validator');
-var fns = require('../../utils/fns');
-var eventTagUtils = require('../../utils/event_tag_utils');
-var projectConfig = require('../project_config');
+import attributesValidator from '../../utils/attributes_validator';
+import fns from '../../utils/fns';
+import eventTagUtils from '../../utils/event_tag_utils';
+import projectConfig from '../project_config';
 
 var logger = logging.getLogger('EVENT_BUILDER');
 
@@ -34,7 +34,7 @@ var logger = logging.getLogger('EVENT_BUILDER');
  * @param {String} config.clientVersion
  * @return {Object} an ImpressionEvent object
  */
-exports.buildImpressionEvent = function buildImpressionEvent(config) {
+export function buildImpressionEvent(config) {
   var configObj = config.configObj;
   var experimentKey = config.experimentKey;
   var variationKey = config.variationKey;
@@ -81,7 +81,7 @@ exports.buildImpressionEvent = function buildImpressionEvent(config) {
       key: variationKey,
     },
   };
-};
+}
 
 /**
  * Creates a ConversionEvent object from track
@@ -95,7 +95,7 @@ exports.buildImpressionEvent = function buildImpressionEvent(config) {
  * @param {String} config.clientVersion
  * @return {Object} a ConversionEvent object
  */
-exports.buildConversionEvent = function buildConversionEvent(config) {
+export function buildConversionEvent(config) {
   var configObj = config.configObj;
   var userId = config.userId;
   var userAttributes = config.userAttributes;
@@ -135,7 +135,7 @@ exports.buildConversionEvent = function buildConversionEvent(config) {
     value: eventTagUtils.getEventValue(eventTags, logger),
     tags: eventTags,
   };
-};
+}
 
 function buildVisitorAttributes(configObj, attributes) {
   var builtAttributes = [];

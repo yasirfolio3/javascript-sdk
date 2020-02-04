@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var logging = require('./core/logging');
-var configValidator = require('./utils/config_validator');
-var eventProcessor = require('./core/event-processor');
-var Optimizely = require('./optimizely');
-var optimizelyFactory = require('./index.react_native');
-var packageJSON = require('../package.json');
-var testData = require('./tests/test_data');
-var eventProcessorConfigValidator = require('./utils/event_processor_config_validator');
-var defaultEventDispatcher = require('./plugins/event_dispatcher/index.browser');
+import logging from './core/logging';
+import configValidator from './utils/config_validator';
+import eventProcessor from './core/event-processor';
+import Optimizely from './optimizely';
+import optimizelyFactory from './index.react_native';
+import packageJSON from '../package.json';
+import testData from './tests/test_data';
+import eventProcessorConfigValidator from './utils/event_processor_config_validator';
+import defaultEventDispatcher from './plugins/event_dispatcher/index.browser';
 
-var chai = require('chai');
+import chai from 'chai';
 var assert = chai.assert;
-var sinon = require('sinon');
+import sinon from 'sinon';
 
 describe('javascript-sdk/react-native', function() {
   describe('APIs', function() {

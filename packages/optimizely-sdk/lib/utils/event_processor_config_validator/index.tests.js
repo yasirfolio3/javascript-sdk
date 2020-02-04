@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-var chai = require('chai');
-var eventProcessorConfigValidator = require('./index');
+import chai from 'chai';
+import eventProcessorConfigValidator from './index';
 
 var assert = chai.assert;
 

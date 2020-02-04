@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-var chai = require('chai');
+import chai from 'chai';
 var assert = chai.assert;
-var fns = require('./');
+import fns from './';
 
 describe('lib/utils/fns', function() {
   describe('APIs', function() {

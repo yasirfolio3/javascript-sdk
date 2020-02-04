@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var fns = require('../fns');
-var validate = require('json-schema').validate;
-var sprintf = require('../../utils/misc').sprintf;
+import fns from '../fns';
+import { validate } from 'json-schema';
+import { sprintf } from '../../utils/misc';
 
-var ERROR_MESSAGES = require('../enums').ERROR_MESSAGES;
+import { ERROR_MESSAGES } from '../enums';
 var MODULE_NAME = 'JSON_SCHEMA_VALIDATOR';
 
-module.exports = {
+export default {
   /**
    * Validate the given json object against the specified schema
    * @param  {Object} jsonSchema The json schema to validate against

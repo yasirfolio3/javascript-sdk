@@ -14,12 +14,12 @@
  * limitations under the License.                                           *
  ***************************************************************************/
 
-var chai = require('chai');
+import chai from 'chai';
 var assert = chai.assert;
-var sprintf = require('../../utils/misc').sprintf;
-var userProfileServiceValidator = require('./');
+import { sprintf } from '../../utils/misc';
+import userProfileServiceValidator from './';
 
-var ERROR_MESSAGES = require('../enums').ERROR_MESSAGES;
+import { ERROR_MESSAGES } from '../enums';
 
 describe('lib/utils/user_profile_service_validator', function() {
   describe('APIs', function() {

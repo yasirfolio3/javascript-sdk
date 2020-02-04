@@ -17,8 +17,8 @@
 /**
  * Provides utility method for parsing event tag values
  */
-var enums = require('../enums');
-var sprintf = require('../../utils/misc').sprintf;
+import * as enums from '../enums';
+import { sprintf } from '../../utils/misc';
 
 var LOG_LEVEL = enums.LOG_LEVEL;
 var LOG_MESSAGES = enums.LOG_MESSAGES;
@@ -26,7 +26,7 @@ var MODULE_NAME = 'EVENT_TAG_UTILS';
 var REVENUE_EVENT_METRIC_NAME = enums.RESERVED_EVENT_KEYWORDS.REVENUE;
 var VALUE_EVENT_METRIC_NAME = enums.RESERVED_EVENT_KEYWORDS.VALUE;
 
-module.exports = {
+export default {
   /**
    * Grab the revenue value from the event tags. "revenue" is a reserved keyword.
    * @param {Object} eventTags

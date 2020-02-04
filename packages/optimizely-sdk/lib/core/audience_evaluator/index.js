@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var conditionTreeEvaluator = require('../condition_tree_evaluator');
-var customAttributeConditionEvaluator = require('../custom_attribute_condition_evaluator');
-var enums = require('../../utils/enums');
-var fns = require('../../utils/fns');
-var sprintf = require('../../utils/misc').sprintf;
-var logging = require('../logging');
+import * as conditionTreeEvaluator from '../condition_tree_evaluator';
+import * as customAttributeConditionEvaluator from '../custom_attribute_condition_evaluator';
+import * as enums from '../../utils/enums';
+import { sprintf } from '../../utils/misc';
+import * as logging from '../logging';
 var logger = logging.getLogger();
 
 var ERROR_MESSAGES = enums.ERROR_MESSAGES;
@@ -100,4 +99,4 @@ AudienceEvaluator.prototype.evaluateConditionWithUserAttributes = function(userA
   return null;
 };
 
-module.exports = AudienceEvaluator;
+export default AudienceEvaluator;

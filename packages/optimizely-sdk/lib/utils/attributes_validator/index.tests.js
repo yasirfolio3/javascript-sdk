@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var chai = require('chai');
+import chai from 'chai';
 var assert = chai.assert;
-var sprintf = require('../../utils/misc').sprintf;
-var attributesValidator = require('./');
-var fns = require('./../fns/');
+import { sprintf } from '../../utils/misc';
+import attributesValidator from './';
+import fns from './../fns/';
 
-var ERROR_MESSAGES = require('../enums').ERROR_MESSAGES;
+import { ERROR_MESSAGES } from '../enums';
 
 describe('lib/utils/attributes_validator', function() {
   describe('APIs', function() {
