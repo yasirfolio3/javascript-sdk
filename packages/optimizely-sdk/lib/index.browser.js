@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 require('promise-polyfill/dist/polyfill');
-var logging = require('@optimizely/js-sdk-logging');
+var logging = require('./core/logging');
 var fns = require('./utils/fns');
 var configValidator = require('./utils/config_validator');
 var defaultErrorHandler = require('./plugins/error_handler');

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var logging = require('@optimizely/js-sdk-logging');
+var logging = require('./core/logging');
 var configValidator = require('./utils/config_validator');
 var eventProcessor = require('./core/event-processor');
 var Optimizely = require('./optimizely');

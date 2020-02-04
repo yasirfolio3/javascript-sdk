@@ -31,7 +31,7 @@ var decisionService = require('../core/decision_service');
 var testData = require('../tests/test_data');
 var jsonSchemaValidator = require('../utils/json_schema_validator');
 var projectConfig = require('../core/project_config');
-var logging = require('@optimizely/js-sdk-logging');
+var logging = require('../core/logging');
 
 var chai = require('chai');
 var assert = chai.assert;

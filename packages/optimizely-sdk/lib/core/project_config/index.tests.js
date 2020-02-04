@@ -17,7 +17,7 @@ var projectConfig = require('./');
 var enums = require('../../utils/enums');
 var testDatafile = require('../../tests/test_data');
 var configValidator = require('../../utils/config_validator');
-var logging = require('@optimizely/js-sdk-logging');
+var logging = require('../logging');
 
 var logger = logging.getLogger();
 

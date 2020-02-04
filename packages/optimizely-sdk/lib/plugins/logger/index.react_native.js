@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var LogLevel = require('@optimizely/js-sdk-logging').LogLevel;
+var LogLevel = require('../../core/logging').LogLevel;
 var sprintf = require('@optimizely/js-sdk-utils').sprintf;
 
 function getLogLevelName(level) {
