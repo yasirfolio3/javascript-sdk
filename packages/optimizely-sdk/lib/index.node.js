@@ -23,6 +23,7 @@ var jsonSchemaValidator = require('./utils/json_schema_validator');
 var loggerPlugin = require('./plugins/logger');
 var Optimizely = require('./optimizely');
 var eventProcessorConfigValidator = require('./utils/event_processor_config_validator');
+var datafileManager = require('./core/datafile-manager/index.node');
 
 var logger = logging.getLogger();
 logging.setLogLevel(logging.LogLevel.ERROR);
@@ -95,6 +96,7 @@ module.exports = {
           eventFlushInterval: DEFAULT_EVENT_FLUSH_INTERVAL,
           jsonSchemaValidator: jsonSchemaValidator,
           skipJSONValidation: false,
+          datafileManager: datafileManager,
         },
         config,
         {

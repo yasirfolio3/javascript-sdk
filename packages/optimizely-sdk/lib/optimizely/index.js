@@ -24,7 +24,7 @@ var eventProcessor = require('../core/event-processor');
 var eventTagsValidator = require('../utils/event_tags_validator');
 var notificationCenter = require('../core/notification_center');
 var projectConfig = require('../core/project_config');
-var sprintf = require('../../utils/misc').sprintf;
+var sprintf = require('../utils/misc').sprintf;
 var userProfileServiceValidator = require('../utils/user_profile_service_validator');
 var stringValidator = require('../utils/string_value_validator');
 var projectConfigManager = require('../core/project_config/project_config_manager');
@@ -53,6 +53,7 @@ var DEFAULT_ONREADY_TIMEOUT = 30000;
  * @param {Object} config.userProfileService
  * @param {Object} config.eventBatchSize
  * @param {Object} config.eventFlushInterval
+ * @param {Object} config.datafileManager
  */
 function Optimizely(config) {
   var clientEngine = config.clientEngine;
@@ -69,6 +70,7 @@ function Optimizely(config) {
   this.logger = config.logger;
 
   this.projectConfigManager = new projectConfigManager.ProjectConfigManager({
+    datafileManager: config.datafileManager,
     datafile: config.datafile,
     datafileOptions: config.datafileOptions,
     jsonSchemaValidator: config.jsonSchemaValidator,

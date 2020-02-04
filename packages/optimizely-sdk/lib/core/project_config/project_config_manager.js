@@ -18,7 +18,6 @@ var fns = require('../../utils/fns');
 var sprintf = require('../../utils/misc').sprintf;
 var logging = require('../logging');
 var configValidator = require('../../utils/config_validator');
-var datafileManager = require('../datafile-manager');
 var enums = require('../../utils/enums');
 var projectConfig = require('../../core/project_config');
 var optimizelyConfig = require('../optimizely_config');
@@ -83,6 +82,7 @@ function ProjectConfigManager(config) {
  * @param {boolean=}       config.skipJSONValidation
  */
 ProjectConfigManager.prototype.__initialize = function(config) {
+  this.datafileManagerModule = config.datafileManager;
   this.__updateListeners = [];
   this.jsonSchemaValidator = config.jsonSchemaValidator;
   this.skipJSONValidation = config.skipJSONValidation;
@@ -128,7 +128,7 @@ ProjectConfigManager.prototype.__initialize = function(config) {
     if (initialDatafile && this.__configObj) {
       datafileManagerConfig.datafile = initialDatafile;
     }
-    this.datafileManager = new datafileManager.HttpPollingDatafileManager(datafileManagerConfig);
+    this.datafileManager = new this.datafileManagerModule.HttpPollingDatafileManager(datafileManagerConfig);
     this.datafileManager.start();
     this.__readyPromise = this.datafileManager.onReady().then(
       this.__onDatafileManagerReadyFulfill.bind(this),

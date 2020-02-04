@@ -24,6 +24,7 @@ var eventProcessor = require('./core/event-processor');
 var loggerPlugin = require('./plugins/logger');
 var Optimizely = require('./optimizely');
 var eventProcessorConfigValidator = require('./utils/event_processor_config_validator');
+var datafileManager = require('./core/datafile-manager/index.browser');
 
 var logger = logging.getLogger();
 logging.setLogHandler(loggerPlugin.createLogger());
@@ -112,6 +113,7 @@ module.exports = {
           clientEngine: enums.JAVASCRIPT_CLIENT_ENGINE,
           eventBatchSize: DEFAULT_EVENT_BATCH_SIZE,
           eventFlushInterval: DEFAULT_EVENT_FLUSH_INTERVAL,
+          datafileManager: datafileManager,
         },
         config,
         {

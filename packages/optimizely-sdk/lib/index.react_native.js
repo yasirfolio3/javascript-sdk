@@ -22,6 +22,7 @@ var enums = require('./utils/enums');
 var loggerPlugin = require('./plugins/logger/index.react_native');
 var Optimizely = require('./optimizely');
 var eventProcessorConfigValidator = require('./utils/event_processor_config_validator');
+var datafileManager = require('./core/datafile-manager/index.browser');
 
 var logger = logging.getLogger();
 logging.setLogHandler(loggerPlugin.createLogger());
@@ -92,6 +93,7 @@ module.exports = {
           eventBatchSize: DEFAULT_EVENT_BATCH_SIZE,
           eventDispatcher: defaultEventDispatcher,
           eventFlushInterval: DEFAULT_EVENT_FLUSH_INTERVAL,
+          datafileManager: datafileManager,
         },
         config,
         {
