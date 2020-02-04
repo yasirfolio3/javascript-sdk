@@ -19,7 +19,6 @@
  */
 
 var sprintf = require('../../utils/misc').sprintf;
-var lodashForOwn = require('lodash/forOwn');
 var fns = require('../../utils/fns');
 
 var ERROR_MESSAGES = require('../enums').ERROR_MESSAGES;
@@ -34,11 +33,12 @@ module.exports = {
    */
   validate: function(attributes) {
     if (typeof attributes === 'object' && !Array.isArray(attributes) && attributes !== null) {
-      lodashForOwn(attributes, function(value, key) {
+      Object.keys(attributes).forEach(function(key) {
+        var value = attributes[key];
         if (typeof value === 'undefined') {
           throw new Error(sprintf(ERROR_MESSAGES.UNDEFINED_ATTRIBUTE, MODULE_NAME, key));
         }
-      });
+      })
       return true;
     } else {
       throw new Error(sprintf(ERROR_MESSAGES.INVALID_ATTRIBUTES, MODULE_NAME));

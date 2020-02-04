@@ -116,7 +116,7 @@ DecisionService.prototype.__resolveExperimentBucketMap = function(userId, attrib
   attributes = attributes || {}
   var userProfile = this.__getUserProfile(userId) || {};
   var attributeExperimentBucketMap = attributes[enums.CONTROL_ATTRIBUTES.STICKY_BUCKETING_KEY];
-  return fns.assignIn({}, userProfile.experiment_bucket_map, attributeExperimentBucketMap);
+  return Object.assign({}, userProfile.experiment_bucket_map, attributeExperimentBucketMap);
 };
 
 
@@ -144,7 +144,7 @@ DecisionService.prototype.__checkIfExperimentIsActive = function(configObj, expe
  * @return {string|null} Forced variation if it exists for user ID, otherwise null
  */
 DecisionService.prototype.__getWhitelistedVariation = function(experiment, userId) {
-  if (!fns.isEmpty(experiment.forcedVariations) && experiment.forcedVariations.hasOwnProperty(userId)) {
+  if ((experiment.forcedVariations || {}).hasOwnProperty(userId)) {
     var forcedVariationKey = experiment.forcedVariations[userId];
     if (experiment.variationKeyMap.hasOwnProperty(forcedVariationKey)) {
       var forcedBucketingSucceededMessageLog = sprintf(LOG_MESSAGES.USER_FORCED_IN_VARIATION, MODULE_NAME, userId, forcedVariationKey);
@@ -263,7 +263,7 @@ DecisionService.prototype.__saveUserProfile = function(experiment, variation, us
   }
 
   try {
-    var newBucketMap = fns.cloneDeep(experimentBucketMap);
+    var newBucketMap = Object.assign({}, experimentBucketMap);
     newBucketMap[experiment.id] = {
       variation_id: variation.id
     };

@@ -88,7 +88,7 @@ module.exports = {
         config.isValidInstance = false;
       }
 
-      config = fns.assign(
+      config = Object.assign(
         {
           clientEngine: enums.NODE_CLIENT_ENGINE,
           eventBatchSize: DEFAULT_EVENT_BATCH_SIZE,

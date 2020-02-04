@@ -87,7 +87,7 @@ module.exports = {
         config.skipJSONValidation = true;
       }
 
-      config = fns.assignIn(
+      config = Object.assignIn(
         {
           clientEngine: enums.JAVASCRIPT_CLIENT_ENGINE,
           eventBatchSize: DEFAULT_EVENT_BATCH_SIZE,

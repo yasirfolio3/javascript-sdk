@@ -35,7 +35,7 @@
   "homepage": "https://github.com/optimizely/javascript-sdk/tree/master/packages/optimizely-sdk",
   "dependencies": {
     "json-schema": "^0.2.3",
-    "lodash": "^4.17.11",
+    "lodash-es": "^4.17.15",
     "murmurhash": "0.0.2",
     "promise-polyfill": "8.1.0",
     "uuid": "^3.3.2"

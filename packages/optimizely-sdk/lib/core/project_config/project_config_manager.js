@@ -123,7 +123,7 @@ ProjectConfigManager.prototype.__initialize = function(config) {
       sdkKey: config.sdkKey,
     };
     if (this.__validateDatafileOptions(config.datafileOptions)) {
-      fns.assign(datafileManagerConfig, config.datafileOptions);
+      Object.assign(datafileManagerConfig, config.datafileOptions);
     }
     if (initialDatafile && this.__configObj) {
       datafileManagerConfig.datafile = initialDatafile;

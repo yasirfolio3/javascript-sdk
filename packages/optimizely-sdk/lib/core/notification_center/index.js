@@ -16,7 +16,9 @@
 
 var enums = require('../../utils/enums');
 var fns = require('../../utils/fns');
-var sprintf = require('../../utils/misc').sprintf;
+var miscUtils = require('../../utils/misc') ;
+var sprintf = miscUtils.sprintf;
+var objectValues = miscUtils.objectValues;
 
 var LOG_LEVEL = enums.LOG_LEVEL;
 var LOG_MESSAGES = enums.LOG_MESSAGES;
@@ -37,7 +39,7 @@ function NotificationCenter(options) {
   this.logger = options.logger;
   this.errorHandler = options.errorHandler;
   this.__notificationListeners = {};
-  fns.forOwn(enums.NOTIFICATION_TYPES, function(notificationTypeEnum) {
+  objectValues(enums.NOTIFICATION_TYPES, function(notificationTypeEnum) {
     this.__notificationListeners[notificationTypeEnum] = [];
   }.bind(this));
   this.__listenerId = 1;
@@ -55,7 +57,7 @@ function NotificationCenter(options) {
  */
 NotificationCenter.prototype.addNotificationListener = function (notificationType, callback) {
   try {
-    var isNotificationTypeValid = fns.values(enums.NOTIFICATION_TYPES)
+    var isNotificationTypeValid = objectValues(enums.NOTIFICATION_TYPES)
       .indexOf(notificationType) > -1;
     if (!isNotificationTypeValid) {
       return -1;
@@ -66,7 +68,7 @@ NotificationCenter.prototype.addNotificationListener = function (notificationTyp
     }
 
     var callbackAlreadyAdded = false;
-    fns.forEach(this.__notificationListeners[notificationType], function (listenerEntry) {
+    (this.__notificationListeners[notificationType] || []).forEach(function (listenerEntry) {
       if (listenerEntry.callback === callback) {
         callbackAlreadyAdded = true;
         return false;
@@ -101,8 +103,9 @@ NotificationCenter.prototype.removeNotificationListener = function (listenerId) 
   try {
     var indexToRemove;
     var typeToRemove;
-    fns.forOwn(this.__notificationListeners, function (listenersForType, notificationType) {
-      fns.forEach(listenersForType, function (listenerEntry, i) {
+    Object.keys(this.__notificationListeners).forEach(function(notificationType) {
+      var listenersForType = this.__notificationListeners[notificationType];
+      (listenersForType || []).forEach(function (listenerEntry, i) {
         if (listenerEntry.id === listenerId) {
           indexToRemove = i;
           typeToRemove = notificationType;
@@ -130,7 +133,7 @@ NotificationCenter.prototype.removeNotificationListener = function (listenerId) 
  */
 NotificationCenter.prototype.clearAllNotificationListeners = function () {
   try{
-    fns.forOwn(enums.NOTIFICATION_TYPES, function (notificationTypeEnum) {
+    objectValues(enums.NOTIFICATION_TYPES, function (notificationTypeEnum) {
       this.__notificationListeners[notificationTypeEnum] = [];
     }.bind(this));
   } catch (e) {
@@ -160,7 +163,7 @@ NotificationCenter.prototype.clearNotificationListeners = function (notification
  */
 NotificationCenter.prototype.sendNotifications = function (notificationType, notificationData) {
   try {
-    fns.forEach(this.__notificationListeners[notificationType], function (listenerEntry) {
+    (this.__notificationListeners[notificationType] || []).forEach(function (listenerEntry) {
       var callback = listenerEntry.callback;
       try {
         callback(notificationData);

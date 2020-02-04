@@ -68,7 +68,8 @@ module.exports = {
 };
 
 var toQueryString = function(obj) {
-  return fns.map(obj, function(v, k) {
+  return Object.keys(obj).map(function(k) {
+    var v = obj[k];
     return encodeURIComponent(k) + '=' + encodeURIComponent(v);
   }).join('&');
 };

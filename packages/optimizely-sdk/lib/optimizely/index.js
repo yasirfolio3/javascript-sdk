@@ -24,7 +24,9 @@ var eventProcessor = require('../core/event-processor');
 var eventTagsValidator = require('../utils/event_tags_validator');
 var notificationCenter = require('../core/notification_center');
 var projectConfig = require('../core/project_config');
-var sprintf = require('../utils/misc').sprintf;
+var miscUtils = require('../utils/misc');
+var sprintf = miscUtils.sprintf;
+var objectValues = miscUtils.objectValues;
 var userProfileServiceValidator = require('../utils/user_profile_service_validator');
 var stringValidator = require('../utils/string_value_validator');
 var projectConfigManager = require('../core/project_config/project_config_manager');
@@ -377,7 +379,7 @@ Optimizely.prototype.getVariation = function(experimentKey, userId, attributes) 
       }
 
       var experiment = configObj.experimentKeyMap[experimentKey];
-      if (fns.isEmpty(experiment)) {
+      if (!experiment) {
         this.logger.log(LOG_LEVEL.DEBUG, sprintf(ERROR_MESSAGES.INVALID_EXPERIMENT_KEY, MODULE_NAME, experimentKey));
         return null;
       }
@@ -631,7 +633,7 @@ Optimizely.prototype.getEnabledFeatures = function(userId, attributes) {
       return enabledFeatures;
     }
 
-    fns.forOwn(
+    objectValues(
       configObj.featureKeyMap,
       function(feature) {
         if (this.isFeatureEnabled(feature.key, userId, attributes)) {

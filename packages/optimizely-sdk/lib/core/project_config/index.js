@@ -15,7 +15,9 @@
  */
 var fns = require('../../utils/fns');
 var enums = require('../../utils/enums');
-var sprintf = require('../../utils/misc').sprintf;
+var miscUtils = require('../../utils/misc');
+var sprintf = miscUtils.sprintf;
+var objectValues = miscUtils.objectValues;
 var configValidator = require('../../utils/config_validator');
 var projectConfigSchema = require('./project_config_schema');
 
@@ -35,34 +37,35 @@ module.exports = {
    * @return {Object} Object representing project configuration
    */
   createProjectConfig: function(datafile) {
-    var projectConfig = fns.cloneDeep(datafile);
+    var projectConfig = Object.assign({}, datafile);
 
     /*
      * Conditions of audiences in projectConfig.typedAudiences are not
      * expected to be string-encoded as they are here in projectConfig.audiences.
      */
-    fns.forEach(projectConfig.audiences, function(audience) {
+    (projectConfig.audiences || []).forEach(function(audience) {
       audience.conditions = JSON.parse(audience.conditions);
     });
     projectConfig.audiencesById = fns.keyBy(projectConfig.audiences, 'id');
-    fns.assign(projectConfig.audiencesById, fns.keyBy(projectConfig.typedAudiences, 'id'));
+    Object.assign(projectConfig.audiencesById, fns.keyBy(projectConfig.typedAudiences, 'id'));
 
     projectConfig.attributeKeyMap = fns.keyBy(projectConfig.attributes, 'key');
     projectConfig.eventKeyMap = fns.keyBy(projectConfig.events, 'key');
     projectConfig.groupIdMap = fns.keyBy(projectConfig.groups, 'id');
 
     var experiments;
-    fns.forEach(projectConfig.groupIdMap, function(group, Id) {
-      experiments = fns.cloneDeep(group.experiments);
-      fns.forEach(experiments, function(experiment) {
-        projectConfig.experiments.push(fns.assignIn(experiment, {groupId: Id}));
+    Object.keys(projectConfig.groupIdMap).forEach(function(id) {
+      var group = projectConfig.groupIdMap[id];
+      experiments = Object.assign({}, group.experiments);
+      (experiments || []).forEach(function(experiment) {
+        projectConfig.experiments.push(Object.assign(experiment, {groupId: id}));
       });
     });
 
     projectConfig.rolloutIdMap = fns.keyBy(projectConfig.rollouts || [], 'id');
-    fns.forOwn(projectConfig.rolloutIdMap, function(rollout) {
-      fns.forEach(rollout.experiments || [], function(experiment) {
-        projectConfig.experiments.push(fns.cloneDeep(experiment));
+    objectValues(projectConfig.rolloutIdMap, function(rollout) {
+      (rollout.experiments || []).forEach(function(experiment) {
+        projectConfig.experiments.push(Object.assign({}, experiment));
         // Creates { <variationKey>: <variation> } map inside of the experiment
         experiment.variationKeyMap = fns.keyBy(experiment.variations, 'key');
       });
@@ -73,14 +76,14 @@ module.exports = {
 
     projectConfig.variationIdMap = {};
     projectConfig.variationVariableUsageMap = {};
-    fns.forEach(projectConfig.experiments, function(experiment) {
+    (projectConfig.experiments || []).forEach(function(experiment) {
       // Creates { <variationKey>: <variation> } map inside of the experiment
       experiment.variationKeyMap = fns.keyBy(experiment.variations, 'key');
 
       // Creates { <variationId>: { key: <variationKey>, id: <variationId> } } mapping for quick lookup
-      fns.assignIn(projectConfig.variationIdMap, fns.keyBy(experiment.variations, 'id'));
+      Object.assign(projectConfig.variationIdMap, fns.keyBy(experiment.variations, 'id'));
 
-      fns.forOwn(experiment.variationKeyMap, function(variation) {
+      objectValues(experiment.variationKeyMap, function(variation) {
         if (variation.variables) {
           projectConfig.variationVariableUsageMap[variation.id] = fns.keyBy(variation.variables, 'id');
         }
@@ -92,9 +95,9 @@ module.exports = {
     projectConfig.experimentFeatureMap = {};
 
     projectConfig.featureKeyMap = fns.keyBy(projectConfig.featureFlags || [], 'key');
-    fns.forOwn(projectConfig.featureKeyMap, function(feature) {
+    objectValues(projectConfig.featureKeyMap, function(feature) {
       feature.variableKeyMap = fns.keyBy(feature.variables, 'key');
-      fns.forEach(feature.experimentIds || [], function(experimentId) {
+      (feature.experimentIds || []).forEach(function(experimentId) {
         // Add this experiment in experiment-feature map.
         if (projectConfig.experimentFeatureMap[experimentId]) {
           projectConfig.experimentFeatureMap[experimentId].push(feature.id);
@@ -122,7 +125,7 @@ module.exports = {
    */
   getExperimentId: function(projectConfig, experimentKey) {
     var experiment = projectConfig.experimentKeyMap[experimentKey];
-    if (fns.isEmpty(experiment)) {
+    if (!experiment) {
       throw new Error(sprintf(ERROR_MESSAGES.INVALID_EXPERIMENT_KEY, MODULE_NAME, experimentKey));
     }
     return experiment.id;
@@ -137,7 +140,7 @@ module.exports = {
    */
   getLayerId: function(projectConfig, experimentId) {
     var experiment = projectConfig.experimentIdMap[experimentId];
-    if (fns.isEmpty(experiment)) {
+    if (!experiment) {
       throw new Error(sprintf(ERROR_MESSAGES.INVALID_EXPERIMENT_ID, MODULE_NAME, experimentId));
     }
     return experiment.layerId;
@@ -190,7 +193,7 @@ module.exports = {
    */
   getExperimentStatus: function(projectConfig, experimentKey) {
     var experiment = projectConfig.experimentKeyMap[experimentKey];
-    if (fns.isEmpty(experiment)) {
+    if (!experiment) {
       throw new Error(sprintf(ERROR_MESSAGES.INVALID_EXPERIMENT_KEY, MODULE_NAME, experimentKey));
     }
     return experiment.status;
@@ -224,7 +227,7 @@ module.exports = {
    */
   getExperimentAudienceConditions: function(projectConfig, experimentKey) {
     var experiment = projectConfig.experimentKeyMap[experimentKey];
-    if (fns.isEmpty(experiment)) {
+    if (!experiment) {
       throw new Error(sprintf(ERROR_MESSAGES.INVALID_EXPERIMENT_KEY, MODULE_NAME, experimentKey));
     }
 
@@ -286,7 +289,7 @@ module.exports = {
    */
   getTrafficAllocation: function(projectConfig, experimentKey) {
     var experiment = projectConfig.experimentKeyMap[experimentKey];
-    if (fns.isEmpty(experiment)) {
+    if (!experiment) {
       throw new Error(sprintf(ERROR_MESSAGES.INVALID_EXPERIMENT_KEY, MODULE_NAME, experimentKey));
     }
     return experiment.trafficAllocation;
