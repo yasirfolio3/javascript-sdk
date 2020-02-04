@@ -20,7 +20,7 @@ var loggerPlugin = require('./plugins/logger');
 var Optimizely = require('./optimizely');
 var optimizelyFactory = require('./index.node');
 var testData = require('./tests/test_data');
-var eventProcessor = require('@optimizely/js-sdk-event-processor');
+var eventProcessor = require('./core/event-processor');
 
 var chai = require('chai');
 var assert = chai.assert;

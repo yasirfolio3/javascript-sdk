@@ -15,12 +15,11 @@
  */
 var logging = require('@optimizely/js-sdk-logging');
 var configValidator = require('./utils/config_validator');
-var eventProcessor = require('@optimizely/js-sdk-event-processor');
+var eventProcessor = require('./core/event-processor');
 var Optimizely = require('./optimizely');
 var optimizelyFactory = require('./index.react_native');
 var packageJSON = require('../package.json');
 var testData = require('./tests/test_data');
-var eventProcessor = require('@optimizely/js-sdk-event-processor');
 var eventProcessorConfigValidator = require('./utils/event_processor_config_validator');
 var defaultEventDispatcher = require('./plugins/event_dispatcher/index.browser');
 
