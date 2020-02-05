@@ -13,62 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var fns = require('../../utils/fns');
-
-var POST_METHOD = 'POST';
-var GET_METHOD = 'GET';
-var READYSTATE_COMPLETE = 4;
+var browserRequest = require('./dispatch_event.browser');
+var EventDispatcherModule = require('./event_dispatcher');
 
 module.exports = {
-  /**
-   * Sample event dispatcher implementation for tracking impression and conversions
-   * Users of the SDK can provide their own implementation
-   * @param  {Object} eventObj
-   * @param  {Function} callback
-   */
-  dispatchEvent: function(eventObj, callback) {
-    var url = eventObj.url;
-    var params = eventObj.params;
-    var req;
-    if (eventObj.httpVerb === POST_METHOD) {
-      req = new XMLHttpRequest();
-      req.open(POST_METHOD, url, true);
-      req.setRequestHeader('Content-Type', 'application/json');
-      req.onreadystatechange = function() {
-        if (req.readyState === READYSTATE_COMPLETE && callback && typeof callback === 'function') {
-          try {
-            callback(params);
-          } catch (e) {
-            // TODO: Log this somehow (consider adding a logger to the EventDispatcher interface)
-          }
-        }
-      };
-      req.send(JSON.stringify(params));
-    } else {
-      // add param for cors headers to be sent by the log endpoint
-      url += '?wxhr=true';
-      if (params) {
-        url += '&' + toQueryString(params);
-      }
+  // For backwards-compat, this module must export a ready-to-use default event dispatcher (an object with an appropriate dispatchEvent method)
+  dispatchEvent: browserRequest,
 
-      req = new XMLHttpRequest();
-      req.open(GET_METHOD, url, true);
-      req.onreadystatechange = function() {
-        if (req.readyState === READYSTATE_COMPLETE && callback && typeof callback === 'function') {
-          try {
-            callback();
-          } catch (e) {
-            // TODO: Log this somehow (consider adding a logger to the EventDispatcher interface)
-          }
-        }
-      };
-      req.send();
-    }
+  // For backwards-compat, this module must export a ready-to-use default event dispatcher (an object with an appropriate dispatchEvent method)
+  createEventDispatcher: function(logger) {
+    return new EventDispatcherModule.EventDispatcher({
+      requestFn: browserRequest,
+      logger: logger,
+    });
   },
-};
-
-var toQueryString = function(obj) {
-  return fns.map(obj, function(v, k) {
-    return encodeURIComponent(k) + '=' + encodeURIComponent(v);
-  }).join('&');
 };

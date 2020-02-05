@@ -96,7 +96,7 @@ module.exports = {
       if (config.eventDispatcher == null) { // eslint-disable-line eqeqeq
         // only wrap the event dispatcher with pending events retry if the user didnt override
         eventDispatcher = new eventProcessor.LocalStoragePendingEventsDispatcher({
-          eventDispatcher: defaultEventDispatcher,
+          eventDispatcher: defaultEventDispatcher.createEventDispatcher(),
         });
 
         if (!hasRetriedEvents) {

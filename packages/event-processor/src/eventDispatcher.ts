@@ -25,6 +25,7 @@ export type EventDispatcherCallback = (response: EventDispatcherResponse) => voi
 
 export interface EventDispatcher {
   dispatchEvent(event: EventV1Request, callback: EventDispatcherCallback): void
+  close?(): Promise<void>
 }
 
 export interface EventV1Request {

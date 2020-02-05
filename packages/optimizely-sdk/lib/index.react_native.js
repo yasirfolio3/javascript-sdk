@@ -90,7 +90,7 @@ module.exports = {
         {
           clientEngine: enums.JAVASCRIPT_CLIENT_ENGINE,
           eventBatchSize: DEFAULT_EVENT_BATCH_SIZE,
-          eventDispatcher: defaultEventDispatcher,
+          eventDispatcher: defaultEventDispatcher.createEventDispatcher(),
           eventFlushInterval: DEFAULT_EVENT_FLUSH_INTERVAL,
         },
         config,

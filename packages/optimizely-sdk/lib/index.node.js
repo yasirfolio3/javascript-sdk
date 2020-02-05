@@ -91,7 +91,7 @@ module.exports = {
         {
           clientEngine: enums.NODE_CLIENT_ENGINE,
           eventBatchSize: DEFAULT_EVENT_BATCH_SIZE,
-          eventDispatcher: defaultEventDispatcher,
+          eventDispatcher: defaultEventDispatcher.createEventDispatcher(),
           eventFlushInterval: DEFAULT_EVENT_FLUSH_INTERVAL,
           jsonSchemaValidator: jsonSchemaValidator,
           skipJSONValidation: false,
