@@ -56,7 +56,7 @@ export default {
         throw new Error(sprintf(ERROR_MESSAGES.INVALID_GROUP_ID, MODULE_NAME, groupId));
       }
       if (group.policy === RANDOM_POLICY) {
-        var bucketedExperimentId = module.exports.bucketUserIntoExperiment(group,
+        var bucketedExperimentId = this.bucketUserIntoExperiment(group,
                                                                           bucketerParams.bucketingId,
                                                                           bucketerParams.userId,
                                                                           bucketerParams.logger);
@@ -81,12 +81,12 @@ export default {
       }
     }
     var bucketingId = sprintf('%s%s', bucketerParams.bucketingId, bucketerParams.experimentId);
-    var bucketValue = module.exports._generateBucketValue(bucketingId);
+    var bucketValue = this._generateBucketValue(bucketingId);
 
     var bucketedUserLogMessage = sprintf(LOG_MESSAGES.USER_ASSIGNED_TO_VARIATION_BUCKET, MODULE_NAME, bucketValue, bucketerParams.userId);
     bucketerParams.logger.log(LOG_LEVEL.DEBUG, bucketedUserLogMessage);
 
-    var entityId = module.exports._findBucket(bucketValue, bucketerParams.trafficAllocationConfig);
+    var entityId = this._findBucket(bucketValue, bucketerParams.trafficAllocationConfig);
     if (!entityId) {
       var userHasNoVariationLogMessage = sprintf(LOG_MESSAGES.USER_HAS_NO_VARIATION, MODULE_NAME, bucketerParams.userId, bucketerParams.experimentKey);
       bucketerParams.logger.log(LOG_LEVEL.DEBUG, userHasNoVariationLogMessage);
@@ -113,10 +113,10 @@ export default {
    */
   bucketUserIntoExperiment: function(group, bucketingId, userId, logger) {
     var bucketingKey = sprintf('%s%s', bucketingId, group.id);
-    var bucketValue = module.exports._generateBucketValue(bucketingKey);
+    var bucketValue = this._generateBucketValue(bucketingKey);
     logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.USER_ASSIGNED_TO_EXPERIMENT_BUCKET, MODULE_NAME, bucketValue, userId));
     var trafficAllocationConfig = group.trafficAllocation;
-    var bucketedExperimentId = module.exports._findBucket(bucketValue, trafficAllocationConfig);
+    var bucketedExperimentId = this._findBucket(bucketValue, trafficAllocationConfig);
     return bucketedExperimentId;
   },
 

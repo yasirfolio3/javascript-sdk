@@ -32,7 +32,7 @@ export default {
     arr.forEach(val => {
       byKey[val[key]] = val;
     });
-    return val;
+    return byKey;
 
   },
   uuid: function() {

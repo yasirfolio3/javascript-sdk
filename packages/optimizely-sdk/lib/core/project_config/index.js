@@ -204,14 +204,14 @@ export default {
    * @return {Boolean}               true if experiment status is set to 'Running', false otherwise
    */
   isActive: function(projectConfig, experimentKey) {
-    return module.exports.getExperimentStatus(projectConfig, experimentKey) === EXPERIMENT_RUNNING_STATUS;
+    return this.getExperimentStatus(projectConfig, experimentKey) === EXPERIMENT_RUNNING_STATUS;
   },
 
   /**
    * Determine for given experiment if event is running, which determines whether should be dispatched or not
    */
   isRunning: function(projectConfig, experimentKey) {
-    return module.exports.getExperimentStatus(projectConfig, experimentKey) === EXPERIMENT_RUNNING_STATUS;
+    return this.getExperimentStatus(projectConfig, experimentKey) === EXPERIMENT_RUNNING_STATUS;
   },
 
   /**
@@ -491,6 +491,6 @@ export default {
       config.jsonSchemaValidator.validate(projectConfigSchema, config.datafile);
       config.logger.log(LOG_LEVEL.INFO, sprintf(LOG_MESSAGES.VALID_DATAFILE, MODULE_NAME));
     }
-    return module.exports.createProjectConfig(config.datafile);
+    return this.createProjectConfig(config.datafile);
   },
 };
