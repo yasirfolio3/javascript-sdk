@@ -15,7 +15,7 @@
  */
 var logging = require('@optimizely/js-sdk-logging');
 
-var logger = logging.getLogger('EVENT_DISPATCHER');
+var logger = logging.getLogger('EventDispatcher');
 
 /**
  *
@@ -26,10 +26,17 @@ function EventDispatcher(options) {
   this.__requestFn = options.requestFn;
   this.__requestCallbacks = [];
   this.__closeResolvers = [];
+  this.__closed = false;
 }
 
 EventDispatcher.prototype.dispatchEvent = function(eventObj, callback) {
-  // TODO: Check for closed state, don't accept more
+  if (this.__closed) {
+    logger.error('This dispatcher is closed and not accepting new events (received event: %s', function() {
+      return JSON.stringify(eventObj);
+    });
+    return;
+  }
+
   var onReqComplete = function() {
     var indexToRemove = this.__requestCallbacks.indexOf(onReqComplete);
     if (indexToRemove >= 0) {
@@ -39,9 +46,12 @@ EventDispatcher.prototype.dispatchEvent = function(eventObj, callback) {
     logger.debug('Response received')
     callback();
   }.bind(this);
+  // TODO: Limit the size of request callbacks array. Drop requests and log an error when full.
   this.__requestCallbacks.push(onReqComplete);
   this.__requestFn(eventObj, onReqComplete);
-  logger.debug('Request sent');
+  logger.debug('Sending request: %s', function() {
+    return JSON.stringify(eventObj)
+  });
 };
 
 EventDispatcher.prototype.__notifyRequestCompleted = function() {
@@ -57,6 +67,7 @@ EventDispatcher.prototype.__notifyRequestCompleted = function() {
 EventDispatcher.prototype.close = function() {
   logger.debug('Closing')
   return new Promise(function(resolve) {
+    this.__closed = true;
     if (this.__requestCallbacks.length === 0) {
       logger.debug('All in-flight requests complete, close complete');
       resolve();
