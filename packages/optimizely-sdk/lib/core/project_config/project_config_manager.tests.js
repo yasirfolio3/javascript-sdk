@@ -22,6 +22,7 @@ var sprintf = require('@optimizely/js-sdk-utils').sprintf;
 var enums = require('../../utils/enums');
 var jsonSchemaValidator = require('../../utils/json_schema_validator');
 var projectConfig = require('./index');
+var optimizelyConfig = require('../optimizely_config/index');
 var projectConfigManager = require('./project_config_manager');
 var testData = require('../../tests/test_data');
 
@@ -31,7 +32,7 @@ var LOG_MESSAGES = enums.LOG_MESSAGES;
 describe('lib/core/project_config/project_config_manager', function() {
   var globalStubErrorHandler;
   beforeEach(function() {
-    sinon.stub(datafileManager, 'DatafileManager').returns({
+    sinon.stub(datafileManager, 'HttpPollingDatafileManager').returns({
       start: sinon.stub(),
       stop: sinon.stub(),
       get: sinon.stub().returns(null),
@@ -50,7 +51,7 @@ describe('lib/core/project_config/project_config_manager', function() {
   });
 
   afterEach(function() {
-    datafileManager.DatafileManager.restore();
+    datafileManager.HttpPollingDatafileManager.restore();
     logging.resetErrorHandler();
     logging.resetLogger();
   });
@@ -187,8 +188,8 @@ describe('lib/core/project_config/project_config_manager', function() {
           updateInterval: 10000,
         },
       });
-      sinon.assert.calledOnce(datafileManager.DatafileManager);
-      sinon.assert.calledWithExactly(datafileManager.DatafileManager, sinon.match({
+      sinon.assert.calledOnce(datafileManager.HttpPollingDatafileManager);
+      sinon.assert.calledWithExactly(datafileManager.HttpPollingDatafileManager, sinon.match({
         datafile: testData.getTestProjectConfig(),
         sdkKey: '12345',
         autoUpdate: true,
@@ -199,7 +200,7 @@ describe('lib/core/project_config/project_config_manager', function() {
     describe('when constructed with sdkKey and without datafile', function() {
       it('updates itself when the datafile manager is ready, fulfills its onReady promise with a successful result, and then emits updates', function() {
         var configWithFeatures = testData.getTestProjectConfigWithFeatures();
-        datafileManager.DatafileManager.returns({
+        datafileManager.HttpPollingDatafileManager.returns({
           start: sinon.stub(),
           stop: sinon.stub(),
           get: sinon.stub().returns(configWithFeatures),
@@ -231,7 +232,7 @@ describe('lib/core/project_config/project_config_manager', function() {
             variations: [{ key: 'variation', id: '99977477477747747' }],
           });
           nextDatafile.revision = '36';
-          var fakeDatafileManager = datafileManager.DatafileManager.getCall(0).returnValue;
+          var fakeDatafileManager = datafileManager.HttpPollingDatafileManager.getCall(0).returnValue;
           fakeDatafileManager.get.returns(nextDatafile);
           var updateListener = fakeDatafileManager.on.getCall(0).args[1];
           updateListener({ datafile: nextDatafile });
@@ -243,7 +244,7 @@ describe('lib/core/project_config/project_config_manager', function() {
       });
 
       it('calls onUpdate listeners after becoming ready, and after the datafile manager emits updates', function() {
-        datafileManager.DatafileManager.returns({
+        datafileManager.HttpPollingDatafileManager.returns({
           start: sinon.stub(),
           stop: sinon.stub(),
           get: sinon.stub().returns(testData.getTestProjectConfigWithFeatures()),
@@ -258,7 +259,7 @@ describe('lib/core/project_config/project_config_manager', function() {
         return manager.onReady().then(function() {
           sinon.assert.calledOnce(onUpdateSpy);
 
-          var fakeDatafileManager = datafileManager.DatafileManager.getCall(0).returnValue;
+          var fakeDatafileManager = datafileManager.HttpPollingDatafileManager.getCall(0).returnValue;
           var updateListener = fakeDatafileManager.on.getCall(0).args[1];
           var newDatafile = testData.getTestProjectConfigWithFeatures();
           newDatafile.revision = '36';
@@ -270,7 +271,7 @@ describe('lib/core/project_config/project_config_manager', function() {
       });
 
       it('can remove onUpdate listeners using the function returned from onUpdate', function() {
-        datafileManager.DatafileManager.returns({
+        datafileManager.HttpPollingDatafileManager.returns({
           start: sinon.stub(),
           stop: sinon.stub(),
           get: sinon.stub().returns(testData.getTestProjectConfigWithFeatures()),
@@ -284,7 +285,7 @@ describe('lib/core/project_config/project_config_manager', function() {
           var onUpdateSpy = sinon.spy();
           var unsubscribe = manager.onUpdate(onUpdateSpy);
 
-          var fakeDatafileManager = datafileManager.DatafileManager.getCall(0).returnValue;
+          var fakeDatafileManager = datafileManager.HttpPollingDatafileManager.getCall(0).returnValue;
           var updateListener = fakeDatafileManager.on.getCall(0).args[1];
           var newDatafile = testData.getTestProjectConfigWithFeatures();
           newDatafile.revision = '36';
@@ -308,7 +309,7 @@ describe('lib/core/project_config/project_config_manager', function() {
       it('fulfills its ready promise with an unsuccessful result when the datafile manager emits an invalid datafile', function() {
         var invalidDatafile = testData.getTestProjectConfig();
         delete invalidDatafile['projectId'];
-        datafileManager.DatafileManager.returns({
+        datafileManager.HttpPollingDatafileManager.returns({
           start: sinon.stub(),
           stop: sinon.stub(),
           get: sinon.stub().returns(invalidDatafile),
@@ -327,7 +328,7 @@ describe('lib/core/project_config/project_config_manager', function() {
       });
 
       it('fullfils its ready promise with an unsuccessful result when the datafile manager onReady promise rejects', function() {
-        datafileManager.DatafileManager.returns({
+        datafileManager.HttpPollingDatafileManager.returns({
           start: sinon.stub(),
           stop: sinon.stub(),
           get: sinon.stub().returns(null),
@@ -350,13 +351,13 @@ describe('lib/core/project_config/project_config_manager', function() {
           sdkKey: '12345',
         });
         manager.stop();
-        sinon.assert.calledOnce(datafileManager.DatafileManager.getCall(0).returnValue.stop);
+        sinon.assert.calledOnce(datafileManager.HttpPollingDatafileManager.getCall(0).returnValue.stop);
       });
     });
 
     describe('when constructed with sdkKey and with a valid datafile object', function() {
       it('fulfills its onReady promise with a successful result, and does not call onUpdate listeners after becoming ready', function() {
-        datafileManager.DatafileManager.returns({
+        datafileManager.HttpPollingDatafileManager.returns({
           start: sinon.stub(),
           stop: sinon.stub(),
           get: sinon.stub().returns(testData.getTestProjectConfigWithFeatures()),
@@ -383,7 +384,7 @@ describe('lib/core/project_config/project_config_manager', function() {
 
     describe('when constructed with sdkKey and with a valid datafile string', function() {
       it('fulfills its onReady promise with a successful result, and does not call onUpdate listeners after becoming ready', function() {
-        datafileManager.DatafileManager.returns({
+        datafileManager.HttpPollingDatafileManager.returns({
           start: sinon.stub(),
           stop: sinon.stub(),
           get: sinon.stub().returns(testData.getTestProjectConfigWithFeatures()),
@@ -405,6 +406,37 @@ describe('lib/core/project_config/project_config_manager', function() {
           // not have called update listener
           sinon.assert.notCalled(onUpdateSpy);
         });
+      });
+    });
+
+    describe('test caching of optimizely config', function() {
+      beforeEach(function() {
+        sinon.stub(optimizelyConfig, "getOptimizelyConfig");
+      });
+
+      afterEach(function() {
+        optimizelyConfig.getOptimizelyConfig.restore();
+      });
+
+      it('should return the same config until revision is changed', function() {
+        var manager = new projectConfigManager.ProjectConfigManager({
+          datafile: testData.getTestProjectConfig(),
+          sdkKey: '12345',
+        });
+        // creating optimizely config once project config manager for the first time
+        sinon.assert.calledOnce(optimizelyConfig.getOptimizelyConfig);
+        // validate it should return the existing optimizely config
+        manager.getOptimizelyConfig();
+        sinon.assert.calledOnce(optimizelyConfig.getOptimizelyConfig);
+        // create config with new revision
+        var fakeDatafileManager = datafileManager.HttpPollingDatafileManager.getCall(0).returnValue;
+        var updateListener = fakeDatafileManager.on.getCall(0).args[1];
+        var newDatafile = testData.getTestProjectConfigWithFeatures();
+        newDatafile.revision = '36';
+        fakeDatafileManager.get.returns(newDatafile);
+        updateListener({ datafile: newDatafile });
+        // verify the optimizely config is updated
+        sinon.assert.calledTwice(optimizelyConfig.getOptimizelyConfig);
       });
     });
   });

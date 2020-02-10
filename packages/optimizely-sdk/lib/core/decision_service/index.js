@@ -14,7 +14,7 @@
  * limitations under the License.                                           *
  ***************************************************************************/
 
-var audienceEvaluator = require('../audience_evaluator');
+var AudienceEvaluator = require('../audience_evaluator');
 var bucketer = require('../bucketer');
 var enums = require('../../utils/enums');
 var fns = require('../../utils/fns');
@@ -45,13 +45,14 @@ var DECISION_SOURCES = enums.DECISION_SOURCES;
  * @constructor
  * @param   {Object} options
  * @param   {Object} options.userProfileService An instance of the user profile service for sticky bucketing.
- * @param   {Object} options.logger             An instance of a logger to log messages with.
+ * @param   {Object} options.logger An instance of a logger to log messages.
  * @returns {Object}
  */
 function DecisionService(options) {
-  this.userProfileService = options.userProfileService || null;
-  this.logger = options.logger;
+  this.audienceEvaluator = new AudienceEvaluator(options.UNSTABLE_conditionEvaluators);
   this.forcedVariationMap = {};
+  this.logger = options.logger;
+  this.userProfileService = options.userProfileService || null;
 }
 
 /**
@@ -66,24 +67,24 @@ DecisionService.prototype.getVariation = function(configObj, experimentKey, user
   // by default, the bucketing ID should be the user ID
   var bucketingId = this._getBucketingId(userId, attributes);
 
-  if (!this.__checkIfExperimentIsActive(configObj, experimentKey, userId)) {
+  if (!this.__checkIfExperimentIsActive(configObj, experimentKey)) {
     return null;
   }
   var experiment = configObj.experimentKeyMap[experimentKey];
   var forcedVariationKey = this.getForcedVariation(configObj, experimentKey, userId);
-  if (!!forcedVariationKey) {
+  if (forcedVariationKey) {
     return forcedVariationKey;
   }
 
   var variation = this.__getWhitelistedVariation(experiment, userId);
-  if (!!variation) {
+  if (variation) {
     return variation.key;
   }
 
   // check for sticky bucketing
   var experimentBucketMap = this.__resolveExperimentBucketMap(userId, attributes);
   variation = this.__getStoredVariation(configObj, experiment, userId, experimentBucketMap);
-  if (!!variation) {
+  if (variation) {
     this.logger.log(LOG_LEVEL.INFO, sprintf(LOG_MESSAGES.RETURNING_STORED_VARIATION, MODULE_NAME, variation.key, experimentKey, userId));
     return variation.key;
   }
@@ -120,13 +121,13 @@ DecisionService.prototype.__resolveExperimentBucketMap = function(userId, attrib
 
 
 /**
- * Checks whether the experiment is running or launched
+ * Checks whether the experiment is running
  * @param  {Object}  configObj     The parsed project configuration object
  * @param  {string}  experimentKey Key of experiment being validated
  * @param  {string}  userId        ID of user
  * @return {boolean} True if experiment is running
  */
-DecisionService.prototype.__checkIfExperimentIsActive = function(configObj, experimentKey, userId) {
+DecisionService.prototype.__checkIfExperimentIsActive = function(configObj, experimentKey) {
   if (!projectConfig.isActive(configObj, experimentKey)) {
     var experimentNotRunningLogMessage = sprintf(LOG_MESSAGES.EXPERIMENT_NOT_RUNNING, MODULE_NAME, experimentKey);
     this.logger.log(LOG_LEVEL.INFO, experimentNotRunningLogMessage);
@@ -171,7 +172,7 @@ DecisionService.prototype.__checkIfUserIsInAudience = function(configObj, experi
   var experimentAudienceConditions = projectConfig.getExperimentAudienceConditions(configObj, experimentKey);
   var audiencesById = projectConfig.getAudiencesById(configObj);
   this.logger.log(LOG_LEVEL.DEBUG, sprintf(LOG_MESSAGES.EVALUATING_AUDIENCES_COMBINED, MODULE_NAME, experimentKey, JSON.stringify(experimentAudienceConditions)));
-  var result = audienceEvaluator.evaluate(experimentAudienceConditions, audiencesById, attributes, this.logger);
+  var result = this.audienceEvaluator.evaluate(experimentAudienceConditions, audiencesById, attributes);
   this.logger.log(LOG_LEVEL.INFO, sprintf(LOG_MESSAGES.AUDIENCE_EVALUATION_RESULT_COMBINED, MODULE_NAME, experimentKey, result.toString().toUpperCase()));
 
   if (!result) {
@@ -348,7 +349,7 @@ DecisionService.prototype._getVariationForFeatureExperiment = function(configObj
 
 DecisionService.prototype._getExperimentInGroup = function(configObj, group, userId) {
   var experimentId = bucketer.bucketUserIntoExperiment(group, userId, userId, this.logger);
-  if (experimentId !== null) {
+  if (experimentId) {
     this.logger.log(LOG_LEVEL.INFO, sprintf(LOG_MESSAGES.USER_BUCKETED_INTO_EXPERIMENT_IN_GROUP, MODULE_NAME, userId, experimentId, group.id));
     var experiment = projectConfig.getExperimentFromId(configObj, experimentId, this.logger);
     if (experiment) {

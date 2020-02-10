@@ -1,5 +1,5 @@
 /**
- * Copyright 2016-2017, Optimizely
+ * Copyright 2016-2017, 2019, Optimizely
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,10 +23,16 @@ var enums = require('./utils/enums');
 var eventProcessor = require('@optimizely/js-sdk-event-processor');
 var loggerPlugin = require('./plugins/logger');
 var Optimizely = require('./optimizely');
+var eventProcessorConfigValidator = require('./utils/event_processor_config_validator');
 
 var logger = logging.getLogger();
 logging.setLogHandler(loggerPlugin.createLogger());
 logging.setLogLevel(logging.LogLevel.INFO);
+
+var MODULE_NAME = 'INDEX_BROWSER';
+
+var DEFAULT_EVENT_BATCH_SIZE = 10;
+var DEFAULT_EVENT_FLUSH_INTERVAL = 1000; // Unit is ms, default is 1s
 
 var hasRetriedEvents = false;
 /**
@@ -85,23 +91,64 @@ module.exports = {
         config.skipJSONValidation = true;
       }
 
-      var wrappedEventDispatcher = new eventProcessor.LocalStoragePendingEventsDispatcher({
-        eventDispatcher: config.eventDispatcher || defaultEventDispatcher,
-      });
-      if (!hasRetriedEvents) {
-        wrappedEventDispatcher.sendPendingEvents();
-        hasRetriedEvents = true;
+      var eventDispatcher;
+      // prettier-ignore
+      if (config.eventDispatcher == null) { // eslint-disable-line eqeqeq
+        // only wrap the event dispatcher with pending events retry if the user didnt override
+        eventDispatcher = new eventProcessor.LocalStoragePendingEventsDispatcher({
+          eventDispatcher: defaultEventDispatcher,
+        });
+
+        if (!hasRetriedEvents) {
+          eventDispatcher.sendPendingEvents();
+          hasRetriedEvents = true;
+        }
+      } else {
+        eventDispatcher = config.eventDispatcher;
       }
 
-      config = fns.assignIn({}, config, {
-        eventDispatcher: wrappedEventDispatcher,
-        clientEngine: enums.JAVASCRIPT_CLIENT_ENGINE,
-        // always get the OptimizelyLogger facade from logging
-        logger: logger,
-        errorHandler: logging.getErrorHandler(),
-      });
+      config = fns.assignIn(
+        {
+          clientEngine: enums.JAVASCRIPT_CLIENT_ENGINE,
+          eventBatchSize: DEFAULT_EVENT_BATCH_SIZE,
+          eventFlushInterval: DEFAULT_EVENT_FLUSH_INTERVAL,
+        },
+        config,
+        {
+          eventDispatcher: eventDispatcher,
+          // always get the OptimizelyLogger facade from logging
+          logger: logger,
+          errorHandler: logging.getErrorHandler(),
+        }
+      );
 
-      return new Optimizely(config);
+      if (!eventProcessorConfigValidator.validateEventBatchSize(config.eventBatchSize)) {
+        logger.warn('Invalid eventBatchSize %s, defaulting to %s', config.eventBatchSize, DEFAULT_EVENT_BATCH_SIZE);
+        config.eventBatchSize = DEFAULT_EVENT_BATCH_SIZE;
+      }
+      if (!eventProcessorConfigValidator.validateEventFlushInterval(config.eventFlushInterval)) {
+        logger.warn('Invalid eventFlushInterval %s, defaulting to %s', config.eventFlushInterval, DEFAULT_EVENT_FLUSH_INTERVAL);
+        config.eventFlushInterval = DEFAULT_EVENT_FLUSH_INTERVAL;
+      }
+
+      var optimizely = new Optimizely(config);
+
+      try {
+        if (typeof window.addEventListener === 'function') {
+          var unloadEvent = 'onpagehide' in window ? 'pagehide' : 'unload';
+          window.addEventListener(
+            unloadEvent,
+            function() {
+              optimizely.close();
+            },
+            false
+          );
+        }
+      } catch (e) {
+        logger.error(enums.LOG_MESSAGES.UNABLE_TO_ATTACH_UNLOAD, MODULE_NAME, e.message);
+      }
+
+      return optimizely;
     } catch (e) {
       logger.error(e);
       return null;

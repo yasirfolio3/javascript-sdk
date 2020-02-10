@@ -14,6 +14,8 @@
  * limitations under the License.                                           *
  ***************************************************************************/
 
+var jsSdkUtils = require('@optimizely/js-sdk-utils');
+
 /**
  * Contains global enums used throughout the library
  */
@@ -26,6 +28,7 @@ exports.LOG_LEVEL = {
 };
 
 exports.ERROR_MESSAGES = {
+  CONDITION_EVALUATOR_ERROR: '%s: Error evaluating audience condition of type %s: %s',
   DATAFILE_AND_SDK_KEY_MISSING: '%s: You must provide at least one of sdkKey or datafile. Cannot start Optimizely',
   EXPERIMENT_KEY_NOT_IN_DATAFILE: '%s: Experiment key %s is not in datafile.',
   FEATURE_NOT_IN_DATAFILE: '%s: Feature key %s is not in datafile.',
@@ -89,7 +92,7 @@ exports.LOG_MESSAGES = {
   ROLLOUT_HAS_NO_EXPERIMENTS: '%s: Rollout of feature %s has no experiments',
   SAVED_VARIATION: '%s: Saved variation "%s" of experiment "%s" for user "%s".',
   SAVED_VARIATION_NOT_FOUND: '%s: User %s was previously bucketed into variation with ID %s for experiment %s, but no matching variation was found.',
-  SHOULD_NOT_DISPATCH_ACTIVATE: '%s: Experiment %s is in "Launched" state. Not activating user.',
+  SHOULD_NOT_DISPATCH_ACTIVATE: '%s: Experiment %s is not in "Running" state. Not activating user.',
   SKIPPING_JSON_VALIDATION: '%s: Skipping JSON schema validation.',
   TRACK_EVENT: '%s: Tracking event %s for user %s.',
   USER_ASSIGNED_TO_VARIATION_BUCKET: '%s: Assigned variation bucket %s to user %s.',
@@ -138,6 +141,7 @@ exports.LOG_MESSAGES = {
   UNKNOWN_MATCH_TYPE: '%s: Audience condition %s uses an unknown match type. You may need to upgrade to a newer release of the Optimizely SDK.',
   UPDATED_OPTIMIZELY_CONFIG: '%s: Updated Optimizely config to revision %s (project id %s)',
   OUT_OF_BOUNDS: '%s: Audience condition %s evaluated to UNKNOWN because the number value for user attribute "%s" is not in the range [-2^53, +2^53].',
+  UNABLE_TO_ATTACH_UNLOAD: '%s: unable to bind optimizely.close() to page unload event: "%s"',
 };
 
 exports.RESERVED_EVENT_KEYWORDS = {
@@ -154,49 +158,16 @@ exports.CONTROL_ATTRIBUTES = {
 
 exports.JAVASCRIPT_CLIENT_ENGINE = 'javascript-sdk';
 exports.NODE_CLIENT_ENGINE = 'node-sdk';
-exports.NODE_CLIENT_VERSION = '3.2.0-beta';
+exports.REACT_CLIENT_ENGINE = 'react-sdk';
+exports.NODE_CLIENT_VERSION = '3.4.1';
 
-/*
- * Notification types for use with NotificationCenter
- * Format is EVENT: <list of parameters to callback>
- *
- * SDK consumers can use these to register callbacks with the notification center.
- *
- *  @deprecated since 3.1.0
- *  ACTIVATE: An impression event will be sent to Optimizely
- *  Callbacks will receive an object argument with the following properties:
- *    - experiment {Object}
- *    - userId {string}
- *    - attributes {Object|undefined}
- *    - variation {Object}
- *    - logEvent {Object}
- *
- *  DECISION: A decision is made in the system. i.e. user activation,
- *  feature access or feature-variable value retrieval
- *  Callbacks will receive an object argument with the following properties:
- *    - type {string}
- *    - userId {string}
- *    - attributes {Object|undefined}
- *    - decisionInfo {Object|undefined}
- *
- *  OPTIMIZELY_CONFIG_UPDATE: This Optimizely instance has been updated with a new
- *  config
- *
- *  TRACK: A conversion event will be sent to Optimizely
- *  Callbacks will receive the an object argument with the following properties:
- *    - eventKey {string}
- *    - userId {string}
- *    - attributes {Object|undefined}
- *    - eventTags {Object|undefined}
- *    - logEvent {Object}
- *
- */
-exports.NOTIFICATION_TYPES = {
-  ACTIVATE: 'ACTIVATE:experiment, user_id,attributes, variation, event',
-  DECISION: 'DECISION:type, userId, attributes, decisionInfo',
-  OPTIMIZELY_CONFIG_UPDATE: 'OPTIMIZELY_CONFIG_UPDATE',
-  TRACK: 'TRACK:event_key, user_id, attributes, event_tags, event',
-};
+exports.VALID_CLIENT_ENGINES = [
+  exports.NODE_CLIENT_ENGINE,
+  exports.REACT_CLIENT_ENGINE,
+  exports.JAVASCRIPT_CLIENT_ENGINE,
+];
+
+exports.NOTIFICATION_TYPES = jsSdkUtils.NOTIFICATION_TYPES;
 
 exports.DECISION_NOTIFICATION_TYPES = {
   AB_TEST: 'ab-test',

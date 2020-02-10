@@ -19,7 +19,6 @@ var sprintf = require('@optimizely/js-sdk-utils').sprintf;
 var configValidator = require('../../utils/config_validator');
 var projectConfigSchema = require('./project_config_schema');
 
-var EXPERIMENT_LAUNCHED_STATUS = 'Launched';
 var EXPERIMENT_RUNNING_STATUS = 'Running';
 var RESERVED_ATTRIBUTE_PREFIX = '$opt_';
 var MODULE_NAME = 'PROJECT_CONFIG';
@@ -98,16 +97,15 @@ module.exports = {
       fns.forEach(feature.experimentIds || [], function(experimentId) {
         // Add this experiment in experiment-feature map.
         if (projectConfig.experimentFeatureMap[experimentId]) {
-          projectConfig.experimentFeatureMap[experimentId].push(feature.id);  
+          projectConfig.experimentFeatureMap[experimentId].push(feature.id);
         } else {
           projectConfig.experimentFeatureMap[experimentId] = [feature.id];
         }
-        
+
         var experimentInFeature = projectConfig.experimentIdMap[experimentId];
-        if (experimentInFeature.groupId) {
+        // Experiments in feature can only belong to one mutex group.
+        if (experimentInFeature.groupId && !feature.groupId) {
           feature.groupId = experimentInFeature.groupId;
-          // Experiments in feature can only belong to one mutex group.
-          return false;
         }
       });
     });
@@ -199,14 +197,13 @@ module.exports = {
   },
 
   /**
-   * Returns whether experiment has a status of 'Running' or 'Launched'
+   * Returns whether experiment has a status of 'Running'
    * @param  {Object}  projectConfig Object representing project configuration
    * @param  {string}  experimentKey Experiment key for which status is to be compared with 'Running'
    * @return {Boolean}               true if experiment status is set to 'Running', false otherwise
    */
   isActive: function(projectConfig, experimentKey) {
-    return module.exports.getExperimentStatus(projectConfig, experimentKey) === EXPERIMENT_RUNNING_STATUS ||
-      module.exports.getExperimentStatus(projectConfig, experimentKey) === EXPERIMENT_LAUNCHED_STATUS;
+    return module.exports.getExperimentStatus(projectConfig, experimentKey) === EXPERIMENT_RUNNING_STATUS;
   },
 
   /**
@@ -272,7 +269,7 @@ module.exports = {
   getExperimentFromKey: function(projectConfig, experimentKey) {
     if (projectConfig.experimentKeyMap.hasOwnProperty(experimentKey)) {
       var experiment = projectConfig.experimentKeyMap[experimentKey];
-      if (!!experiment) {
+      if (experiment) {
         return experiment;
       }
     }
@@ -305,7 +302,7 @@ module.exports = {
   getExperimentFromId: function(projectConfig, experimentId, logger) {
     if (projectConfig.experimentIdMap.hasOwnProperty(experimentId)) {
       var experiment = projectConfig.experimentIdMap[experimentId];
-      if (!!experiment) {
+      if (experiment) {
         return experiment;
       }
     }
@@ -326,7 +323,7 @@ module.exports = {
   getFeatureFromKey: function(projectConfig, featureKey, logger) {
     if (projectConfig.featureKeyMap.hasOwnProperty(featureKey)) {
       var feature = projectConfig.featureKeyMap[featureKey];
-      if (!!feature) {
+      if (feature) {
         return feature;
       }
     }

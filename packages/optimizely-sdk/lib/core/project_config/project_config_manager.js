@@ -22,6 +22,7 @@ var datafileManager = require('@optimizely/js-sdk-datafile-manager');
 var CachingDatafileManager = require('@optimizely/js-sdk-datafile-manager/lib/cachingBrowserDatafileManager');
 var enums = require('../../utils/enums');
 var projectConfig = require('../../core/project_config');
+var optimizelyConfig = require('../optimizely_config');
 
 var logger = logging.getLogger();
 
@@ -63,6 +64,7 @@ function ProjectConfigManager(config) {
     logger.error(ex);
     this.__updateListeners = [];
     this.__configObj = null;
+    this.__optimizelyConfigObj = null;
     this.__readyPromise = Promise.resolve({
       success: false,
       reason: getErrorMessage(ex, 'Error in initialize'),
@@ -107,6 +109,7 @@ ProjectConfigManager.prototype.__initialize = function(config) {
         logger: logger,
         skipJSONValidation: this.skipJSONValidation,
       });
+      this.__optimizelyConfigObj = optimizelyConfig.getOptimizelyConfig(this.__configObj);
     } catch (ex) {
       logger.error(ex);
       projectConfigCreationEx = ex;
@@ -126,10 +129,8 @@ ProjectConfigManager.prototype.__initialize = function(config) {
     if (initialDatafile && this.__configObj) {
       datafileManagerConfig.datafile = initialDatafile;
     }
-    // TODO: Don't always use this. Allow passing in
-    // this.datafileManager = CachingDatafileManager.default.localForageBasedInstance(datafileManagerConfig);
     this.datafileManager = CachingDatafileManager.default.cacheBasedInstance(datafileManagerConfig);
-    // this.datafileManager = new datafileManager.DatafileManager(datafileManagerConfig);
+    // this.datafileManager = new datafileManager.HttpPollingDatafileManager(datafileManagerConfig);
     this.datafileManager.start();
     this.__readyPromise = this.datafileManager.onReady().then(
       this.__onDatafileManagerReadyFulfill.bind(this),
@@ -273,6 +274,7 @@ ProjectConfigManager.prototype.__handleNewConfigObj = function(newConfigObj) {
   }
 
   this.__configObj = newConfigObj;
+  this.__optimizelyConfigObj = optimizelyConfig.getOptimizelyConfig(newConfigObj);
 
   this.__updateListeners.forEach(function(listener) {
     listener(newConfigObj);
@@ -286,6 +288,14 @@ ProjectConfigManager.prototype.__handleNewConfigObj = function(newConfigObj) {
  */
 ProjectConfigManager.prototype.getConfig = function() {
   return this.__configObj;
+}
+
+/**
+ * Returns the optimizely config object
+ * @return {Object}
+ */
+ProjectConfigManager.prototype.getOptimizelyConfig = function() {
+  return this.__optimizelyConfigObj;
 };
 
 /**

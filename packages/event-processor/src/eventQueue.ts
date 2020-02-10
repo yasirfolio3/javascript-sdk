@@ -13,8 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import { getLogger } from '@optimizely/js-sdk-logging'
 // TODO change this to use Managed from js-sdk-models when available
 import { Managed } from './managed'
+
+const logger = getLogger('EventProcessor')
+
 export type EventQueueSink<K> = (buffer: K[]) => Promise<any>
 
 export interface EventQueue<K> extends Managed {
@@ -35,7 +40,7 @@ class Timer {
   private timeoutId?: number
 
   constructor({ timeout, callback }: { timeout: number; callback: () => void }) {
-    this.timeout = timeout
+    this.timeout = Math.max(timeout, 0)
     this.callback = callback
   }
 
@@ -82,36 +87,59 @@ export class DefaultEventQueue<K> implements EventQueue<K> {
   private buffer: K[]
   private maxQueueSize: number
   private sink: EventQueueSink<K>
+  // batchComparator is called to determine whether two events can be included
+  // together in the same batch
+  private batchComparator: (eventA: K, eventB: K) => boolean
+  private started: boolean
 
   constructor({
     flushInterval,
     maxQueueSize,
     sink,
+    batchComparator,
   }: {
     flushInterval: number
     maxQueueSize: number
     sink: EventQueueSink<K>
+    batchComparator: (eventA: K, eventB: K) => boolean
   }) {
     this.buffer = []
     this.maxQueueSize = Math.max(maxQueueSize, 1)
     this.sink = sink
+    this.batchComparator = batchComparator
     this.timer = new Timer({
       callback: this.flush.bind(this),
       timeout: flushInterval,
     })
+    this.started = false
   }
 
   start(): void {
+    this.started = true
     // dont start the timer until the first event is enqueued
   }
 
   stop(): Promise<any> {
+    this.started = false
     const result = this.sink(this.buffer)
+    this.buffer = []
     this.timer.stop()
     return result
   }
 
   enqueue(event: K): void {
+    if (!this.started) {
+      logger.warn('Queue is stopped, not accepting event')
+      return
+    }
+
+    // If new event cannot be included into the current batch, flush so it can
+    // be in its own new batch.
+    const bufferedEvent: K | undefined = this.buffer[0]
+    if (bufferedEvent && !this.batchComparator(bufferedEvent, event)) {
+      this.flush()
+    }
+
     // start the timer when the first event is put in
     if (this.buffer.length === 0) {
       this.timer.refresh()

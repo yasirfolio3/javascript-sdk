@@ -38,8 +38,6 @@ var FEATURE_VARIABLE_TYPES = enums.FEATURE_VARIABLE_TYPES;
 var DECISION_NOTIFICATION_TYPES = enums.DECISION_NOTIFICATION_TYPES;
 var NOTIFICATION_TYPES = enums.NOTIFICATION_TYPES;
 
-var DEFAULT_EVENT_MAX_QUEUE_SIZE = 1;
-var DEFAULT_EVENT_FLUSH_INTERVAL = 5000;
 var DEFAULT_ONREADY_TIMEOUT = 30000;
 
 /**
@@ -58,7 +56,7 @@ var DEFAULT_ONREADY_TIMEOUT = 30000;
  */
 function Optimizely(config) {
   var clientEngine = config.clientEngine;
-  if (clientEngine !== enums.NODE_CLIENT_ENGINE && clientEngine !== enums.JAVASCRIPT_CLIENT_ENGINE) {
+  if (enums.VALID_CLIENT_ENGINES.indexOf(clientEngine) === -1) {
     config.logger.log(LOG_LEVEL.INFO, sprintf(LOG_MESSAGES.INVALID_CLIENT_ENGINE, MODULE_NAME, clientEngine));
     clientEngine = enums.NODE_CLIENT_ENGINE;
   }
@@ -100,6 +98,7 @@ function Optimizely(config) {
   this.decisionService = decisionService.createDecisionService({
     userProfileService: userProfileService,
     logger: this.logger,
+    UNSTABLE_conditionEvaluators: config.UNSTABLE_conditionEvaluators
   });
 
   this.notificationCenter = notificationCenter.createNotificationCenter({
@@ -109,8 +108,9 @@ function Optimizely(config) {
 
   this.eventProcessor = new eventProcessor.LogTierV1EventProcessor({
     dispatcher: this.eventDispatcher,
-    flushInterval: config.eventFlushInterval || DEFAULT_EVENT_FLUSH_INTERVAL,
-    maxQueueSize: config.eventBatchSize || DEFAULT_EVENT_MAX_QUEUE_SIZE,
+    flushInterval: config.eventFlushInterval,
+    maxQueueSize: config.eventBatchSize,
+    notificationCenter: this.notificationCenter,
   });
   this.eventProcessor.start();
 
@@ -299,6 +299,7 @@ Optimizely.prototype.track = function(eventKey, userId, attributes, eventTags) {
       clientVersion: this.clientVersion,
       configObj: configObj,
     });
+    this.logger.log(LOG_LEVEL.INFO, sprintf(enums.LOG_MESSAGES.TRACK_EVENT, MODULE_NAME, eventKey, userId));
     // TODO is it okay to not pass a projectConfig as second argument
     this.eventProcessor.process(conversionEvent);
     this.__emitNotificationCenterTrack(eventKey, userId, attributes, eventTags);
@@ -560,7 +561,7 @@ Optimizely.prototype.isFeatureEnabled = function(featureKey, userId, attributes)
     var variation = decision.variation;
     var sourceInfo = {};
 
-    if (!!variation) {
+    if (variation) {
       featureEnabled = variation.featureEnabled;
       if (decision.decisionSource === DECISION_SOURCES.FEATURE_TEST) {
         sourceInfo = {
@@ -646,28 +647,55 @@ Optimizely.prototype.getEnabledFeatures = function(userId, attributes) {
 };
 
 /**
+ * Returns dynamically-typed value of the variable attached to the given
+ * feature flag. Returns null if the feature key or variable key is invalid.
+ *
+ * @param {string} featureKey           Key of the feature whose variable's
+ *                                      value is being accessed
+ * @param {string} variableKey          Key of the variable whose value is
+ *                                      being accessed
+ * @param {string} userId               ID for the user
+ * @param {Object} attributes           Optional user attributes
+ * @return {string|boolean|number|null} Value of the variable cast to the appropriate
+ *                                      type, or null if the feature key is invalid or
+ *                                      the variable key is invalid
+ */
+
+Optimizely.prototype.getFeatureVariable = function(featureKey, variableKey, userId, attributes) {
+  try {
+    return this._getFeatureVariableForType(featureKey, variableKey, null, userId, attributes);
+  } catch (e) {
+    this.logger.log(LOG_LEVEL.ERROR, e.message);
+    this.errorHandler.handleError(e);
+    return null;
+  }
+};
+
+/**
  * Helper method to get the value for a variable of a certain type attached to a
  * feature flag. Returns null if the feature key is invalid, the variable key is
  * invalid, the given variable type does not match the variable's actual type,
- * or the variable value cannot be cast to the required type.
+ * or the variable value cannot be cast to the required type. If the given variable
+ * type is null, the value of the variable cast to the appropriate type is returned.
  *
- * @param {string} featureKey   Key of the feature whose variable's value is
- *                              being accessed
- * @param {string} variableKey  Key of the variable whose value is being
- *                              accessed
- * @param {string} variableType Type of the variable whose value is being
- *                              accessed (must be one of FEATURE_VARIABLE_TYPES
- *                              in lib/utils/enums/index.js)
- * @param {string} userId       ID for the user
- * @param {Object} attributes   Optional user attributes
- * @return {*}                  Value of the variable cast to the appropriate
- *                              type, or null if the feature key is invalid, the
- *                              variable key is invalid, or there is a mismatch
- *                              with the type of the variable
+ * @param {string} featureKey           Key of the feature whose variable's value is
+ *                                      being accessed
+ * @param {string} variableKey          Key of the variable whose value is being
+ *                                      accessed
+ * @param {string|null} variableType    Type of the variable whose value is being
+ *                                      accessed (must be one of FEATURE_VARIABLE_TYPES
+ *                                      in lib/utils/enums/index.js), or null to return the
+ *                                      value of the variable cast to the appropriate type
+ * @param {string} userId               ID for the user
+ * @param {Object} attributes           Optional user attributes
+ * @return {string|boolean|number|null} Value of the variable cast to the appropriate
+ *                                      type, or null if the feature key is invalid, the
+ *                                      variable key is invalid, or there is a mismatch
+ *                                      with the type of the variable
  */
 Optimizely.prototype._getFeatureVariableForType = function(featureKey, variableKey, variableType, userId, attributes) {
   if (!this.__isValidInstance()) {
-    var apiName = 'getFeatureVariable' + variableType.charAt(0).toUpperCase() + variableType.slice(1);
+    var apiName = (variableType) ? 'getFeatureVariable' + variableType.charAt(0).toUpperCase() + variableType.slice(1) : 'getFeatureVariable';
     this.logger.log(LOG_LEVEL.ERROR, sprintf(LOG_MESSAGES.INVALID_OBJECT, MODULE_NAME, apiName));
     return null;
   }
@@ -691,7 +719,9 @@ Optimizely.prototype._getFeatureVariableForType = function(featureKey, variableK
     return null;
   }
 
-  if (variable.type !== variableType) {
+  if (!variableType) {
+    variableType = variable.type;
+  } else if (variable.type !== variableType) {
     this.logger.log(
       LOG_LEVEL.WARNING,
       sprintf(LOG_MESSAGES.VARIABLE_REQUESTED_WITH_WRONG_TYPE, MODULE_NAME, variableType, variable.type)
@@ -848,11 +878,88 @@ Optimizely.prototype.getFeatureVariableString = function(featureKey, variableKey
 };
 
 /**
- * Cleanup method for killing an running timers and flushing eventQueue
+ * Returns OptimizelyConfig object containing experiments and features data
+ * @return {Object}
+ *
+ * OptimizelyConfig Object Schema
+ * {
+ *   'experimentsMap': {
+ *     'my-fist-experiment': {
+ *       'id': '111111',
+ *       'key': 'my-fist-experiment'
+ *       'variationsMap': {
+ *         'variation_1': {
+ *           'id': '121212',
+ *           'key': 'variation_1',
+ *           'variablesMap': {
+ *             'age': {
+ *               'id': '222222',
+ *               'key': 'age',
+ *               'type': 'integer',
+ *               'value': '0',
+ *             }
+ *           }
+ *         }
+ *       }
+ *     }
+ *   },
+ *   'featuresMap': {
+ *     'awesome-feature': {
+ *       'id': '333333',
+ *       'key': 'awesome-feature',
+ *       'experimentsMap': Object,
+ *       'variationsMap': Object,
+ *     }
+ *   }
+ * }
+ */
+Optimizely.prototype.getOptimizelyConfig = function() {
+  try {
+    var configObj = this.projectConfigManager.getConfig();
+    if (!configObj) {
+      return null;
+    }
+    return this.projectConfigManager.getOptimizelyConfig();
+  } catch (e) {
+    this.logger.log(LOG_LEVEL.ERROR, e.message);
+    this.errorHandler.handleError(e);
+    return null;
+  }
+}
+
+/**
+ * Stop background processes belonging to this instance, including:
+ *
+ * - Active datafile requests
+ * - Pending datafile requests
+ * - Pending event queue flushes
+ *
+ * In-flight datafile requests will be aborted. Any events waiting to be sent
+ * as part of a batched event request will be immediately batched and sent to
+ * the event dispatcher.
+ *
+ * If any such requests were sent to the event dispatcher, returns a Promise
+ * that fulfills after the event dispatcher calls the response callback for each
+ * request. Otherwise, returns an immediately-fulfilled Promise.
+ *
+ * Returned Promises are fulfilled with result objects containing these
+ * properties:
+ *    - success (boolean): true if all events in the queue at the time close was
+ *                         called were combined into requests, sent to the
+ *                         event dispatcher, and the event dispatcher called the
+ *                         callbacks for each request. false if an unexpected
+ *                         error was encountered during the close process.
+ *    - reason (string=):  If success is false, this is a string property with
+ *                         an explanatory message.
+ *
+ * NOTE: After close is called, this instance is no longer usable - any events
+ * generated will no longer be sent to the event dispatcher.
+ *
+ * @return {Promise}
  */
 Optimizely.prototype.close = function() {
   try {
-    this.eventProcessor.stop();
+    var eventProcessorStoppedPromise = this.eventProcessor.stop();
     if (this.__disposeOnUpdate) {
       this.__disposeOnUpdate();
       this.__disposeOnUpdate = null;
@@ -866,9 +973,26 @@ Optimizely.prototype.close = function() {
       readyTimeoutRecord.onClose();
     }.bind(this));
     this.__readyTimeouts = {};
-  } catch (e) {
-    this.logger.log(LOG_LEVEL.ERROR, e.message);
-    this.errorHandler.handleError(e);
+    return eventProcessorStoppedPromise.then(
+      function() {
+        return {
+          success: true,
+        };
+      },
+      function(err) {
+        return {
+          success: false,
+          reason: String(err),
+        };
+      }
+    );
+  } catch (err) {
+    this.logger.log(LOG_LEVEL.ERROR, err.message);
+    this.errorHandler.handleError(err);
+    return Promise.resolve({
+      success: false,
+      reason: String(err),
+    });
   }
 };
 

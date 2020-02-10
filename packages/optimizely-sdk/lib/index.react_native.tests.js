@@ -1,5 +1,5 @@
 /**
- * Copyright 2016-2019, Optimizely
+ * Copyright 2019, Optimizely
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,20 +17,18 @@ var logging = require('@optimizely/js-sdk-logging');
 var configValidator = require('./utils/config_validator');
 var eventProcessor = require('@optimizely/js-sdk-event-processor');
 var Optimizely = require('./optimizely');
-var optimizelyFactory = require('./index.browser');
+var optimizelyFactory = require('./index.react_native');
 var packageJSON = require('../package.json');
 var testData = require('./tests/test_data');
 var eventProcessor = require('@optimizely/js-sdk-event-processor');
 var eventProcessorConfigValidator = require('./utils/event_processor_config_validator');
+var defaultEventDispatcher = require('./plugins/event_dispatcher/index.browser');
 
 var chai = require('chai');
 var assert = chai.assert;
-var find = require('lodash/find');
 var sinon = require('sinon');
 
-var LocalStoragePendingEventsDispatcher = eventProcessor.LocalStoragePendingEventsDispatcher;
-
-describe('javascript-sdk', function() {
+describe('javascript-sdk/react-native', function() {
   describe('APIs', function() {
     var xhr;
     var requests;
@@ -63,66 +61,12 @@ describe('javascript-sdk', function() {
         xhr.onCreate = function(req) {
           requests.push(req);
         };
-
-        sinon.stub(LocalStoragePendingEventsDispatcher.prototype, 'sendPendingEvents');
       });
 
       afterEach(function() {
-        LocalStoragePendingEventsDispatcher.prototype.sendPendingEvents.restore();
-        optimizelyFactory.__internalResetRetryState();
         console.error.restore();
         configValidator.validate.restore();
         xhr.restore();
-      });
-
-      describe('when an eventDispatcher is not passed in', function() {
-        it('should wrap the default eventDispatcher and invoke sendPendingEvents', function() {
-          var optlyInstance = optimizelyFactory.createInstance({
-            datafile: {},
-            errorHandler: fakeErrorHandler,
-            logger: silentLogger,
-          });
-          // Invalid datafile causes onReady Promise rejection - catch this error
-          optlyInstance.onReady().catch(function() {});
-
-          sinon.assert.calledOnce(LocalStoragePendingEventsDispatcher.prototype.sendPendingEvents);
-        });
-      });
-
-      describe('when an eventDispatcher is passed in', function() {
-        it('should NOT wrap the default eventDispatcher and invoke sendPendingEvents', function() {
-          var optlyInstance = optimizelyFactory.createInstance({
-            datafile: {},
-            errorHandler: fakeErrorHandler,
-            eventDispatcher: fakeEventDispatcher,
-            logger: silentLogger,
-          });
-          // Invalid datafile causes onReady Promise rejection - catch this error
-          optlyInstance.onReady().catch(function() {});
-
-          sinon.assert.notCalled(LocalStoragePendingEventsDispatcher.prototype.sendPendingEvents);
-        });
-      });
-
-      it('should invoke resendPendingEvents at most once', function() {
-        var optlyInstance = optimizelyFactory.createInstance({
-          datafile: {},
-          errorHandler: fakeErrorHandler,
-          logger: silentLogger,
-        });
-        // Invalid datafile causes onReady Promise rejection - catch this error
-        optlyInstance.onReady().catch(function() {});
-
-        sinon.assert.calledOnce(LocalStoragePendingEventsDispatcher.prototype.sendPendingEvents);
-
-        optlyInstance = optimizelyFactory.createInstance({
-          datafile: {},
-          errorHandler: fakeErrorHandler,
-          logger: silentLogger,
-        });
-        optlyInstance.onReady().catch(function() {});
-
-        sinon.assert.calledOnce(LocalStoragePendingEventsDispatcher.prototype.sendPendingEvents);
       });
 
       it('should not throw if the provided config is not valid', function() {
@@ -177,19 +121,6 @@ describe('javascript-sdk', function() {
         assert.equal('react-sdk', optlyInstance.clientEngine);
       });
 
-      it('should allow passing of "react-sdk" as the clientEngine', function() {
-        var optlyInstance = optimizelyFactory.createInstance({
-          clientEngine: 'react-sdk',
-          datafile: {},
-          errorHandler: fakeErrorHandler,
-          eventDispatcher: fakeEventDispatcher,
-          logger: silentLogger,
-        });
-        // Invalid datafile causes onReady Promise rejection - catch this error
-        optlyInstance.onReady().catch(function() {});
-        assert.equal('react-sdk', optlyInstance.clientEngine);
-      });
-
       it('should activate with provided event dispatcher', function() {
         var optlyInstance = optimizelyFactory.createInstance({
           datafile: testData.getTestProjectConfig(),
@@ -201,165 +132,28 @@ describe('javascript-sdk', function() {
         assert.strictEqual(activate, 'control');
       });
 
-      it('should be able to set and get a forced variation', function() {
-        var optlyInstance = optimizelyFactory.createInstance({
-          datafile: testData.getTestProjectConfig(),
-          errorHandler: fakeErrorHandler,
-          eventDispatcher: optimizelyFactory.eventDispatcher,
-          logger: silentLogger,
+      describe('when no event dispatcher passed to createInstance', function() {
+        beforeEach(function() {
+          sinon.stub(defaultEventDispatcher, 'dispatchEvent', function(evt, cb) {
+            cb();
+          });
+        })
+
+        afterEach(function() {
+          defaultEventDispatcher.dispatchEvent.restore();
         });
 
-        var didSetVariation = optlyInstance.setForcedVariation('testExperiment', 'testUser', 'control');
-        assert.strictEqual(didSetVariation, true);
-
-        var variation = optlyInstance.getForcedVariation('testExperiment', 'testUser');
-        assert.strictEqual(variation, 'control');
-      });
-
-      it('should be able to set and unset a forced variation', function() {
-        var optlyInstance = optimizelyFactory.createInstance({
-          datafile: testData.getTestProjectConfig(),
-          errorHandler: fakeErrorHandler,
-          eventDispatcher: optimizelyFactory.eventDispatcher,
-          logger: silentLogger,
+        it('uses the default event dispatcher', function() {
+          var optlyInstance = optimizelyFactory.createInstance({
+            datafile: testData.getTestProjectConfig(),
+            errorHandler: fakeErrorHandler,
+            logger: silentLogger,
+          });
+          optlyInstance.activate('testExperiment', 'testUser');
+          return optlyInstance.close().then(function() {
+            sinon.assert.calledOnce(defaultEventDispatcher.dispatchEvent);
+          });
         });
-
-        var didSetVariation = optlyInstance.setForcedVariation('testExperiment', 'testUser', 'control');
-        assert.strictEqual(didSetVariation, true);
-
-        var variation = optlyInstance.getForcedVariation('testExperiment', 'testUser');
-        assert.strictEqual(variation, 'control');
-
-        var didSetVariation2 = optlyInstance.setForcedVariation('testExperiment', 'testUser', null);
-        assert.strictEqual(didSetVariation2, true);
-
-        var variation2 = optlyInstance.getForcedVariation('testExperiment', 'testUser');
-        assert.strictEqual(variation2, null);
-      });
-
-      it('should be able to set multiple experiments for one user', function() {
-        var optlyInstance = optimizelyFactory.createInstance({
-          datafile: testData.getTestProjectConfig(),
-          errorHandler: fakeErrorHandler,
-          eventDispatcher: optimizelyFactory.eventDispatcher,
-          logger: silentLogger,
-        });
-
-        var didSetVariation = optlyInstance.setForcedVariation('testExperiment', 'testUser', 'control');
-        assert.strictEqual(didSetVariation, true);
-
-        var didSetVariation2 = optlyInstance.setForcedVariation(
-          'testExperimentLaunched',
-          'testUser',
-          'controlLaunched'
-        );
-        assert.strictEqual(didSetVariation2, true);
-
-        var variation = optlyInstance.getForcedVariation('testExperiment', 'testUser');
-        assert.strictEqual(variation, 'control');
-
-        var variation2 = optlyInstance.getForcedVariation('testExperimentLaunched', 'testUser');
-        assert.strictEqual(variation2, 'controlLaunched');
-      });
-
-      it('should be able to set multiple experiments for one user, and unset one', function() {
-        var optlyInstance = optimizelyFactory.createInstance({
-          datafile: testData.getTestProjectConfig(),
-          errorHandler: fakeErrorHandler,
-          eventDispatcher: optimizelyFactory.eventDispatcher,
-          logger: silentLogger,
-        });
-
-        var didSetVariation = optlyInstance.setForcedVariation('testExperiment', 'testUser', 'control');
-        assert.strictEqual(didSetVariation, true);
-
-        var didSetVariation2 = optlyInstance.setForcedVariation(
-          'testExperimentLaunched',
-          'testUser',
-          'controlLaunched'
-        );
-        assert.strictEqual(didSetVariation2, true);
-
-        var didSetVariation2 = optlyInstance.setForcedVariation('testExperimentLaunched', 'testUser', null);
-        assert.strictEqual(didSetVariation2, true);
-
-        var variation = optlyInstance.getForcedVariation('testExperiment', 'testUser');
-        assert.strictEqual(variation, 'control');
-
-        var variation2 = optlyInstance.getForcedVariation('testExperimentLaunched', 'testUser');
-        assert.strictEqual(variation2, null);
-      });
-
-      it('should be able to set multiple experiments for one user, and reset one', function() {
-        var optlyInstance = optimizelyFactory.createInstance({
-          datafile: testData.getTestProjectConfig(),
-          errorHandler: fakeErrorHandler,
-          eventDispatcher: optimizelyFactory.eventDispatcher,
-          logger: silentLogger,
-        });
-
-        var didSetVariation = optlyInstance.setForcedVariation('testExperiment', 'testUser', 'control');
-        assert.strictEqual(didSetVariation, true);
-
-        var didSetVariation2 = optlyInstance.setForcedVariation(
-          'testExperimentLaunched',
-          'testUser',
-          'controlLaunched'
-        );
-        assert.strictEqual(didSetVariation2, true);
-
-        var didSetVariation2 = optlyInstance.setForcedVariation(
-          'testExperimentLaunched',
-          'testUser',
-          'variationLaunched'
-        );
-        assert.strictEqual(didSetVariation2, true);
-
-        var variation = optlyInstance.getForcedVariation('testExperiment', 'testUser');
-        assert.strictEqual(variation, 'control');
-
-        var variation2 = optlyInstance.getForcedVariation('testExperimentLaunched', 'testUser');
-        assert.strictEqual(variation2, 'variationLaunched');
-      });
-
-      it('should override bucketing when setForcedVariation is called', function() {
-        var optlyInstance = optimizelyFactory.createInstance({
-          datafile: testData.getTestProjectConfig(),
-          errorHandler: fakeErrorHandler,
-          eventDispatcher: optimizelyFactory.eventDispatcher,
-          logger: silentLogger,
-        });
-
-        var didSetVariation = optlyInstance.setForcedVariation('testExperiment', 'testUser', 'control');
-        assert.strictEqual(didSetVariation, true);
-
-        var variation = optlyInstance.getVariation('testExperiment', 'testUser');
-        assert.strictEqual(variation, 'control');
-
-        var didSetVariation2 = optlyInstance.setForcedVariation('testExperiment', 'testUser', 'variation');
-        assert.strictEqual(didSetVariation2, true);
-
-        var variation = optlyInstance.getVariation('testExperiment', 'testUser');
-        assert.strictEqual(variation, 'variation');
-      });
-
-      it('should override bucketing when setForcedVariation is called for a not running experiment', function() {
-        var optlyInstance = optimizelyFactory.createInstance({
-          datafile: testData.getTestProjectConfig(),
-          errorHandler: fakeErrorHandler,
-          eventDispatcher: optimizelyFactory.eventDispatcher,
-          logger: silentLogger,
-        });
-
-        var didSetVariation = optlyInstance.setForcedVariation(
-          'testExperimentNotRunning',
-          'testUser',
-          'controlNotRunning'
-        );
-        assert.strictEqual(didSetVariation, true);
-
-        var variation = optlyInstance.getVariation('testExperimentNotRunning', 'testUser');
-        assert.strictEqual(variation, null);
       });
 
       describe('when passing in logLevel', function() {
