@@ -110,12 +110,9 @@ export abstract class AbstractEventProcessor implements EventProcessor {
   }
 
   stop(): Promise<any> {
-    // Catch errors - an error stopping this queue or closing this dispatcher should NOT prevent this from stopping
     try {
-      return Promise.all([
-        this.queue.stop(),
-        this.dispatcher.close ? this.dispatcher.close() : Promise.resolve(),
-      ])
+      // swallow, an error stopping this queue should prevent this from stopping
+      return this.queue.stop()
     } catch (e) {
       logger.error('Error stopping EventProcessor: "%s"', e.message, e)
     }
