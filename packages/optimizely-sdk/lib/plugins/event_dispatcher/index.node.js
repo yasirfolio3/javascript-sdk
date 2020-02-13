@@ -16,48 +16,54 @@
 var http = require('http');
 var https = require('https');
 var url = require('url');
+var createEventRequestTracker = require('./event_request_tracker');
+
+/**
+ * Dispatch an HTTP request to the given url and the specified options
+ * @param {Object}  eventObj          Event object containing
+ * @param {string}  eventObj.url      the url to make the request to
+ * @param {Object}  eventObj.params   parameters to pass to the request (i.e. in the POST body)
+ * @param {string}  eventObj.httpVerb the HTTP request method type. only POST is supported.
+ * @param {function} callback         callback to execute
+ * @return {ClientRequest|undefined}          ClientRequest object which made the request, or undefined if no request was made (error)
+ */
+function dispatchEvent(eventObj, callback) {
+  // Non-POST requests not supported
+  if (eventObj.httpVerb !== 'POST') {
+    return;
+  }
+
+  var parsedUrl = url.parse(eventObj.url);
+
+  var dataString = JSON.stringify(eventObj.params);
+
+  var requestOptions = {
+    host: parsedUrl.host,
+    path: parsedUrl.path,
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'content-length': dataString.length.toString(),
+    }
+  };
+
+  var requestCallback = function(response) {
+    if (response && response.statusCode && response.statusCode >= 200 && response.statusCode < 400) {
+      callback(response);
+    }
+  };
+
+  var req = (parsedUrl.protocol === 'http:' ? http : https).request(requestOptions, requestCallback);
+  // Add no-op error listener to prevent this from throwing
+  req.on('error', function() {});
+  req.write(dataString);
+  req.end();
+  return req;
+}
+
+var requestTracker = createEventRequestTracker(dispatchEvent);
 
 module.exports = {
-  /**
-   * Dispatch an HTTP request to the given url and the specified options
-   * @param {Object}  eventObj          Event object containing
-   * @param {string}  eventObj.url      the url to make the request to
-   * @param {Object}  eventObj.params   parameters to pass to the request (i.e. in the POST body)
-   * @param {string}  eventObj.httpVerb the HTTP request method type. only POST is supported.
-   * @param {function} callback         callback to execute
-   * @return {ClientRequest|undefined}          ClientRequest object which made the request, or undefined if no request was made (error)
-   */
-  dispatchEvent: function(eventObj, callback) {
-    // Non-POST requests not supported
-    if (eventObj.httpVerb !== 'POST') {
-      return;
-    }
-
-    var parsedUrl = url.parse(eventObj.url);
-
-    var dataString = JSON.stringify(eventObj.params);
-
-    var requestOptions = {
-      host: parsedUrl.host,
-      path: parsedUrl.path,
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'content-length': dataString.length.toString(),
-      }
-    };
-
-    var requestCallback = function(response) {
-      if (response && response.statusCode && response.statusCode >= 200 && response.statusCode < 400) {
-        callback(response);
-      }
-    };
-
-    var req = (parsedUrl.protocol === 'http:' ? http : https).request(requestOptions, requestCallback);
-    // Add no-op error listener to prevent this from throwing
-    req.on('error', function() {});
-    req.write(dataString);
-    req.end();
-    return req;
-  }
+  dispatchEvent: requestTracker.sendTrackedRequest,
+  onRequestsComplete: requestTracker.onRequestsComplete,
 };

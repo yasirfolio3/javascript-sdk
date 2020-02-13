@@ -959,7 +959,19 @@ Optimizely.prototype.getOptimizelyConfig = function() {
  */
 Optimizely.prototype.close = function() {
   try {
-    var eventProcessorStoppedPromise = this.eventProcessor.stop();
+    var eventProcessorStoppedPromise = this.eventProcessor.stop().then(
+      function() {
+        return {
+          success: true,
+        };
+      },
+      function(err) {
+        return {
+          success: false,
+          reason: String(err),
+        };
+      }
+    );
     if (this.__disposeOnUpdate) {
       this.__disposeOnUpdate();
       this.__disposeOnUpdate = null;
@@ -973,19 +985,27 @@ Optimizely.prototype.close = function() {
       readyTimeoutRecord.onClose();
     }.bind(this));
     this.__readyTimeouts = {};
-    return eventProcessorStoppedPromise.then(
-      function() {
-        return {
-          success: true,
-        };
-      },
-      function(err) {
-        return {
-          success: false,
-          reason: String(err),
-        };
+    return Promise.all([
+      eventProcessorStoppedPromise,
+      this.eventDispatcher.onRequestsComplete ? this.eventDispatcher.onRequestsComplete() : Promise.resolve({ success: true }),
+    ]).then(function(results) {
+      var anyResultFailed = false;
+      var combinedReasons = [];
+      results.forEach(function(result) {
+        anyResultFailed = anyResultFailed || !result.success;
+        if (typeof result.reason === 'string') {
+          combinedReasons.push(result.reason);
+        }
+      });
+      var combinedSuccess = !anyResultFailed;
+      var combinedResult = {
+        success: combinedSuccess,
+      };
+      if (!combinedSuccess) {
+        combinedResult.reason = combinedReasons.join(',');
       }
-    );
+      return combinedResult;
+    });
   } catch (err) {
     this.logger.log(LOG_LEVEL.ERROR, err.message);
     this.errorHandler.handleError(err);
