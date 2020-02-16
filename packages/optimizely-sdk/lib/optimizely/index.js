@@ -987,7 +987,8 @@ Optimizely.prototype.close = function() {
     this.__readyTimeouts = {};
     return Promise.all([
       eventProcessorStoppedPromise,
-      this.eventDispatcher.onRequestsComplete ? this.eventDispatcher.onRequestsComplete() : Promise.resolve({ success: true }),
+      // TODO: clean this up
+      this.eventDispatcher.onRequestsComplete ? this.eventDispatcher.onRequestsComplete().then(function() { return { success: true }}) : Promise.resolve({ success: true }),
     ]).then(function(results) {
       var anyResultFailed = false;
       var combinedReasons = [];

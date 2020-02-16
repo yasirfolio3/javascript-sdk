@@ -27,9 +27,7 @@ EventDispatcher.prototype.dispatchEvent = function(eventObj, callback) {
     this.__inFlightCount--;
     if (this.__inFlightCount === 0) {
       this.__reqsCompleteResolvers.forEach(function(resolver) {
-        resolver({
-          success: true,
-        });
+        resolver();
       });
       this.__reqsCompleteResolvers = [];
     }
@@ -39,9 +37,7 @@ EventDispatcher.prototype.dispatchEvent = function(eventObj, callback) {
 EventDispatcher.prototype.onRequestsComplete = function() {
   return new Promise(function(resolve) {
     if (this.__inFlightCount === 0) {
-      resolve({
-        success: true,
-      });
+      resolve();
       return;
     }
     this.__reqsCompleteResolvers.push(resolve);

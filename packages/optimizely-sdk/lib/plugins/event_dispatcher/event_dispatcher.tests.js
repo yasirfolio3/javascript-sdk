@@ -54,9 +54,9 @@ describe('lib/plugins/event_dispatcher', function() {
   describe('onRequestsComplete', function() {
     it('should return an immediately-fulfilled promise if no requests are in flight', function() {
       var dispatcher = new EventDispatcher(function() {});
-      return dispatcher.onRequestsComplete().then(function(result) {
-        assert.isTrue(result.success);
-      });
+      var onComplete = dispatcher.onRequestsComplete();
+      assert.instanceOf(onComplete, Promise);
+      return dispatcher.onRequestsComplete();
     });
 
     it('should return a promise that fulfills after in-flight requests are complete', function() {
@@ -67,15 +67,14 @@ describe('lib/plugins/event_dispatcher', function() {
       dispatcher.dispatchEvent({}, function() {});
 
       var onComplete = dispatcher.onRequestsComplete();
+      assert.instanceOf(onComplete, Promise);
 
       var firstReqFnCallback = reqFn.getCalls()[0].args[1];
       firstReqFnCallback({});
       var secondReqFnCallback = reqFn.getCalls()[1].args[1];
       secondReqFnCallback({});
 
-      return onComplete.then(function(result) {
-        assert.isTrue(result.success);
-      });
+      return onComplete;
     });
   });
 });
