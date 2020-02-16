@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
- function RequestTrackingEventDispatcher(requestFn) {
+ function EventDispatcher(requestFn) {
    this.__requestFn = requestFn;
    this.__inFlightCount = 0;
    this.__reqsCompleteResolvers = [];
  }
 
-RequestTrackingEventDispatcher.prototype.dispatchEvent = function(eventObj, callback) {
+EventDispatcher.prototype.dispatchEvent = function(eventObj, callback) {
   this.__inFlightCount++;
   return this.__requestFn(eventObj, function(resp) {
     callback(resp);
@@ -36,7 +36,7 @@ RequestTrackingEventDispatcher.prototype.dispatchEvent = function(eventObj, call
   }.bind(this));
 };
 
-RequestTrackingEventDispatcher.prototype.onRequestsComplete = function() {
+EventDispatcher.prototype.onRequestsComplete = function() {
   return new Promise(function(resolve) {
     if (this.__inFlightCount === 0) {
       resolve({
@@ -49,4 +49,4 @@ RequestTrackingEventDispatcher.prototype.onRequestsComplete = function() {
 };
 
 
- module.exports = RequestTrackingEventDispatcher;
+ module.exports = EventDispatcher;

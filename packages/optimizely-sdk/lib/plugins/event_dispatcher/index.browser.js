@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 var fns = require('../../utils/fns');
-var RequestTrackingEventDispatcher = require('./request_tracking_event_dispatcher');
+var EventDispatcher = require('./event_dispatcher');
 
 var POST_METHOD = 'POST';
 var GET_METHOD = 'GET';
@@ -73,5 +73,5 @@ var toQueryString = function(obj) {
 };
 
 module.exports = function() {
-  return new RequestTrackingEventDispatcher(dispatchEvent);
+  return new EventDispatcher(dispatchEvent);
 };

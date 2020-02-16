@@ -15,13 +15,13 @@
  */
 
 var sinon = require('sinon');
-var RequestTrackingEventDispatcher = require('./request_tracking_event_dispatcher');
+var EventDispatcher = require('./event_dispatcher');
 
-describe('request_tracking_event_dispatcher', function() {
+describe('lib/plugins/event_dispatcher', function() {
   describe('dispatchEvent', function() {
     it('calls requestFn, passing the event object as the first argument', function() {
       var reqFn = sinon.spy();
-      var reqTracker = new RequestTrackingEventDispatcher(reqFn);
+      var reqTracker = new EventDispatcher(reqFn);
       var evt1 = {};
       var evt2 = {};
       reqTracker.dispatchEvent(evt1, function() {});

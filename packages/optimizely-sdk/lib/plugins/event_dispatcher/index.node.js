@@ -16,7 +16,7 @@
 var http = require('http');
 var https = require('https');
 var url = require('url');
-var RequestTrackingEventDispatcher = require('./request_tracking_event_dispatcher');
+var EventDispatcher = require('./event_dispatcher');
 
 /**
  * Dispatch an HTTP request to the given url and the specified options
@@ -62,5 +62,5 @@ function dispatchEvent(eventObj, callback) {
 }
 
 module.exports = function() {
-  return new RequestTrackingEventDispatcher(dispatchEvent);
+  return new EventDispatcher(dispatchEvent);
 };
