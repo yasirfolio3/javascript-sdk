@@ -17,7 +17,7 @@ var logging = require('@optimizely/js-sdk-logging');
 var fns = require('./utils/fns');
 var configValidator = require('./utils/config_validator');
 var defaultErrorHandler = require('./plugins/error_handler');
-var defaultEventDispatcher = require('./plugins/event_dispatcher/index.browser');
+var createEventDispatcher = require('./plugins/event_dispatcher/index.browser');
 var enums = require('./utils/enums');
 var loggerPlugin = require('./plugins/logger/index.react_native');
 var Optimizely = require('./optimizely');
@@ -29,6 +29,8 @@ logging.setLogLevel(logging.LogLevel.INFO);
 
 var DEFAULT_EVENT_BATCH_SIZE = 10;
 var DEFAULT_EVENT_FLUSH_INTERVAL = 1000; // Unit is ms, default is 1s
+
+var defaultEventDispatcher = createEventDispatcher();
 
 /**
  * Entry point into the Optimizely Javascript SDK for React Native

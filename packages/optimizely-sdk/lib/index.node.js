@@ -16,7 +16,7 @@
 var logging = require('@optimizely/js-sdk-logging');
 var configValidator = require('./utils/config_validator');
 var defaultErrorHandler = require('./plugins/error_handler');
-var defaultEventDispatcher = require('./plugins/event_dispatcher/index.node');
+var createEventDispatcher = require('./plugins/event_dispatcher/index.node');
 var enums = require('./utils/enums');
 var fns = require('./utils/fns');
 var jsonSchemaValidator = require('./utils/json_schema_validator');
@@ -29,6 +29,8 @@ logging.setLogLevel(logging.LogLevel.ERROR);
 
 var DEFAULT_EVENT_BATCH_SIZE = 10;
 var DEFAULT_EVENT_FLUSH_INTERVAL = 30000; // Unit is ms, default is 30s
+
+var defaultEventDispatcher = createEventDispatcher();
 
 /**
  * Entry point into the Optimizely Node testing SDK

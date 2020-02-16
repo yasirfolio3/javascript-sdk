@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var eventDispatcher = require('./index.browser');
+var createEventDispatcher = require('./index.browser');
 var chai = require('chai');
 var assert = chai.assert;
 var sinon = require('sinon');
@@ -48,7 +48,7 @@ describe('lib/plugins/event_dispatcher/browser', function() {
         };
 
         var callback = sinon.spy();
-        eventDispatcher.dispatchEvent(eventObj, callback);
+        createEventDispatcher().dispatchEvent(eventObj, callback);
         assert.strictEqual(1, requests.length);
         assert.strictEqual(requests[0].method, 'POST');
         assert.strictEqual(requests[0].requestBody, JSON.stringify(eventParams));
@@ -67,7 +67,7 @@ describe('lib/plugins/event_dispatcher/browser', function() {
         };
 
         var callback = sinon.spy();
-        eventDispatcher.dispatchEvent(eventObj, callback);
+        createEventDispatcher().dispatchEvent(eventObj, callback);
         requests[ 0 ].respond([ 200, {}, '{"url":"https://cdn.com/event","body":{"id":123},"httpVerb":"POST","params":{"testParam":"testParamValue"}}' ]);
         sinon.assert.calledOnce(callback);
         done();
@@ -80,7 +80,7 @@ describe('lib/plugins/event_dispatcher/browser', function() {
         };
 
         var callback = sinon.spy();
-        eventDispatcher.dispatchEvent(eventObj, callback);
+        createEventDispatcher().dispatchEvent(eventObj, callback);
         requests[ 0 ].respond([ 200, {}, '{"url":"https://cdn.com/event","httpVerb":"GET"' ]);
         sinon.assert.calledOnce(callback);
         done();

@@ -22,7 +22,7 @@ var packageJSON = require('../package.json');
 var testData = require('./tests/test_data');
 var eventProcessor = require('@optimizely/js-sdk-event-processor');
 var eventProcessorConfigValidator = require('./utils/event_processor_config_validator');
-var defaultEventDispatcher = require('./plugins/event_dispatcher/index.browser');
+var defaultEventDispatcher = require('./plugins/event_dispatcher/index.browser')();
 
 var chai = require('chai');
 var assert = chai.assert;
@@ -134,13 +134,13 @@ describe('javascript-sdk/react-native', function() {
 
       describe('when no event dispatcher passed to createInstance', function() {
         beforeEach(function() {
-          sinon.stub(defaultEventDispatcher, 'dispatchEvent', function(evt, cb) {
+          sinon.stub(optimizelyFactory.eventDispatcher, 'dispatchEvent', function(evt, cb) {
             cb();
           });
         })
 
         afterEach(function() {
-          defaultEventDispatcher.dispatchEvent.restore();
+          optimizelyFactory.eventDispatcher.dispatchEvent.restore();
         });
 
         it('uses the default event dispatcher', function() {
@@ -151,7 +151,7 @@ describe('javascript-sdk/react-native', function() {
           });
           optlyInstance.activate('testExperiment', 'testUser');
           return optlyInstance.close().then(function() {
-            sinon.assert.calledOnce(defaultEventDispatcher.dispatchEvent);
+            sinon.assert.calledOnce(optimizelyFactory.eventDispatcher.dispatchEvent);
           });
         });
       });

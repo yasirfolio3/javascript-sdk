@@ -19,7 +19,7 @@ var logger = require('./plugins/logger');
 var Optimizely = require('./optimizely');
 
 var packageJSON = require('../package.json');
-var eventDispatcher = require('./plugins/event_dispatcher/index.browser');
+var eventDispatcher = require('./plugins/event_dispatcher/index.browser')();
 var testData = require('./tests/test_data');
 
 var chai = require('chai');

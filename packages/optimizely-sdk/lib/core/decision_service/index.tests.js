@@ -16,7 +16,7 @@
 
 var Optimizely = require('../../optimizely');
 var eventBuilder = require('../../core/event_builder/index.js');
-var eventDispatcher = require('../../plugins/event_dispatcher/index.node');
+var eventDispatcher = require('../../plugins/event_dispatcher/index.node')();
 var errorHandler = require('../../plugins/error_handler');
 var bucketer = require('../bucketer');
 var DecisionService = require('./');

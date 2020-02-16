@@ -18,7 +18,7 @@ var logging = require('@optimizely/js-sdk-logging');
 var fns = require('./utils/fns');
 var configValidator = require('./utils/config_validator');
 var defaultErrorHandler = require('./plugins/error_handler');
-var defaultEventDispatcher = require('./plugins/event_dispatcher/index.browser');
+var createEventDispatcher = require('./plugins/event_dispatcher/index.browser');
 var enums = require('./utils/enums');
 var eventProcessor = require('@optimizely/js-sdk-event-processor');
 var loggerPlugin = require('./plugins/logger');
@@ -35,6 +35,9 @@ var DEFAULT_EVENT_BATCH_SIZE = 10;
 var DEFAULT_EVENT_FLUSH_INTERVAL = 1000; // Unit is ms, default is 1s
 
 var hasRetriedEvents = false;
+
+var defaultEventDispatcher = createEventDispatcher();
+
 /**
  * Entry point into the Optimizely Browser SDK
  */

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var eventDispatcher = require('./index.node');
+var createEventDispatcher = require('./index.node');
 var chai = require('chai');
 var assert = chai.assert;
 var nock = require('nock');
@@ -49,7 +49,7 @@ describe('lib/plugins/event_dispatcher/node', function() {
           httpVerb: 'POST',
         };
 
-        eventDispatcher.dispatchEvent(eventObj, function(resp) {
+        createEventDispatcher().dispatchEvent(eventObj, function(resp) {
           assert.equal(200, resp.statusCode);
           done();
         });
@@ -64,7 +64,7 @@ describe('lib/plugins/event_dispatcher/node', function() {
           httpVerb: 'POST',
         };
 
-        eventDispatcher.dispatchEvent(eventObj, stubCallback.callback)
+        createEventDispatcher().dispatchEvent(eventObj, stubCallback.callback)
         .on('response', function(response) {
           sinon.assert.calledOnce(stubCallback.callback);
           done();
@@ -84,7 +84,7 @@ describe('lib/plugins/event_dispatcher/node', function() {
         };
 
         var callback = sinon.spy();
-        eventDispatcher.dispatchEvent(eventObj, callback);
+        createEventDispatcher().dispatchEvent(eventObj, callback);
         sinon.assert.notCalled(callback);
       });
     });
@@ -97,7 +97,7 @@ describe('lib/plugins/event_dispatcher/node', function() {
       };
 
       var callback = sinon.spy();
-      eventDispatcher.dispatchEvent(eventObj, callback);
+      createEventDispatcher().dispatchEvent(eventObj, callback);
       sinon.assert.notCalled(callback);
     });
   });
