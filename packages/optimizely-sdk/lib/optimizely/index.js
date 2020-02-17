@@ -985,10 +985,13 @@ Optimizely.prototype.close = function() {
       readyTimeoutRecord.onClose();
     }.bind(this));
     this.__readyTimeouts = {};
+    // TODO: clean this up
+    const edFinished = this.eventDispatcher.onRequestsComplete ?
+      this.eventDispatcher.onRequestsComplete().then(function() { return { success: true }}) :
+      Promise.resolve({ success: true });
     return Promise.all([
       eventProcessorStoppedPromise,
-      // TODO: clean this up
-      this.eventDispatcher.onRequestsComplete ? this.eventDispatcher.onRequestsComplete().then(function() { return { success: true }}) : Promise.resolve({ success: true }),
+      edFinished,
     ]).then(function(results) {
       var anyResultFailed = false;
       var combinedReasons = [];
