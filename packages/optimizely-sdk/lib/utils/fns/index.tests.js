@@ -15,8 +15,10 @@
  */
 
 var chai = require('chai');
-var assert = chai.assert;
+var sinon = require('sinon');
 var fns = require('./');
+
+var assert = chai.assert;
 
 describe('lib/utils/fns', function() {
   describe('APIs', function() {
@@ -35,6 +37,17 @@ describe('lib/utils/fns', function() {
         assert.isTrue(fns.isFinite(10.5));
         assert.isTrue(fns.isFinite(Math.pow(2, 53)));
         assert.isTrue(fns.isFinite(-Math.pow(2, 53)));
+      });
+    });
+
+    describe('once', function() {
+      it('returned function should only call through to the argument function at most once', function() {
+        var func = sinon.spy();
+        var onceFunc = fns.once(func);
+        onceFunc();
+        onceFunc();
+        onceFunc();
+        sinon.assert.calledOnce(func);
       });
     });
   });
