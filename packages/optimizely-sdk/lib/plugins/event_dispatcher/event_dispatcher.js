@@ -22,14 +22,21 @@
 
 EventDispatcher.prototype.dispatchEvent = function(eventObj, callback) {
   this.__inFlightCount++;
+  var complete = false;
   return this.__requestFn(eventObj, function(resp) {
     callback(resp);
-    this.__inFlightCount--;
-    if (this.__inFlightCount === 0) {
-      this.__reqsCompleteResolvers.forEach(function(resolver) {
-        resolver();
-      });
-      this.__reqsCompleteResolvers = [];
+    // A badly-behaved requestFn might call its done callback multiple times.
+    // Use complete flag to make sure we only react to the first call, to avoid
+    // inconsistent behavior.
+    if (!complete) {
+      complete = true;
+      this.__inFlightCount--;
+      if (this.__inFlightCount === 0) {
+        this.__reqsCompleteResolvers.forEach(function(resolver) {
+          resolver();
+        });
+        this.__reqsCompleteResolvers = [];
+      }
     }
   }.bind(this));
 };

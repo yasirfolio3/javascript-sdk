@@ -39,4 +39,13 @@ module.exports = {
   },
   values: require('lodash/values'),
   isNumber: require('lodash/isNumber'),
+  once: function(func) {
+    var wasCalled = false;
+    return function() {
+      if (!wasCalled) {
+        wasCalled = true;
+        func();
+      }
+    };
+  }
 };

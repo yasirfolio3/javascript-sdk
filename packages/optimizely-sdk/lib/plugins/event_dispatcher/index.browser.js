@@ -30,6 +30,13 @@ function dispatchEvent(eventObj, callback) {
   var url = eventObj.url;
   var params = eventObj.params;
   var req;
+
+  // Ensure callback is called at most once, even if onreadystatechange is fired
+  // multiple times while req.readyState === READYSTATE_COMPLETE. This is
+  // necessary for the implementation of request tracking - see
+  // event_dispatcher.js.
+  var onceCallback = fns.once(callback);
+
   if (eventObj.httpVerb === POST_METHOD) {
     req = new XMLHttpRequest();
     req.open(POST_METHOD, url, true);
@@ -37,7 +44,7 @@ function dispatchEvent(eventObj, callback) {
     req.onreadystatechange = function() {
       if (req.readyState === READYSTATE_COMPLETE && callback && typeof callback === 'function') {
         try {
-          callback(params);
+          onceCallback(params);
         } catch (e) {
           // TODO: Log this somehow (consider adding a logger to the EventDispatcher interface)
         }
@@ -56,7 +63,7 @@ function dispatchEvent(eventObj, callback) {
     req.onreadystatechange = function() {
       if (req.readyState === READYSTATE_COMPLETE && callback && typeof callback === 'function') {
         try {
-          callback();
+          onceCallback();
         } catch (e) {
           // TODO: Log this somehow (consider adding a logger to the EventDispatcher interface)
         }
