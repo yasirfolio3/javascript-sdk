@@ -28,6 +28,7 @@ var sprintf = require('@optimizely/js-sdk-utils').sprintf;
 var userProfileServiceValidator = require('../utils/user_profile_service_validator');
 var stringValidator = require('../utils/string_value_validator');
 var projectConfigManager = require('../core/project_config/project_config_manager');
+var DefaultEventDispatcher = require('../plugins/event_dispatcher/event_dispatcher');
 
 var ERROR_MESSAGES = enums.ERROR_MESSAGES;
 var LOG_LEVEL = enums.LOG_LEVEL;
@@ -985,30 +986,13 @@ Optimizely.prototype.close = function() {
       readyTimeoutRecord.onClose();
     }.bind(this));
     this.__readyTimeouts = {};
-    // TODO: clean this up
-    const edFinished = this.eventDispatcher.onRequestsComplete ?
-      this.eventDispatcher.onRequestsComplete().then(function() { return { success: true }}) :
-      Promise.resolve({ success: true });
-    return Promise.all([
-      eventProcessorStoppedPromise,
-      edFinished,
-    ]).then(function(results) {
-      var anyResultFailed = false;
-      var combinedReasons = [];
-      results.forEach(function(result) {
-        anyResultFailed = anyResultFailed || !result.success;
-        if (typeof result.reason === 'string') {
-          combinedReasons.push(result.reason);
-        }
-      });
-      var combinedSuccess = !anyResultFailed;
-      var combinedResult = {
-        success: combinedSuccess,
-      };
-      if (!combinedSuccess) {
-        combinedResult.reason = combinedReasons.join(',');
-      }
-      return combinedResult;
+    var donePromises = [eventProcessorStoppedPromise];
+    if (this.eventDispatcher instanceof DefaultEventDispatcher) {
+      donePromises.push(this.eventDispatcher.onRequestsComplete());
+    }
+    return Promise.all(donePromises).then(function(results) {
+      var eventProcessorResult = results[0];
+      return eventProcessorResult;
     });
   } catch (err) {
     this.logger.log(LOG_LEVEL.ERROR, err.message);

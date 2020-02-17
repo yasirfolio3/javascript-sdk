@@ -3411,6 +3411,25 @@ describe('lib/optimizely', function() {
         });
       });
     });
+
+    describe('#close', function() {
+      var reqsCompletePromise;
+      beforeEach(function() {
+        reqsCompletePromise = Promise.resolve();
+        sinon.stub(eventDispatcher, 'onRequestsComplete').returns(reqsCompletePromise);
+      });
+
+      afterEach(function() {
+        eventDispatcher.onRequestsComplete.restore();
+        return reqsCompletePromise;
+      });
+
+      it('calls the onRequestsComplete method of the default event dispatcher', function() {
+        var closePromise = optlyInstance.close();
+        sinon.assert.calledOnce(eventDispatcher.onRequestsComplete);
+        return closePromise;
+      });
+    });
   });
 
   //tests separated out from APIs because of mock bucketing
