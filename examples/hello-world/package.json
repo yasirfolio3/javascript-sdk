@@ -1,0 +1,16 @@
+{
+  "name": "hello-world",
+  "version": "1.0.0",
+  "description": "Hello world example for Optimizely javascript sdk",
+  "main": "index.js",
+  "scripts": {
+    "compile": "mkdir dist && sed \"s/{{OPTY_SDK_KEY}}/$OPTY_SDK_KEY/g\" index.html > dist/index.html",
+    "start": "npm run compile && serve ./dist",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Optimizely",
+  "license": "ISC",
+  "devDependencies": {
+    "serve": "^11.3.0"
+  }
+}
