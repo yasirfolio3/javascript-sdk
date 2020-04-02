@@ -1,7 +1,7 @@
 {
-  "name": "hello-world",
+  "name": "event-tracking",
   "version": "1.0.0",
-  "description": "Hello world example for Optimizely javascript sdk",
+  "description": "Event tracking example for Optimizely javascript sdk",
   "main": "index.js",
   "scripts": {
     "compile": "mkdir -p dist && sed \"s/{{OPTY_SDK_KEY}}/$OPTY_SDK_KEY/g\" index.html > dist/index.html",

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="">
+  <link rel="stylesheet" href="https://s3-us-west-2.amazonaws.com/design.optimizely.com/oui/latest/styles.css">
+  <style>
+    body { padding: 30px; }
+  </style>
+  <title>JS SDK Event Tracking</title>
+</head>
+<body>
+  <h1 id="title">Event Tracking Example</h1>
+  <p>If you're using Chrome, open up the network tab (cmd + option + i), then click the button.</p>
+  <p>You should see </p>
+  <button id="button">Click me</button>
+  <script src="https://unpkg.com/@optimizely/optimizely-sdk/dist/optimizely.browser.umd.min.js"></script>
+  <script>
+    const user = {
+      id: '1',
+      city: 'Austin',
+    };
+    const optimizely = window.optimizelySdk.createInstance({
+      sdkKey: '{{OPTY_SDK_KEY}}',
+    });
+    optimizely.onReady().then(() => {
+      const buttonEl = document.getElementById('button');
+
+      buttonEl.addEventListener('click', () => {
+        // Custom audience attributes (used for audience targeting)
+        // https://docs.developers.optimizely.com/full-stack/docs/define-attributes
+        const audienceAttributes = {
+          city: user.city,
+        };
+
+        // Additional event meta-data
+        // https://docs.developers.optimizely.com/full-stack/docs/include-event-tags
+        const eventTags = {
+          demo: 'event tracking',
+          user_agent: window.navigator.userAgent,
+        };
+
+        optimizely.track('Example Button Clicked', user.id, audienceAttributes, eventTags);
+      });
+    });
+  </script>
+</body>
+</html>
