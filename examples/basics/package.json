@@ -1,0 +1,15 @@
+{
+  "name": "optimizely-sdk-basics",
+  "version": "0.0.0",
+  "description": "Optimizely javascript sdk basic use-cases",
+  "main": "index.js",
+  "scripts": {
+    "start": "live-server --port=5000",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Optimizely",
+  "license": "ISC",
+  "devDependencies": {
+    "live-server": "^1.2.1"
+  }
+}
