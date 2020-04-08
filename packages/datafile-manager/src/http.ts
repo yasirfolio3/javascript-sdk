@@ -15,17 +15,17 @@
  */
 
 /**
- * ResponseHeaders and RequestHeaders are the interfaces that bridge between the
+ * RequestHeaders and ResponseHeaders are the interfaces that bridge between the
  * abstract datafile manager Node-or-browser-specific http header types. They
  * only support one value per header name. We can extend or replace this type if
  * requirements change and we need to work with multiple values per header name.
  */
-export interface ResponseHeaders {
-  get(name: string): string | null;
-}
-
 export interface RequestHeaders {
   [header: string]: string;
+}
+
+export interface ResponseHeaders {
+  get(name: string): string | null;
 }
 
 export interface Response {
