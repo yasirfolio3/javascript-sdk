@@ -69,6 +69,7 @@ function Optimizely(config) {
   this.eventDispatcher = config.eventDispatcher;
   this.__isOptimizelyConfigValid = config.isValidInstance;
   this.logger = config.logger;
+  this.immediateQueue = [];
 
   this.projectConfigManager = new projectConfigManager.ProjectConfigManager({
     datafile: config.datafile,
@@ -266,6 +267,20 @@ Optimizely.prototype.__emitNotificationCenterActivate = function(experimentKey, 
 };
 
 /**
+ * Empties immediateQueue
+ */
+Optimizely.prototype.__emptyImmediateQueue = function () {
+  this.immediateQueue.forEach(immediateEvent => {
+    if (immediateEvent.type === "track") {
+      this.track(...immediateEvent.arguments);
+    } else if (immediateEvent.type === "isFeatureEnabled") {
+      this.isFeatureEnabled(...immediateEvent.arguments);
+    }
+  })
+  this.immediateQueue = [];
+}
+
+/**
  * Sends conversion event to Optimizely.
  * @param  {string} eventKey
  * @param  {string} userId
@@ -274,7 +289,7 @@ Optimizely.prototype.__emitNotificationCenterActivate = function(experimentKey, 
  */
 Optimizely.prototype.track = function(eventKey, userId, attributes, eventTags) {
   try {
-    if (!this.__isValidInstance()) {
+    if (!this.__isOptimizelyConfigValid) {
       this.logger.log(LOG_LEVEL.ERROR, jsSdkUtils.sprintf(LOG_MESSAGES.INVALID_OBJECT, MODULE_NAME, 'track'));
       return;
     }
@@ -285,6 +300,12 @@ Optimizely.prototype.track = function(eventKey, userId, attributes, eventTags) {
 
     var configObj = this.projectConfigManager.getConfig();
     if (!configObj) {
+      var args = jsSdkUtils.objectValues(arguments);
+      var immediateEvent = {
+        type: "track",
+        arguments: args,
+      };
+      this.immediateQueue.push(immediateEvent);
       return;
     }
 
@@ -552,7 +573,7 @@ Optimizely.prototype.__filterEmptyValues = function(map) {
  */
 Optimizely.prototype.isFeatureEnabled = function(featureKey, userId, attributes) {
   try {
-    if (!this.__isValidInstance()) {
+    if (!this.__isOptimizelyConfigValid) {
       this.logger.log(
         LOG_LEVEL.ERROR,
         jsSdkUtils.sprintf(LOG_MESSAGES.INVALID_OBJECT, MODULE_NAME, 'isFeatureEnabled')
@@ -566,6 +587,12 @@ Optimizely.prototype.isFeatureEnabled = function(featureKey, userId, attributes)
 
     var configObj = this.projectConfigManager.getConfig();
     if (!configObj) {
+      var args = jsSdkUtils.objectValues(arguments);
+      var immediateEvent = {
+        type: "isFeatureEnabled",
+        arguments: args,
+      }
+      this.immediateQueue.push(immediateEvent);
       return false;
     }
 
@@ -1121,6 +1148,7 @@ Optimizely.prototype.onReady = function(options) {
 
   this.__readyPromise.then(
     function() {
+      this.__emptyImmediateQueue();
       clearTimeout(readyTimeout);
       delete this.__readyTimeouts[timeoutId];
       resolveTimeoutPromise({
