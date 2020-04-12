@@ -114,7 +114,6 @@ module.exports = {
       }
 
       var optimizely = new Optimizely(config);
-      optimizely.onReady();
 
       return optimizely;
     } catch (e) {
