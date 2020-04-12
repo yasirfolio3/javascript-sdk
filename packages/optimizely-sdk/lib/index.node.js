@@ -113,9 +113,7 @@ module.exports = {
         config.eventFlushInterval = DEFAULT_EVENT_FLUSH_INTERVAL;
       }
 
-      var optimizely = new Optimizely(config);
-
-      return optimizely;
+      return new Optimizely(config);
     } catch (e) {
       logger.error(e);
       return null;
