@@ -39,6 +39,7 @@ var DECISION_NOTIFICATION_TYPES = enums.DECISION_NOTIFICATION_TYPES;
 var NOTIFICATION_TYPES = enums.NOTIFICATION_TYPES;
 
 var DEFAULT_ONREADY_TIMEOUT = 30000;
+var MAX_IMMEDIATE_QUEUE_SIZE = 1000;
 
 /**
  * The Optimizely class
@@ -88,7 +89,12 @@ function Optimizely(config) {
     }.bind(this)
   );
 
-  this.__readyPromise = this.projectConfigManager.onReady();
+  this.__readyPromise = this.projectConfigManager.onReady().then(
+    function() {
+      this.logger.debug('Client instanse is ready. Trigerring enqueued track calls.');
+      this.__emptyImmediateQueue();
+    }.bind(this)
+  );
 
   var userProfileService = null;
   if (config.userProfileService) {
@@ -267,16 +273,14 @@ Optimizely.prototype.__emitNotificationCenterActivate = function(experimentKey, 
 };
 
 /**
- * Empties immediateQueue
+ * Empties immediate queue
  */
 Optimizely.prototype.__emptyImmediateQueue = function () {
-  this.immediateQueue.forEach(immediateEvent => {
-    if (immediateEvent.type === "track") {
-      this.track(...immediateEvent.arguments);
-    } else if (immediateEvent.type === "isFeatureEnabled") {
-      this.isFeatureEnabled(...immediateEvent.arguments);
-    }
-  })
+  this.immediateQueue.forEach(
+    function(immediateEvent) {
+      this.track.apply(this, immediateEvent.arguments);
+    }.bind(this)
+  );
   this.immediateQueue = [];
 }
 
@@ -300,11 +304,16 @@ Optimizely.prototype.track = function(eventKey, userId, attributes, eventTags) {
 
     var configObj = this.projectConfigManager.getConfig();
     if (!configObj) {
+      if (this.immediateQueue.length === MAX_IMMEDIATE_QUEUE_SIZE) {
+        this.logger.debug('Immediate queue reached maximum of %s calls. Dropping track call %s for user %s.', MAX_IMMEDIATE_QUEUE_SIZE, arguments[0], arguments[1]);
+        return;
+      };
       var args = jsSdkUtils.objectValues(arguments);
       var immediateEvent = {
         type: "track",
         arguments: args,
       };
+      this.logger.debug('Client instance is not ready. Enqueuing track call %s for user %s.', immediateEvent.arguments[0], immediateEvent.arguments[1]);
       this.immediateQueue.push(immediateEvent);
       return;
     }
@@ -1148,7 +1157,6 @@ Optimizely.prototype.onReady = function(options) {
 
   this.__readyPromise.then(
     function() {
-      this.__emptyImmediateQueue();
       clearTimeout(readyTimeout);
       delete this.__readyTimeouts[timeoutId];
       resolveTimeoutPromise({
