@@ -129,7 +129,6 @@ module.exports = {
       }
 
       var optimizely = new Optimizely(config);
-      optimizely.onReady();
 
       try {
         if (typeof window.addEventListener === 'function') {
