@@ -582,7 +582,7 @@ Optimizely.prototype.__filterEmptyValues = function(map) {
  */
 Optimizely.prototype.isFeatureEnabled = function(featureKey, userId, attributes) {
   try {
-    if (!this.__isOptimizelyConfigValid) {
+    if (!this.__isValidInstance()) {
       this.logger.log(
         LOG_LEVEL.ERROR,
         jsSdkUtils.sprintf(LOG_MESSAGES.INVALID_OBJECT, MODULE_NAME, 'isFeatureEnabled')
@@ -595,13 +595,6 @@ Optimizely.prototype.isFeatureEnabled = function(featureKey, userId, attributes)
     }
 
     var configObj = this.projectConfigManager.getConfig();
-    if (!configObj) {
-      var args = jsSdkUtils.objectValues(arguments);
-      var immediateEvent = {
-        type: "isFeatureEnabled",
-        arguments: args,
-      }
-      this.immediateQueue.push(immediateEvent);
       return false;
     }
 
