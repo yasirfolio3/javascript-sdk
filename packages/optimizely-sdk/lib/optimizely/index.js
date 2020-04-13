@@ -595,6 +595,7 @@ Optimizely.prototype.isFeatureEnabled = function(featureKey, userId, attributes)
     }
 
     var configObj = this.projectConfigManager.getConfig();
+    if (!configObj) {
       return false;
     }
 
