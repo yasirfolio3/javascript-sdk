@@ -17,7 +17,7 @@ import nock from 'nock';
 import sinon from 'sinon';
 import { assert } from 'chai';
 
-import { dispatchEvent } from './index.node';
+import { createEventDispatcher } from './index.node';
 
 describe('lib/plugins/event_dispatcher/node', function() {
   describe('APIs', function() {
@@ -49,7 +49,7 @@ describe('lib/plugins/event_dispatcher/node', function() {
           httpVerb: 'POST',
         };
 
-        dispatchEvent(eventObj, function(resp) {
+        createEventDispatcher().dispatchEvent(eventObj, function(resp) {
           assert.equal(200, resp.statusCode);
           done();
         });
@@ -64,7 +64,7 @@ describe('lib/plugins/event_dispatcher/node', function() {
           httpVerb: 'POST',
         };
 
-        dispatchEvent(eventObj, stubCallback.callback)
+        createEventDispatcher().dispatchEvent(eventObj, stubCallback.callback)
           .on('response', function(response) {
             sinon.assert.calledOnce(stubCallback.callback);
             done();
@@ -84,7 +84,7 @@ describe('lib/plugins/event_dispatcher/node', function() {
         };
 
         var callback = sinon.spy();
-        dispatchEvent(eventObj, callback);
+        createEventDispatcher().dispatchEvent(eventObj, callback);
         sinon.assert.notCalled(callback);
       });
     });
@@ -97,7 +97,7 @@ describe('lib/plugins/event_dispatcher/node', function() {
       };
 
       var callback = sinon.spy();
-      dispatchEvent(eventObj, callback);
+      createEventDispatcher().dispatchEvent(eventObj, callback);
       sinon.assert.notCalled(callback);
     });
   });

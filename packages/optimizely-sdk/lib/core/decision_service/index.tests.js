@@ -31,7 +31,7 @@ import projectConfig from '../project_config';
 import AudienceEvaluator from '../audience_evaluator';
 import errorHandler from '../../plugins/error_handler';
 import eventBuilder from '../../core/event_builder/index.js';
-import eventDispatcher from '../../plugins/event_dispatcher/index.node';
+import { defaultEventDispatcher as eventDispatcher } from '../../plugins/event_dispatcher/index.node';
 import jsonSchemaValidator from '../../utils/json_schema_validator';
 import {
   getTestProjectConfig,

@@ -27,7 +27,7 @@ import bucketer from '../core/bucketer';
 import projectConfigManager from '../core/project_config/project_config_manager';
 import enums from '../utils/enums';
 import eventBuilder from '../core/event_builder/index.js';
-import eventDispatcher from '../plugins/event_dispatcher/index.node';
+import { defaultEventDispatcher as eventDispatcher } from '../plugins/event_dispatcher/index.node';
 import errorHandler from '../plugins/error_handler';
 import fns from '../utils/fns';
 import logger from '../plugins/logger';

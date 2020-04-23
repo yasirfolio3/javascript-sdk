@@ -17,6 +17,10 @@ import http from 'http';
 import https from 'https';
 import url from 'url';
 
+function EventDispatcher(proxyUrl) {
+  this.proxyUrl = proxyUrl;
+}
+
 /**
  * Dispatch an HTTP request to the given url and the specified options
  * @param {Object}  eventObj          Event object containing
@@ -26,7 +30,9 @@ import url from 'url';
  * @param {function} callback         callback to execute
  * @return {ClientRequest|undefined}          ClientRequest object which made the request, or undefined if no request was made (error)
  */
-export var dispatchEvent = function(eventObj, callback) {
+EventDispatcher.prototype.dispatchEvent = function(eventObj, callback) {
+  // TODO: use proxy URL in here
+
   // Non-POST requests not supported
   if (eventObj.httpVerb !== 'POST') {
     return;
@@ -60,6 +66,8 @@ export var dispatchEvent = function(eventObj, callback) {
   return req;
 };
 
-export default {
-  dispatchEvent,
-};
+export function createEventDispatcher(proxyUrl) {
+  return new EventDispatcher(proxyUrl);
+}
+
+export var defaultEventDispatcher = createEventDispatcher();
