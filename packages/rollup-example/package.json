@@ -1,0 +1,22 @@
+{
+  "name": "rollup-example",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "rollup -c --watch",
+    "serve": "serve out"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@optimizely/optimizely-sdk": "^4.0.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^11.1.0",
+    "@rollup/plugin-node-resolve": "^7.1.3",
+    "rollup": "^2.9.1",
+    "serve": "^11.3.0"
+  }
+}
