@@ -21,7 +21,6 @@ import {
   getErrorHandler,
   LogLevel,
 } from '@optimizely/js-sdk-logging';
-import { LocalStoragePendingEventsDispatcher } from '@optimizely/js-sdk-event-processor';
 
 import fns from './utils/fns';
 import configValidator from './utils/config_validator';
@@ -39,8 +38,6 @@ setLogLevel(LogLevel.INFO);
 var MODULE_NAME = 'INDEX_BROWSER';
 var DEFAULT_EVENT_BATCH_SIZE = 10;
 var DEFAULT_EVENT_FLUSH_INTERVAL = 1000; // Unit is ms, default is 1s
-
-var hasRetriedEvents = false;
 
 /**
  * Creates an instance of the Optimizely class
@@ -80,31 +77,15 @@ var createInstance = function(config) {
       config.isValidInstance = false;
     }
 
-    var eventDispatcher;
-    // prettier-ignore
-    if (config.eventDispatcher == null) { // eslint-disable-line eqeqeq
-      // only wrap the event dispatcher with pending events retry if the user didnt override
-      eventDispatcher = new LocalStoragePendingEventsDispatcher({
-        eventDispatcher: defaultEventDispatcher,
-      });
-
-      if (!hasRetriedEvents) {
-        eventDispatcher.sendPendingEvents();
-        hasRetriedEvents = true;
-      }
-    } else {
-      eventDispatcher = config.eventDispatcher;
-    }
-
     config = fns.assign(
       {
         clientEngine: enums.JAVASCRIPT_CLIENT_ENGINE,
         eventBatchSize: DEFAULT_EVENT_BATCH_SIZE,
         eventFlushInterval: DEFAULT_EVENT_FLUSH_INTERVAL,
+        eventDispatcher: defaultEventDispatcher,
       },
       config,
-      {
-        eventDispatcher: eventDispatcher,
+      {        
         // always get the OptimizelyLogger facade from logging
         logger: logger,
         errorHandler: getErrorHandler(),

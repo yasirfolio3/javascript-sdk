@@ -19,8 +19,9 @@ import { ConversionEvent, ImpressionEvent, areEventContextsEqual } from './event
 import { EventDispatcher, EventV1Request } from './eventDispatcher'
 import { EventQueue, DefaultEventQueue, SingleEventQueue } from './eventQueue'
 import { getLogger } from '@optimizely/js-sdk-logging'
-import { NOTIFICATION_TYPES, NotificationCenter } from '@optimizely/js-sdk-utils'
+import { NOTIFICATION_TYPES, NotificationCenter, generateUUID, getTimestamp } from '@optimizely/js-sdk-utils'
 import RequestTracker from './requestTracker';
+import { PendingEventsStore, LocalStorageStore } from './pendingEventsStore'
 
 const logger = getLogger('EventProcessor')
 
@@ -35,11 +36,22 @@ export interface EventProcessor extends Managed {
 const DEFAULT_FLUSH_INTERVAL = 30000 // Unit is ms - default flush interval is 30s
 const DEFAULT_MAX_QUEUE_SIZE = 10
 
-export abstract class AbstractEventProcessor implements EventProcessor {
+export type BufferEntry = {
+  uuid: string
+  timestamp: number
+  events: any[]
+}
+
+export abstract class AbstractEventProcessor implements EventProcessor {  
   protected dispatcher: EventDispatcher
   protected queue: EventQueue<ProcessableEvents>
   private notificationCenter?: NotificationCenter
   private requestTracker: RequestTracker
+  private store: PendingEventsStore<BufferEntry> = new LocalStorageStore({
+    // TODO make this configurable
+    maxValues: 100,
+    key: 'fs_optly_pending_events',
+  })
 
   constructor({
     dispatcher,
@@ -87,7 +99,7 @@ export abstract class AbstractEventProcessor implements EventProcessor {
     this.requestTracker = new RequestTracker()
   }
 
-  drainQueue(buffer: ProcessableEvents[]): Promise<void> {
+  drainQueue(buffer: ProcessableEvents[]): Promise<void> {    
     const reqPromise = new Promise<void>(resolve => {
       logger.debug('draining queue with %s events', buffer.length)
 
@@ -97,9 +109,21 @@ export abstract class AbstractEventProcessor implements EventProcessor {
       }
 
       const formattedEvent = this.formatEvents(buffer)
-      this.dispatcher.dispatchEvent(formattedEvent, () => {
-        resolve()
+      
+      const uuid = generateUUID()
+      this.store.set(uuid, {
+        uuid,
+        timestamp: getTimestamp(),
+        events: buffer,
       })
+
+      this.dispatcher.dispatchEvent(formattedEvent, ((uuid) => {
+        return () => {
+          this.store.remove(uuid)
+          resolve()
+        }
+      })(uuid))
+
       if (this.notificationCenter) {
         this.notificationCenter.sendNotifications(
           NOTIFICATION_TYPES.LOG_EVENT,
@@ -107,12 +131,20 @@ export abstract class AbstractEventProcessor implements EventProcessor {
         )
       }
     })
+
     this.requestTracker.trackRequest(reqPromise)
     return reqPromise
   }
 
   process(event: ProcessableEvents): void {
     this.queue.enqueue(event)
+  }
+
+  processPendingEvents() : void {    
+    const pendingEventBatches: BufferEntry[] = this.store.values()
+    this.store.clear()
+    const pendingBuffer: ProcessableEvents[] = pendingEventBatches.reduce((buffer: ProcessableEvents[], batch) => buffer.concat(batch.events), [])    
+    pendingBuffer.forEach(this.process.bind(this))
   }
 
   stop(): Promise<any> {
@@ -128,6 +160,7 @@ export abstract class AbstractEventProcessor implements EventProcessor {
 
   start(): void {
     this.queue.start()
+    this.processPendingEvents()
   }
 
   protected abstract formatEvents(events: ProcessableEvents[]): EventV1Request

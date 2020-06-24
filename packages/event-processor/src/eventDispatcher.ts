@@ -21,7 +21,7 @@ export type EventDispatcherResponse = {
   status: number
 }
 
-export type EventDispatcherCallback = (response: EventDispatcherResponse) => void
+export type EventDispatcherCallback = (status: number) => void
 
 export interface EventDispatcher {
   dispatchEvent(event: EventV1Request, callback: EventDispatcherCallback): void
