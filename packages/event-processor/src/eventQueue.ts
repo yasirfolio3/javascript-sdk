@@ -136,6 +136,7 @@ export class DefaultEventQueue<K> implements EventQueue<K> {
     // If new event cannot be included into the current batch, flush so it can
     // be in its own new batch.
     const bufferedEvent: K | undefined = this.buffer[0]
+    // ? what does above line mean? 
     if (bufferedEvent && !this.batchComparator(bufferedEvent, event)) {
       this.flush()
     }

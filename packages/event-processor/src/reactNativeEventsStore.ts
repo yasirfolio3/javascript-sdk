@@ -38,11 +38,17 @@ export class ReactNativeEventsStore<T> {
     const eventsMap: {[key: string]: T} = await this.cache.get(this.storeKey) || {}    
     if (Object.keys(eventsMap).length < this.maxSize) {
       eventsMap[key] = event
+
+      // ? can we directly set the eventKey instead of setting eventsMap
+      // everytime. Performance?
+
       await this.cache.set(this.storeKey, eventsMap)
     } else {
       logger.warn('React native events store is full. Store key: %s', this.storeKey)
     }
     this.synchronizer.releaseLock()
+
+    // ? Returning key will return a string or a promise?
     return key
   }
 
@@ -54,6 +60,7 @@ export class ReactNativeEventsStore<T> {
   }
 
   public async getEventsMap(): Promise<{[key: string]: T}> {
+    // ? Why no lock here?
     return await this.cache.get(this.storeKey) || {}
   }
 
@@ -106,3 +113,7 @@ class Synchronizer {
     }
   }
 }
+
+// ? What if we made this store sync, and not async?
+// We have to store and dispatch events in sequence. Do we really benefit from having
+// an async store and doing the locking hassle?

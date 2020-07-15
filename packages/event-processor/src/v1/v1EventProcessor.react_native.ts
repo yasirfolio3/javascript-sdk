@@ -53,11 +53,14 @@ const EVENT_BUFFER_STORE_KEY = 'fs_optly_event_buffer'
  * React Native Events Processor with Caching support for events when app is offline.
  */
 export abstract class LogTierV1EventProcessor implements EventProcessor {
+  // ? Is this really abstract? Are we extending it? 
+
   private dispatcher: EventDispatcher
   private queue: EventQueue<ProcessableEvent>
   private notificationCenter?: NotificationCenter
   private requestTracker: RequestTracker
   
+  // ? What does Function | null = null mean?
   private unsubscribeNetInfo: Function | null = null
   private isInternetReachable: boolean = true
   private pendingEventsPromise: Promise<void> | null = null
@@ -65,6 +68,9 @@ export abstract class LogTierV1EventProcessor implements EventProcessor {
   /**
    * This Stores Formatted events before dispatching. The events are removed after they are successfully dispatched.
    * Stored events are retried on every new event dispatch, when connection becomes available again or when SDK initializes the next time.
+   // ? When SDK initializes the next time, we will have a new event store and a new pending
+   // event store right? How will the previous events persist?
+
    */
   private pendingEventsStore: ReactNativeEventsStore<EventV1Request>
   
@@ -78,7 +84,10 @@ export abstract class LogTierV1EventProcessor implements EventProcessor {
   constructor({
     dispatcher,
     flushInterval = 30000,
-    batchSize = 3000,
+    // ? Default batch size in SDKs is 10. Are we sure we want 3000?
+    batchSize = 3000, 
+    // ? optimizely-sdk/index.js only passes maxQueueSize when creating EP.
+    // it should be passing batchSize instead
     maxQueueSize = DEFAULT_MAX_QUEUE_SIZE,
     notificationCenter,
   }: {
@@ -100,15 +109,29 @@ export abstract class LogTierV1EventProcessor implements EventProcessor {
   }
 
   async start(): Promise<void> {
+
+    // ? Why not just keep a flag and console.log that eventproc is already running like
+    // we do in other SDKs. Can use the queue.started flag.
+    // we can avoid await this.processPendingEvents() and gettting from
+    // eventbuffer store in this case. 
+    // May be I am thinking in multi-threading mode.
+
     this.queue.start()
     this.unsubscribeNetInfo = addConnectionListener(this.connectionListener.bind(this))
+
     await this.processPendingEvents()
     // Process individual events pending from the buffer.
     const events: ProcessableEvent[] = await this.eventBufferStore.getEventsList()
+    // ? getting events from eventBufferStore and process will add them again
+    // with a different UUID in the event buffer store?
     events.forEach(this.process.bind(this))
   }
   
+  // ? why only this method is private?
   private connectionListener(state: NetInfoState) {
+    // What's the initial state of this.isInternetReachable? 
+    // First if block won't be executed if the first time this callback is called
+    // on intenet connection loss.
     if (this.isInternetReachable && !state.isInternetReachable) {
       this.isInternetReachable = false
       logger.debug('Internet connection lost')
@@ -141,6 +164,12 @@ export abstract class LogTierV1EventProcessor implements EventProcessor {
     // Store formatted event before dispatching to be retried later in case of failure.
     await this.pendingEventsStore.set(eventCacheKey, formattedEvent)
 
+    // ? 1. Just thinking. What if the app is closed at this point? We will resend the same events.
+    // can the backend recgonize duplicates? 
+
+    // ? 2. What if while we await above, more events are added to eventBufferStore, 
+    // will also clear them below.
+
     // Clear buffer because the buffer has become a formatted event and is already stored in pending cache.
     await this.eventBufferStore.clear()
 
@@ -149,6 +178,8 @@ export abstract class LogTierV1EventProcessor implements EventProcessor {
 
   async processPendingEvents(): Promise<void> {
     logger.debug('Processing pending events from offline storage')
+    // ? Why use a promise in this case? Why not a boolean flag?
+    // Or are we using promise like a boolean here?
     if (!this.pendingEventsPromise){
       // Only process events if existing promise is not in progress
       this.pendingEventsPromise = this.getPendingEventsPromise()
@@ -179,6 +210,7 @@ export abstract class LogTierV1EventProcessor implements EventProcessor {
         }
         resolve()
       })
+
       sendEventNotification(this.notificationCenter, event)
     })
     // Tracking all the requests to dispatch to make sure request is completed before fulfilling the `stop` promise
@@ -193,6 +225,8 @@ export abstract class LogTierV1EventProcessor implements EventProcessor {
   }
 
   stop(): Promise<void> {
+    // ? Will this method reject Promise in any case? Because we are internally
+    // cathing any errors. 
     this.unsubscribeNetInfo && this.unsubscribeNetInfo()
     // swallow - an error stopping this queue shouldn't prevent this from stopping
     try {

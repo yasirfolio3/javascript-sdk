@@ -37,6 +37,7 @@ export class PendingEventsDispatcher implements EventDispatcher {
     eventDispatcher: EventDispatcher
     store: PendingEventsStore<DispatcherEntry>
   }) {
+    // ? This also gets a dispatcher itself. Who the hell actually dispatches the event?
     this.dispatcher = eventDispatcher
     this.store = store
   }

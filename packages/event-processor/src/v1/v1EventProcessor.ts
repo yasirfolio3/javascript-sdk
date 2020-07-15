@@ -44,6 +44,7 @@ export class LogTierV1EventProcessor implements EventProcessor {
     batchSize = 3000,
     notificationCenter,
   }: {
+    // ? Which default event dispatcher is used if none passed?
     dispatcher: EventDispatcher
     flushInterval?: number
     batchSize?: number
@@ -71,6 +72,8 @@ export class LogTierV1EventProcessor implements EventProcessor {
       this.dispatcher.dispatchEvent(formattedEvent, () => {
         resolve()
       })
+
+      // ? Will this send notification even if dispatchEvent fails?
       sendEventNotification(this.notificationCenter, formattedEvent)
     })
     this.requestTracker.trackRequest(reqPromise)
@@ -92,6 +95,7 @@ export class LogTierV1EventProcessor implements EventProcessor {
     return Promise.resolve()
   }
 
+  // ? is this method async?
   start(): void {
     this.queue.start()
   }

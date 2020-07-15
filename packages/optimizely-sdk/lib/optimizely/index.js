@@ -115,6 +115,8 @@ function Optimizely(config) {
   this.eventProcessor = new eventProcessor.LogTierV1EventProcessor({
     dispatcher: this.eventDispatcher,
     flushInterval: config.eventFlushInterval,
+    // ? batch size in place of maxQueueSize. These are different things.
+    // I don't get how the simple EP is running in this case with FSC.
     maxQueueSize: config.eventBatchSize,
     notificationCenter: this.notificationCenter,
   });
