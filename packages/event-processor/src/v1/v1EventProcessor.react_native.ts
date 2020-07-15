@@ -150,6 +150,9 @@ export abstract class LogTierV1EventProcessor implements EventProcessor {
 
   async drainQueue(buffer: ProcessableEvent[]): Promise<void> {
     // Retry pending failed events while draining queue
+    // We can remove this here, and instead  call this instead of
+    // dispatch event at the end of this method. This event will be eventually
+    // dispatched as we set in pendingEventsStore
     await this.processPendingEvents()
 
     if (buffer.length === 0) {
@@ -195,6 +198,7 @@ export abstract class LogTierV1EventProcessor implements EventProcessor {
     const eventEntries = objectEntries(formattedEvents)
     logger.debug('Processing %s pending events', eventEntries.length)
     // Using for loop to be able to wait for previous dispatch to finish before moving on to the new one
+    // ? does javascript and reactnative async storage dict persist order?
     for (const [eventKey, event] of eventEntries) {
       await this.dispatchEvent(eventKey, event)
     }

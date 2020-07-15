@@ -17,6 +17,7 @@ const items: {[key: string]: string} = {}
 
 export default class AsyncStorage {
 
+  // ? Understand complete callback def here.
   static getItem(key: string, callback?: (error?: Error, result?: string) => void): Promise<string | null> {
     return new Promise(resolve => {
       setTimeout(() => resolve(items[key] || null), 1)
