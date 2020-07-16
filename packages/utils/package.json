@@ -39,7 +39,8 @@
   },
   "dependencies": {
     "uuid": "^3.3.2",
-    "@react-native-community/async-storage": "^1.2.0"
+    "@react-native-community/async-storage": "^1.2.0",
+    "@babel/runtime": "^7.10.5"
   },
   "devDependencies": {
     "@types/jest": "^23.3.12",
