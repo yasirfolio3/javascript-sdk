@@ -56,6 +56,7 @@
     "@react-native-community/async-storage": "^1.2.0"
   },
   "scripts": {
+    "build": "tsc",
     "lint": "tsc --noEmit && eslint --fix 'src/**/*.ts' '__test__/**/*.ts'",
     "test": "jest",
     "tsc": "rm -rf lib && tsc",
