@@ -1,0 +1,3 @@
+[submodule "react-sdk"]
+	path = react-sdk
+	url = https://github.com/AmnaEjaz/react-sdk.git
