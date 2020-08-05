@@ -39,7 +39,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@optimizely/js-sdk-utils": "^0.1.0"
+    "@optimizely/js-sdk-utils": "file:../utils"
   },
   "devDependencies": {
     "@types/jest": "^23.3.12",
