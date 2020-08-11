@@ -20,10 +20,11 @@ module.exports = {
   basePath: '',
 
   //plugins
-  plugins: ['karma-mocha', 'karma-webpack', require('karma-browserstack-launcher')],
+  // plugins: ['karma-mocha', 'karma-webpack', require('karma-browserstack-launcher')],
+  plugins: ['karma-mocha', 'karma-webpack', 'karma-chrome-launcher'],
 
   webpack: {
-    mode: 'production',
+    mode: 'none',
     module: {
       rules: [
         {
@@ -39,67 +40,68 @@ module.exports = {
   },
 
   //browserStack setup
-  browserStack: {
-    username: process.env.BROWSER_STACK_USERNAME,
-    accessKey: process.env.BROWSER_STACK_ACCESS_KEY,
-  },
+  // browserStack: {
+  //   username: process.env.BROWSER_STACK_USERNAME,
+  //   accessKey: process.env.BROWSER_STACK_ACCESS_KEY,
+  // },
 
   // to avoid DISCONNECTED messages when connecting to BrowserStack
-  browserDisconnectTimeout: 10000, // default 2000
-  browserDisconnectTolerance: 1, // default 0
-  browserNoActivityTimeout: 4 * 60 * 1000, //default 10000
-  captureTimeout: 4 * 60 * 1000, //default 60000
+  // browserDisconnectTimeout: 10000, // default 2000
+  // browserDisconnectTolerance: 1, // default 0
+  // browserNoActivityTimeout: 4 * 60 * 1000, //default 10000
+  // captureTimeout: 4 * 60 * 1000, //default 60000
 
   // define browsers
-  customLaunchers: {
-    bs_chrome_mac: {
-      base: 'BrowserStack',
-      browser: 'chrome',
-      browser_version: '21.0',
-      os: 'OS X',
-      os_version: 'Mountain Lion',
-    },
-    bs_edge: {
-      base: 'BrowserStack',
-      os: 'Windows',
-      os_version: '10',
-      browser: 'edge',
-      device: null,
-      browser_version: '15.0',
-    },
-    bs_firefox_mac: {
-      base: 'BrowserStack',
-      browser: 'firefox',
-      browser_version: '21.0',
-      os: 'OS X',
-      os_version: 'Mountain Lion',
-    },
-    bs_ie: {
-      base: 'BrowserStack',
-      os: 'Windows',
-      os_version: '7',
-      browser: 'ie',
-      device: null,
-      browser_version: '10.0',
-    },
-    bs_opera_mac: {
-      base: 'BrowserStack',
-      browser: 'opera',
-      browser_version: '37',
-      os: 'OS X',
-      os_version: 'Mountain Lion',
-    },
-    bs_safari: {
-      base: 'BrowserStack',
-      os: 'OS X',
-      os_version: 'Mountain Lion',
-      browser: 'safari',
-      device: null,
-      browser_version: '6.2',
-    },
-  },
+  // customLaunchers: {
+  //   bs_chrome_mac: {
+  //     base: 'BrowserStack',
+  //     browser: 'chrome',
+  //     browser_version: '21.0',
+  //     os: 'OS X',
+  //     os_version: 'Mountain Lion',
+  //   },
+  //   bs_edge: {
+  //     base: 'BrowserStack',
+  //     os: 'Windows',
+  //     os_version: '10',
+  //     browser: 'edge',
+  //     device: null,
+  //     browser_version: '15.0',
+  //   },
+  //   bs_firefox_mac: {
+  //     base: 'BrowserStack',
+  //     browser: 'firefox',
+  //     browser_version: '21.0',
+  //     os: 'OS X',
+  //     os_version: 'Mountain Lion',
+  //   },
+  //   bs_ie: {
+  //     base: 'BrowserStack',
+  //     os: 'Windows',
+  //     os_version: '7',
+  //     browser: 'ie',
+  //     device: null,
+  //     browser_version: '10.0',
+  //   },
+  //   bs_opera_mac: {
+  //     base: 'BrowserStack',
+  //     browser: 'opera',
+  //     browser_version: '37',
+  //     os: 'OS X',
+  //     os_version: 'Mountain Lion',
+  //   },
+  //   bs_safari: {
+  //     base: 'BrowserStack',
+  //     os: 'OS X',
+  //     os_version: 'Mountain Lion',
+  //     browser: 'safari',
+  //     device: null,
+  //     browser_version: '6.2',
+  //   },
+  // },
 
-  browsers: ['bs_chrome_mac', 'bs_edge', 'bs_firefox_mac', 'bs_ie', 'bs_opera_mac', 'bs_safari'],
+  // browsers: ['bs_chrome_mac', 'bs_edge', 'bs_firefox_mac', 'bs_ie', 'bs_opera_mac', 'bs_safari'],
+  browsers: ['Chrome'],
 
   // frameworks to use
   // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
@@ -130,7 +132,7 @@ module.exports = {
 
   // Continuous Integration mode
   // if true, Karma captures browsers, runs the tests and exits
-  singleRun: true,
+  singleRun: false,
 
   // Concurrency level
   // how many browser should be started simultaneous
