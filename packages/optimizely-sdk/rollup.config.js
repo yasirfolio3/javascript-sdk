@@ -34,6 +34,7 @@ const typescriptPluginOptions = {
     './lib/**/*.ts',
     './lib/**/*.js'
   ],
+  useTsconfigDeclarationDir: true,
 };
 
 const cjsBundleFor = (platform) => ({

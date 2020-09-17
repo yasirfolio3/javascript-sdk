@@ -2,7 +2,8 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "allowJs": true,
-    "declaration": false,
+    "declaration": true,
+    "declarationDir": "./declarations",
     "module": "esnext",
     "outDir": "./dist",
     "sourceMap": true
