@@ -49,16 +49,14 @@ declare module '@optimizely/optimizely-sdk/lib/core/project_config' {
   }
 
   interface Group {
-    experiments: Experiment[]  
+    experiments: Experiment[]
     id: string
     policy: string
     trafficAllocation: Array<{
       entityId: string;
       endOfRange: number;
     }>
-  } 
-
-type ConditionTree<Leaf> = Leaf | unknown[];
+  }
 
 type Condition = {
   name: string;
@@ -66,13 +64,13 @@ type Condition = {
   match?: string;
   value: string | number | boolean | null;
 }
-  
+
   interface Audience {
     id: string;
-    conditions: ConditionTree<Condition>;
+    conditions: import('../condition_tree_evaluator').ConditionTree<Condition>;
     name: string;
   }
-  
+
   interface Event {
     experimentIds: string[];
     id: string;
@@ -148,7 +146,7 @@ type Condition = {
     isActive(projectConfig: ProjectConfig, experimentKey: string): boolean
     isRunning(projectConfig: ProjectConfig, experimentKey:string): boolean
     getExperimentAudienceConditions(projectConfig: ProjectConfig, experimentKey:string): string[]
-    getVariationKeyFromId(projectConfig: ProjectConfig, variationId: string): string | null 
+    getVariationKeyFromId(projectConfig: ProjectConfig, variationId: string): string | null
     getVariationIdFromExperimentAndVariationKey(projectConfig: ProjectConfig, experimentKey: string, variationKey: string): string | null
     getExperimentFromKey(projectConfig: ProjectConfig, experimentKey: string): Experiment | null
     getTrafficAllocation(projectConfig: ProjectConfig, experimentKey: string): Array<{entityId: string; endOfRange: number;}>
