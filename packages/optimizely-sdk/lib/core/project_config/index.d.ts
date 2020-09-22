@@ -1,3 +1,4 @@
+import { getExperimentId } from "."
 /**
  * Copyright 2020, Optimizely
  *
@@ -16,4 +17,26 @@
 
 declare module '@optimizely/optimizely-sdk/lib/core/project_config' {
   export interface ProjectConfig {}
+  export function isRunning(configObj: ProjectConfig, experimentKey: string): boolean
+  export function getVariationIdFromExperimentAndVariationKey(configObj: ProjectConfig, experimentKey: string, variationKey: string) : string
+  export function getExperimentId(configObj: ProjectConfig, experimentKey: string): string
+  export function eventWithKeyExists(configObj: ProjectConfig, eventKey: string): boolean
+  export function isFeatureExperiment(configObj: ProjectConfig, experimentId: string): boolean
+  export function getFeatureFromKey(configObj: ProjectConfig, featureKey: string, logger: any): string
+  export function getVariableForFeature(configObj: ProjectConfig, featureKey: string, logger: any): string
+  export function getFeatureFromKey(configObj: ProjectConfig, featureKey: string, variableKey: string, logger: any): string
+  export function getTypeCastValue(variableValue: string, type: string, logger: any): any;
+  export function getFeatureFromKey(variableValue: string, type: string, logger: any): any;
+  
+  // var variationId = projectConfig.getVariationIdFromExperimentAndVariationKey(configObj, experimentKey, variationKey);
+  // var experimentId = projectConfig.getExperimentId(configObj, experimentKey);
+
+  //  (!projectConfig.eventWithKeyExists(configObj, eventKey))
+  // var decisionNotificationType = projectConfig.isFeatureExperiment(configObj, experiment.id)
+  // var feature = projectConfig.getFeatureFromKey(configObj, featureKey, this.logger);
+  // var featureFlag = projectConfig.getFeatureFromKey(configObj, featureKey, this.logger);
+  // var variable = projectConfig.getVariableForFeature(configObj, featureKey, variableKey, this.logger);
+  // var variable = projectConfig.getVariableForFeature(configObj, featureKey, variableKey, this.logger);
+  // return projectConfig.getTypeCastValue(variableValue, variable.type, this.logger);
+  // var featureFlag = projectConfig.getFeatureFromKey(configObj, featureKey, this.logger);
 }
