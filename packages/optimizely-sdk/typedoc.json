@@ -1,0 +1,9 @@
+{
+   "inputFiles": ["./core"],
+   "mode": "modules",
+   "out": "./doc",
+   "excludePrivate": true,
+   "excludeProtected": true,
+   "readme": "README.md",
+   "name": "Optimizely JavaScript SDK"
+ }
