@@ -1,9 +1,13 @@
 {
-   "inputFiles": ["./logging"],
-   "mode": "modules",
-   "out": "./doc",
+   "includes": ["./packages/optimizely-sdk"],
+   "entryPoint": "index",
+   "mode": "file",
+   "out": "./docs/out",
+   "exclude": "**/*+(.spec|.d).ts",
    "excludePrivate": true,
    "excludeProtected": true,
+   "excludeExternals": true,
    "readme": "./packages/optimizely-sdk/README.md",
-   "name": "Optimizely JavaScript SDK"
+   "name": "Optimizely JavaScript SDK",
+   "ignoreCompilerErrors": true
  }

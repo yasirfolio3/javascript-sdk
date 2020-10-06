@@ -4,7 +4,7 @@
   "name": "optimizely-sdk-packages",
   "scripts": {
     "build": "lerna run build",
-    "build-docs":"typedoc --options typedoc.json",
+    "build-docs": "typedoc --options typedoc.json",
     "clean": "lerna run clean",
     "publish": "npm run build && lerna publish",
     "test": "lerna run test --stream",
@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "lerna": "^3.2.1",
-    "typedoc": "^0.19.2",
+    "typedoc": "^0.16.0",
     "typescript": "^3.3.3"
   }
 }
