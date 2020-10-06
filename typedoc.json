@@ -1,6 +1,5 @@
 {
    "includes": ["./packages/optimizely-sdk"],
-   "entryPoint": "index",
    "mode": "file",
    "out": "./docs/out",
    "exclude": "**/*+(.spec|.d).ts",
