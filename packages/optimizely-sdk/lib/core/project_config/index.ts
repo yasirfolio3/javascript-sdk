@@ -48,8 +48,7 @@ interface TryCreatingProjectConfigConfig {
 
 interface TryCreatingProjectConfigResult {
   configObj: ProjectConfig | null;
-  // eslint-disable-next-line
-  error: object | null;
+  error: Error | null;
 }
 
 interface Event {
