@@ -23,7 +23,7 @@ import * as datafileManager from '@optimizely/js-sdk-datafile-manager';
 import projectConfig from './index';
 import { ERROR_MESSAGES, LOG_MESSAGES } from '../../utils/enums';
 import testData from '../../tests/test_data';
-import projectConfigManager from './project_config_manager';
+import * as projectConfigManager from './project_config_manager';
 import * as optimizelyConfig from '../optimizely_config';
 import * as jsonSchemaValidator from '../../utils/json_schema_validator';
 
