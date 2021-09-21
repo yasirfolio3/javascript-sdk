@@ -33,6 +33,7 @@ import { createNotificationCenter } from './core/notification_center';
 import { default as eventProcessor } from './plugins/event_processor';
 import { SDKOptions, OptimizelyDecideOption } from './shared_types';
 import { createHttpPollingDatafileManager } from './plugins/datafile_manager/http_polling_datafile_manager';
+import { setProperty } from './utils/environment_config';
 
 const logger = getLogger();
 setLogHandler(loggerPlugin.createLogger());
@@ -53,6 +54,8 @@ let hasRetriedEvents = false;
  */
 const createInstance = function(config: SDKOptions): Optimizely | null {
   try {
+    setProperty(enums.ENVIRONMENT_PROPERTIES.BUNDLE_TYPE, enums.BUNDLE_TYPES.BROWSER);
+
     // TODO warn about setting per instance errorHandler / logger / logLevel
     if (config.errorHandler) {
       setErrorHandler(config.errorHandler);

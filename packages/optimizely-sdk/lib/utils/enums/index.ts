@@ -249,3 +249,14 @@ export const DECISION_MESSAGES = {
   FLAG_KEY_INVALID: 'No flag was found for key "%s".',
   VARIABLE_VALUE_INVALID: 'Variable value for key "%s" is invalid or wrong type.',
 }
+
+export const ENVIRONMENT_PROPERTIES = {
+  BUNDLE_TYPE: 'BUNDLE_TYPE',
+}
+
+export const BUNDLE_TYPES = {
+  LITE: 'lite',
+  NODE_JS: 'node-js',
+  BROWSER: 'browser',
+  REACT_NATIVE: 'react-native',
+}

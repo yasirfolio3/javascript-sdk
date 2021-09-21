@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and      *
  * limitations under the License.                                           *
  ***************************************************************************/
-import { sprintf } from '@optimizely/js-sdk-utils';
 import { LogHandler } from '@optimizely/js-sdk-logging';
 
 import fns from '../../utils/fns';
@@ -65,6 +64,8 @@ interface DecisionServiceOptions {
   logger: LogHandler;
   UNSTABLE_conditionEvaluators: unknown;
 }
+
+const sprintf = fns.sprintf;
 
 /**
  * Optimizely's decision service that determines which variation of an experiment the user will be allocated to.

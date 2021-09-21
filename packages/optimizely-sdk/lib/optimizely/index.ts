@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and      *
  * limitations under the License.                                           *
  ***************************************************************************/
-import { sprintf, objectValues, NotificationCenter } from '@optimizely/js-sdk-utils';
+import { objectValues, NotificationCenter } from '@optimizely/js-sdk-utils';
 import { LoggerFacade, ErrorHandler } from '@optimizely/js-sdk-logging';
 import { EventProcessor } from '@optimizely/js-sdk-event-processor';
 
@@ -54,6 +54,8 @@ import {
   DECISION_NOTIFICATION_TYPES,
   NOTIFICATION_TYPES
 } from '../utils/enums';
+
+const sprintf = fns.sprintf;
 
 const MODULE_NAME = 'OPTIMIZELY';
 

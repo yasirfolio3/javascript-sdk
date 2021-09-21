@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { sprintf, objectValues } from '@optimizely/js-sdk-utils';
+import { objectValues } from '@optimizely/js-sdk-utils';
 
 import fns from '../../utils/fns';
 import {
@@ -38,6 +38,8 @@ import {
   VariableType,
   VariationVariable,
 } from '../../shared_types';
+
+const sprintf = fns.sprintf;
 
 interface TryCreatingProjectConfigConfig {
   datafile: string;

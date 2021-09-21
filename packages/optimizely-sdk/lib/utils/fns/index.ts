@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { generateUUID as uuid, keyBy as keyByUtil } from '@optimizely/js-sdk-utils';
+import { generateUUID as uuid, keyBy as keyByUtil, sprintf as sprintfUtil } from '@optimizely/js-sdk-utils';
+import { getProperty } from '../environment_config';
+import { BUNDLE_TYPES, ENVIRONMENT_PROPERTIES } from '../enums';
 
 const MAX_SAFE_INTEGER_LIMIT = Math.pow(2, 53);
 
@@ -61,6 +63,16 @@ function isNumber(value: unknown): boolean {
   return typeof value === 'number';
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function sprintf(format: string, ...args: any[]): string {
+  const bundleType = getProperty(ENVIRONMENT_PROPERTIES.BUNDLE_TYPE);
+  if (bundleType === BUNDLE_TYPES.LITE) {
+    return '';
+  }
+  return sprintfUtil(format, ...args);
+}
+
+
 export default {
   assign,
   currentTimestamp,
@@ -68,4 +80,5 @@ export default {
   keyBy,
   uuid,
   isNumber,
+  sprintf,
 }

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { sprintf } from '@optimizely/js-sdk-utils';
 import { getLogger } from '@optimizely/js-sdk-logging';
 
 import fns from '../../utils/fns';
@@ -26,6 +25,7 @@ import * as conditionTreeEvaluator from '../condition_tree_evaluator';
 import * as customAttributeConditionEvaluator from '../custom_attribute_condition_evaluator';
 import { UserAttributes, Audience, Condition } from '../../shared_types';
 
+const sprintf = fns.sprintf;
 const logger = getLogger();
 const MODULE_NAME = 'AUDIENCE_EVALUATOR';
 

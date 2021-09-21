@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { sprintf } from '@optimizely/js-sdk-utils';
 import { ObjectWithUnknownProperties } from '../../shared_types';
 
 import fns from '../../utils/fns';
 import { ERROR_MESSAGES } from '../enums';
 
+const sprintf = fns.sprintf;
 const MODULE_NAME = 'ATTRIBUTES_VALIDATOR';
 
 /**

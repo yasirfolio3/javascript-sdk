@@ -31,10 +31,11 @@ import { createNotificationCenter } from './core/notification_center';
 import { createForwardingEventProcessor } from './plugins/event_processor/forwarding_event_processor';
 import { SDKOptions, OptimizelyDecideOption } from './shared_types';
 import { createNoOpDatafileManager } from './plugins/datafile_manager/no_op_datafile_manager';
+import { setProperty } from './utils/environment_config';
   
 const logger = getLogger();
 setLogHandler(loggerPlugin.createLogger());
-setLogLevel(LogLevel.INFO);
+setLogLevel(LogLevel.ERROR);
 
 /**
  * Creates an instance of the Optimizely class
@@ -44,6 +45,8 @@ setLogLevel(LogLevel.INFO);
  */
 const createInstance = function(config: SDKOptions): Optimizely | null {
   try {
+
+    setProperty(enums.ENVIRONMENT_PROPERTIES.BUNDLE_TYPE, enums.BUNDLE_TYPES.LITE);
 
     // TODO warn about setting per instance errorHandler / logger / logLevel
     if (config.errorHandler) {

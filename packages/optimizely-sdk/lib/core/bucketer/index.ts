@@ -17,9 +17,10 @@
 /**
  * Bucketer API for determining the variation id from the specified parameters
  */
-import { sprintf } from '@optimizely/js-sdk-utils';
 import murmurhash from 'murmurhash';
 import { LogHandler } from '@optimizely/js-sdk-logging';
+
+import { sprintf } from '../../utils/fns';
 import {
   DecisionResponse,
   BucketerParams,
@@ -118,7 +119,7 @@ export const bucket = function(bucketerParams: BucketerParams): DecisionResponse
       decideReasons.push(bucketedIntoExperimentOfGroupLogMessage);
     }
   }
-  const bucketingId = sprintf('%s%s', bucketerParams.bucketingId, bucketerParams.experimentId);
+  const bucketingId = bucketerParams.bucketingId + bucketerParams.experimentId;
   const bucketValue = _generateBucketValue(bucketingId);
 
   const bucketedUserLogMessage = sprintf(
@@ -165,7 +166,7 @@ export const bucketUserIntoExperiment = function(
   userId: string,
   logger: LogHandler
 ): string | null {
-  const bucketingKey = sprintf('%s%s', bucketingId, group.id);
+  const bucketingKey = bucketingId + group.id;
   const bucketValue = _generateBucketValue(bucketingKey);
   logger.log(
     LOG_LEVEL.DEBUG,

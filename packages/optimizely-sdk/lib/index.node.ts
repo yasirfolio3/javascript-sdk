@@ -32,6 +32,7 @@ import { createNotificationCenter } from './core/notification_center';
 import { createEventProcessor } from './plugins/event_processor';
 import { SDKOptions, OptimizelyDecideOption } from './shared_types';
 import { createHttpPollingDatafileManager } from './plugins/datafile_manager/http_polling_datafile_manager';
+import { setProperty } from './utils/environment_config';
 
 const logger = getLogger();
 setLogLevel(LogLevel.ERROR);
@@ -48,6 +49,8 @@ const DEFAULT_EVENT_MAX_QUEUE_SIZE = 10000;
  */
 const createInstance = function(config: SDKOptions): Optimizely | null {
   try {
+    setProperty(enums.ENVIRONMENT_PROPERTIES.BUNDLE_TYPE, enums.BUNDLE_TYPES.NODE_JS);
+
     let hasLogger = false;
 
     // TODO warn about setting per instance errorHandler / logger / logLevel

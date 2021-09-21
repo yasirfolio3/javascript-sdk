@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { sprintf } from '@optimizely/js-sdk-utils';
 import { getLogger } from '@optimizely/js-sdk-logging';
 
 import { ERROR_MESSAGES } from '../../utils/enums';
@@ -24,6 +23,7 @@ import {
   DatafileManager,
 } from '../../shared_types';
 import { ProjectConfig, toDatafile, tryCreatingProjectConfig } from '../project_config';
+import { sprintf } from '../../utils/fns';
 
 const logger = getLogger();
 const MODULE_NAME = 'PROJECT_CONFIG_MANAGER';
