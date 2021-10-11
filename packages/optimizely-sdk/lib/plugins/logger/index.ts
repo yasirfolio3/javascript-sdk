@@ -13,7 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ConsoleLogHandler, LogLevel } from '@optimizely/js-sdk-logging';
+import {
+  ConsoleLogHandler,
+  LogLevel,
+  LogHandler,
+  setLogLevel as setOptimizelyLogLevel,
+  setLogHandler as setOptimizelyLogHandler
+} from '@optimizely/js-sdk-logging';
 
 type ConsoleLogHandlerConfig = {
   logLevel?: LogLevel | string;
@@ -31,4 +37,12 @@ export function createLogger(opts?: ConsoleLogHandlerConfig): ConsoleLogHandler 
 
 export function createNoOpLogger(): NoOpLogger {
   return new NoOpLogger();
+}
+
+export function setLogLevel(level: LogLevel | string): void {
+  return setOptimizelyLogLevel(level);
+}
+
+export function setLogHandler(logger: LogHandler | null): void {
+  return setOptimizelyLogHandler(logger);
 }

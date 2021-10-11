@@ -34,8 +34,8 @@ import { SDKOptions, OptimizelyDecideOption } from './shared_types';
 import { createHttpPollingDatafileManager } from './plugins/datafile_manager/http_polling_datafile_manager';
 
 const logger = getLogger();
-setLogHandler(loggerPlugin.createLogger());
-setLogLevel(LogLevel.INFO);
+loggerPlugin.setLogHandler(loggerPlugin.createLogger());
+loggerPlugin.setLogLevel(LogLevel.INFO);
 
 const DEFAULT_EVENT_BATCH_SIZE = 10;
 const DEFAULT_EVENT_FLUSH_INTERVAL = 1000; // Unit is ms, default is 1s
@@ -54,12 +54,12 @@ const createInstance = function(config: SDKOptions): Optimizely | null {
       setErrorHandler(config.errorHandler);
     }
     if (config.logger) {
-      setLogHandler(config.logger);
+      loggerPlugin.setLogHandler(config.logger);
       // respect the logger's shouldLog functionality
-      setLogLevel(LogLevel.NOTSET);
+      loggerPlugin.setLogLevel(LogLevel.NOTSET);
     }
     if (config.logLevel !== undefined) {
-      setLogLevel(config.logLevel);
+      loggerPlugin.setLogLevel(config.logLevel);
     }
 
     try {
@@ -140,8 +140,8 @@ export default {
   errorHandler: defaultErrorHandler,
   eventDispatcher: defaultEventDispatcher,
   enums,
-  setLogger: setLogHandler,
-  setLogLevel,
+  setLogger: loggerPlugin.setLogHandler,
+  setLogLevel: loggerPlugin.setLogLevel,
   createInstance,
   OptimizelyDecideOption,
 };
