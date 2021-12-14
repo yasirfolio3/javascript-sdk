@@ -487,11 +487,12 @@ export default class Optimizely {
           return null;
         }
 
-        const variationKey = this.decisionService.getVariation(
+        const variation = this.decisionService.getVariation(
           configObj,
           experiment,
           this.createUserContext(userId, attributes) as OptimizelyUserContext
         ).result;
+        const variationKey = variation?.key ?? null;
         const decisionNotificationType = projectConfig.isFeatureExperiment(configObj, experiment.id)
           ? DECISION_NOTIFICATION_TYPES.FEATURE_TEST
           : DECISION_NOTIFICATION_TYPES.AB_TEST;
@@ -563,7 +564,7 @@ export default class Optimizely {
     }
 
     try {
-      return this.decisionService.getForcedVariation(configObj, experimentKey, userId).result;
+      return this.decisionService.getForcedVariation(configObj, experimentKey, userId).result?.key ?? null;
     } catch (ex) {
       this.logger.log(LOG_LEVEL.ERROR, ex.message);
       this.errorHandler.handleError(ex);

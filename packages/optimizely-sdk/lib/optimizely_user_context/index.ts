@@ -238,7 +238,7 @@ export default class OptimizelyUserContext {
           );
           decideReasons.push([
             LOG_MESSAGES.USER_HAS_FORCED_DECISION_WITH_RULE_SPECIFIED,
-            variationKey,
+            variation.key,
             flagKey,
             ruleKey,
             this.userId

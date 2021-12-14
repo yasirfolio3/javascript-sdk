@@ -79,7 +79,7 @@ describe('lib/core/decision_service', function() {
         bucketerStub.returns(fakeDecisionResponse); // contains variation ID of the 'control' variation from `test_data`
         assert.strictEqual(
           'control',
-          decisionServiceInstance.getVariation(configObj, experiment, user).result
+          decisionServiceInstance.getVariation(configObj, experiment, user).result?.key
         );
         sinon.assert.calledOnce(bucketerStub);
       });
@@ -92,7 +92,7 @@ describe('lib/core/decision_service', function() {
         experiment = configObj.experimentIdMap['122227'];
         assert.strictEqual(
           'variationWithAudience',
-          decisionServiceInstance.getVariation(configObj, experiment, user).result
+          decisionServiceInstance.getVariation(configObj, experiment, user).result.key
         );
         sinon.assert.notCalled(bucketerStub);
         assert.strictEqual(2, mockLogger.log.callCount);
@@ -172,7 +172,7 @@ describe('lib/core/decision_service', function() {
 
           assert.strictEqual(
             'variation',
-            decisionServiceInstance.getVariation(configObj, experiment, user).result
+            decisionServiceInstance.getVariation(configObj, experiment, user).result.key
           );
           sinon.assert.notCalled(bucketerStub);
         });
@@ -228,7 +228,7 @@ describe('lib/core/decision_service', function() {
 
           assert.strictEqual(
             'control',
-            decisionServiceInstance.getVariation(configObj, experiment, user).result
+            decisionServiceInstance.getVariation(configObj, experiment, user).result.key
           );
           sinon.assert.calledWith(userProfileLookupStub, 'decision_service_user');
           sinon.assert.notCalled(bucketerStub);
@@ -256,7 +256,7 @@ describe('lib/core/decision_service', function() {
 
           assert.strictEqual(
             'control',
-            decisionServiceInstance.getVariation(configObj, experiment, user).result
+            decisionServiceInstance.getVariation(configObj, experiment, user).result.key
           );
           sinon.assert.calledWith(userProfileLookupStub, 'decision_service_user');
           sinon.assert.calledOnce(bucketerStub);
@@ -281,7 +281,7 @@ describe('lib/core/decision_service', function() {
           });
           assert.strictEqual(
             'control',
-            decisionServiceInstance.getVariation(configObj, experiment, user).result
+            decisionServiceInstance.getVariation(configObj, experiment, user).result.key
           );
           sinon.assert.calledWith(userProfileLookupStub, 'decision_service_user');
           sinon.assert.calledOnce(bucketerStub);
@@ -313,7 +313,7 @@ describe('lib/core/decision_service', function() {
           });
           assert.strictEqual(
             'control',
-            decisionServiceInstance.getVariation(configObj, experiment, user).result
+            decisionServiceInstance.getVariation(configObj, experiment, user).result.key
           );
           sinon.assert.calledWith(userProfileLookupStub, 'decision_service_user');
           sinon.assert.calledOnce(bucketerStub);
@@ -350,7 +350,7 @@ describe('lib/core/decision_service', function() {
 
           assert.strictEqual(
             'control',
-            decisionServiceInstance.getVariation(configObj, experiment, user).result
+            decisionServiceInstance.getVariation(configObj, experiment, user).result.key
           );
           sinon.assert.calledWith(userProfileLookupStub, 'decision_service_user');
           sinon.assert.calledOnce(bucketerStub);
@@ -383,7 +383,7 @@ describe('lib/core/decision_service', function() {
           });
           assert.strictEqual(
             'control',
-            decisionServiceInstance.getVariation(configObj, experiment, user).result
+            decisionServiceInstance.getVariation(configObj, experiment, user).result.key
           );
           sinon.assert.calledWith(userProfileLookupStub, 'decision_service_user');
           sinon.assert.calledOnce(bucketerStub); // should still go through with bucketing
@@ -408,7 +408,7 @@ describe('lib/core/decision_service', function() {
           });
           assert.strictEqual(
             'control',
-            decisionServiceInstance.getVariation(configObj, experiment, user).result
+            decisionServiceInstance.getVariation(configObj, experiment, user).result.key
           );
           sinon.assert.calledWith(userProfileLookupStub, 'decision_service_user');
           sinon.assert.calledOnce(bucketerStub); // should still go through with bucketing
@@ -463,7 +463,7 @@ describe('lib/core/decision_service', function() {
 
             assert.strictEqual(
               'variation',
-              decisionServiceInstance.getVariation(configObj, experiment, user).result
+              decisionServiceInstance.getVariation(configObj, experiment, user).result.key
             );
             sinon.assert.calledWith(userProfileLookupStub, 'decision_service_user');
             sinon.assert.notCalled(bucketerStub);
@@ -507,7 +507,7 @@ describe('lib/core/decision_service', function() {
 
             assert.strictEqual(
               'control',
-              decisionServiceInstance.getVariation(configObj, experiment, user).result
+              decisionServiceInstance.getVariation(configObj, experiment, user).result.key
             );
             sinon.assert.calledWith(userProfileLookupStub, 'decision_service_user');
             sinon.assert.notCalled(bucketerStub);
@@ -551,7 +551,7 @@ describe('lib/core/decision_service', function() {
 
             assert.strictEqual(
               'variation',
-              decisionServiceInstance.getVariation(configObj, experiment, user).result
+              decisionServiceInstance.getVariation(configObj, experiment, user).result.key
             );
             sinon.assert.calledWith(userProfileLookupStub, 'decision_service_user');
             sinon.assert.notCalled(bucketerStub);
@@ -586,7 +586,7 @@ describe('lib/core/decision_service', function() {
 
             assert.strictEqual(
               'variation',
-              decisionServiceInstance.getVariation(configObj, experiment, user).result
+              decisionServiceInstance.getVariation(configObj, experiment, user).result.key
             );
             sinon.assert.calledWith(userProfileLookupStub, 'decision_service_user');
             sinon.assert.notCalled(bucketerStub);
@@ -811,7 +811,7 @@ describe('lib/core/decision_service', function() {
       it('should return the same variation from getVariation as was set in setVariation', function() {
         decisionServiceInstance.setForcedVariation(configObj, 'testExperiment', 'user1', 'control');
         var variation = decisionServiceInstance.getForcedVariation(configObj, 'testExperiment', 'user1').result;
-        assert.strictEqual(variation, 'control');
+        assert.strictEqual(variation.key, 'control');
       });
 
       it('should not set for an invalid variation key', function() {
@@ -835,7 +835,7 @@ describe('lib/core/decision_service', function() {
         assert.strictEqual(didSetVariation, true);
 
         var variation = decisionServiceInstance.getForcedVariation(configObj, 'testExperiment', 'user1').result;
-        assert.strictEqual(variation, 'control' );
+        assert.strictEqual(variation.key, 'control' );
 
         var didSetVariationAgain = decisionServiceInstance.setForcedVariation(
           configObj,
@@ -868,8 +868,8 @@ describe('lib/core/decision_service', function() {
 
         var variation = decisionServiceInstance.getForcedVariation(configObj, 'testExperiment', 'user1').result;
         var variation2 = decisionServiceInstance.getForcedVariation(configObj, 'testExperimentLaunched', 'user1').result;
-        assert.strictEqual(variation, 'control');
-        assert.strictEqual(variation2, 'controlLaunched');
+        assert.strictEqual(variation.key, 'control');
+        assert.strictEqual(variation2.key, 'controlLaunched');
       });
 
       it('should be able to add experiments for multiple users', function() {
@@ -892,8 +892,8 @@ describe('lib/core/decision_service', function() {
         var variationControl = decisionServiceInstance.getForcedVariation(configObj, 'testExperiment', 'user1').result;
         var variationVariation = decisionServiceInstance.getForcedVariation(configObj, 'testExperiment', 'user2').result;
 
-        assert.strictEqual(variationControl, 'control');
-        assert.strictEqual(variationVariation, 'variation');
+        assert.strictEqual(variationControl.key, 'control');
+        assert.strictEqual(variationVariation.key, 'variation');
       });
 
       it('should be able to reset a variation for a user with multiple experiments', function() {
@@ -917,8 +917,8 @@ describe('lib/core/decision_service', function() {
         let variation1 = decisionServiceInstance.getForcedVariation(configObj, 'testExperiment', 'user1').result;
         let variation2 = decisionServiceInstance.getForcedVariation(configObj, 'testExperimentLaunched', 'user1').result;
 
-        assert.strictEqual(variation1, 'control');
-        assert.strictEqual(variation2, 'controlLaunched');
+        assert.strictEqual(variation1.key, 'control');
+        assert.strictEqual(variation2.key, 'controlLaunched');
 
         //reset for one of the experiments
         var didSetVariationAgain = decisionServiceInstance.setForcedVariation(
@@ -932,8 +932,8 @@ describe('lib/core/decision_service', function() {
         variation1 = decisionServiceInstance.getForcedVariation(configObj, 'testExperiment', 'user1').result;
         variation2 = decisionServiceInstance.getForcedVariation(configObj, 'testExperimentLaunched', 'user1').result;
 
-        assert.strictEqual(variation1, 'variation');
-        assert.strictEqual(variation2, 'controlLaunched');
+        assert.strictEqual(variation1.key, 'variation');
+        assert.strictEqual(variation2.key, 'controlLaunched');
       });
 
       it('should be able to unset a variation for a user with multiple experiments', function() {
@@ -957,8 +957,8 @@ describe('lib/core/decision_service', function() {
         let variation1 = decisionServiceInstance.getForcedVariation(configObj, 'testExperiment', 'user1').result;
         let variation2 = decisionServiceInstance.getForcedVariation(configObj, 'testExperimentLaunched', 'user1').result;
 
-        assert.strictEqual(variation1, 'control');
-        assert.strictEqual(variation2, 'controlLaunched');
+        assert.strictEqual(variation1.key, 'control');
+        assert.strictEqual(variation2.key, 'controlLaunched');
 
         //reset for one of the experiments
         decisionServiceInstance.setForcedVariation(configObj, 'testExperiment', 'user1', null);
@@ -968,7 +968,7 @@ describe('lib/core/decision_service', function() {
         variation2 = decisionServiceInstance.getForcedVariation(configObj, 'testExperimentLaunched', 'user1').result;
 
         assert.strictEqual(variation1, null);
-        assert.strictEqual(variation2, 'controlLaunched');
+        assert.strictEqual(variation2.key, 'controlLaunched');
       });
 
       it('should return false for an empty variation key', function() {
@@ -1159,7 +1159,7 @@ describe('lib/core/decision_service', function() {
 
       assert.strictEqual(
         'control',
-        decisionServiceInstance.getVariation(configObj, experiment, user).result
+        decisionServiceInstance.getVariation(configObj, experiment, user).result.key
       );
       sinon.assert.calledWithExactly(userProfileLookupStub, 'test_user');
     });
