@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and      *
  * limitations under the License.                                           *
  ***************************************************************************/
-import { LoggerFacade, ErrorHandler } from '@optimizely/js-sdk-logging';
 import { find, sprintf, objectValues, NotificationCenter } from '../utils/fns';
+import { LoggerFacade, ErrorHandler } from '../../modules/logging';
 import { EventProcessor } from '@optimizely/js-sdk-event-processor';
 
 import {
