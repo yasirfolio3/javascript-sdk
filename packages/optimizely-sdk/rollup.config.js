@@ -76,7 +76,7 @@ const umdBundle = {
     resolve({ browser: true }),
     commonjs({
       namedExports: {
-        '../../../modules/logging': [
+        './modules/logging': [
           'ConsoleLogHandler',
           'getLogger',
           'setLogLevel',
