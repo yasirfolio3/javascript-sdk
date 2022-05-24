@@ -23,6 +23,8 @@ import { DEFAULT_UPDATE_INTERVAL, MIN_UPDATE_INTERVAL, DEFAULT_URL_TEMPLATE } fr
 import BackoffController from './backoffController';
 import PersistentKeyValueCache from './persistentKeyValueCache';
 
+import * as Ably from 'ably';
+
 const logger = getLogger('DatafileManager');
 
 const UPDATE_EVT = 'update';
@@ -93,6 +95,10 @@ export default abstract class HttpPollingDatafileManager implements DatafileMana
 
   private cacheKey: string;
 
+  private sdkKey: string;
+
+  private channel:  Ably.Types.RealtimeChannelCallbacks | null;
+
   private cache: PersistentKeyValueCache;
 
   // When true, this means the update interval timeout fired before the current
@@ -115,6 +121,7 @@ export default abstract class HttpPollingDatafileManager implements DatafileMana
       cache = noOpKeyValueCache,
     } = configWithDefaultsApplied;
 
+    this.sdkKey = sdkKey;
     this.cache = cache;
     this.cacheKey = 'opt-datafile-' + sdkKey;
     this.isReadyPromiseSettled = false;
@@ -150,6 +157,7 @@ export default abstract class HttpPollingDatafileManager implements DatafileMana
     this.currentRequest = null;
     this.backoffController = new BackoffController();
     this.syncOnCurrentRequestComplete = false;
+    this.channel = null;
   }
 
   get(): string {
@@ -163,6 +171,9 @@ export default abstract class HttpPollingDatafileManager implements DatafileMana
       this.backoffController.reset();
       this.setDatafileFromCacheIfAvailable();
       this.syncDatafile();
+      if (this.autoUpdate) {
+        this.subscribeToDatafileUpdate();
+      }
     }
   }
 
@@ -179,6 +190,9 @@ export default abstract class HttpPollingDatafileManager implements DatafileMana
     if (this.currentRequest) {
       this.currentRequest.abort();
       this.currentRequest = null;
+    }
+    if(this.channel){
+      this.channel.unsubscribe();
     }
 
     return Promise.resolve();
@@ -277,9 +291,20 @@ export default abstract class HttpPollingDatafileManager implements DatafileMana
       .then(onRequestResolved, onRequestRejected)
       .then(onRequestComplete, onRequestComplete);
 
-    if (this.autoUpdate) {
-      this.scheduleNextUpdate();
-    }
+    // if (this.autoUpdate) {
+    // this.scheduleNextUpdate();
+    //  }
+  }
+
+  private subscribeToDatafileUpdate(): void {
+    let options: Ably.Types.ClientOptions = { key: '<YOUR_KEY_HERE>' };
+    let client = new Ably.Realtime(options);
+    this.channel = client.channels.get('datafile_update');
+
+    this.channel.subscribe(this.sdkKey, message => {
+      logger.debug('message on datafile subscribtion', message.data);
+      message.data.flag && this.syncDatafile(); // update flag here
+    });
   }
 
   private resolveReadyPromise(): void {
