@@ -107,11 +107,11 @@ export default class OptimizelyUserContext {
     return this.optimizely.decide(this.cloneUserContext(), key, options);
   }
 
-  async decideOdp(
+  async decideAsync(
     key: string,
     options: OptimizelyDecideOption[] = []
   ): Promise<OptimizelyDecision> {
-    const userContextOdp = await this.cloneUserContextOdp()
+    const userContextOdp = await this.cloneUserContextAsync()
     return this.optimizely.decide(userContextOdp, key, options)
   }
 
@@ -241,7 +241,7 @@ export default class OptimizelyUserContext {
     return this._qualifiedSegments.indexOf(segment) > -1;
   }
 
-  private async cloneUserContextOdp(): Promise<OptimizelyUserContext> {
+  private async cloneUserContextAsync(): Promise<OptimizelyUserContext> {
     const userIdOdp = await this.getUserIdOdp()
 
     const userContextOdp = new OptimizelyUserContext({
@@ -268,11 +268,13 @@ export default class OptimizelyUserContext {
     })
 
     let segmentsFromProjectConfig = await apiManager.fetchSegments(
-      'ax6UV2223fD-jpOXID0BMg.mfIpRVza1UCDLGCzi1O9KvwjCC3bjsP5dm4ODnN9VTA',
+      // 'ax6UV2223fD-jpOXID0BMg.mfIpRVza1UCDLGCzi1O9KvwjCC3bjsP5dm4ODnN9VTA',
+      'W4WzcEs-ABgXorzY7h1LCQ',
       'https://api.zaius.com/v3/graphql',
-      userIdOdp,
-      userIdOdp,
-      userContextOdp._qualifiedSegments
+      'fs_user_id',
+      'tester-101',
+      // userContextOdp._qualifiedSegments
+      ['has_email']
     )
 
     // 3. Add resulting list of segments into qualified segments

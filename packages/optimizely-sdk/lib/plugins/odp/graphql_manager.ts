@@ -17,7 +17,7 @@
 import { ErrorHandler, LogHandler, LogLevel } from '../../modules/logging';
 import { Response } from './odp_types';
 import { IOdpClient, OdpClient } from './odp_client';
-import { validate } from '../../utils/json_schema_validator';
+// import { validate } from '../../utils/json_schema_validator';
 import { OdpResponseSchema } from './odp_response_schema';
 import { QuerySegmentsParameters } from './query_segments_parameters';
 import { RequestHandlerFactory } from '../../utils/http_request_handler/request_handler_factory';
@@ -128,10 +128,12 @@ export class GraphqlManager implements IGraphQLManager {
       return EMPTY_JSON_RESPONSE;
     }
 
-    if (validate(jsonObject, OdpResponseSchema, false)) {
-      return jsonObject as Response;
-    }
+    // if (validate(jsonObject, OdpResponseSchema, false)) {
+    //   return jsonObject as Response;
+    // }
 
-    return EMPTY_JSON_RESPONSE;
+    return jsonObject as Response
+
+    // return EMPTY_JSON_RESPONSE;
   }
 }

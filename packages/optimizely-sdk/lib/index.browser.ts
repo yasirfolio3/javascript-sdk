@@ -54,7 +54,9 @@ ExecutionContext.Current = EXECUTION_CONTEXT_TYPE.BROWSER;
  * @return {Client|null} the Optimizely client object
  *                           null on error
  */
-const createInstance = function(config: Config): Client | null {
+const createInstance = function (config: Config): Client | null {
+  logger.info('ODP Demo')
+
   try {
     // TODO warn about setting per instance errorHandler / logger / logLevel
     let isValidInstance = false
@@ -118,7 +120,7 @@ const createInstance = function(config: Config): Client | null {
       dispatcher: eventDispatcher,
       flushInterval: eventFlushInterval,
       batchSize: eventBatchSize,
-      maxQueueSize:  config.eventMaxQueueSize || DEFAULT_EVENT_MAX_QUEUE_SIZE,
+      maxQueueSize: config.eventMaxQueueSize || DEFAULT_EVENT_MAX_QUEUE_SIZE,
       notificationCenter,
     }
 
@@ -159,7 +161,7 @@ const createInstance = function(config: Config): Client | null {
   }
 };
 
-const __internalResetRetryState = function(): void {
+const __internalResetRetryState = function (): void {
   hasRetriedEvents = false;
 };
 
