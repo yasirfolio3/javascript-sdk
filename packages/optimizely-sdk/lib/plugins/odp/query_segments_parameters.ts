@@ -54,13 +54,18 @@ export class QuerySegmentsParameters {
   public toGraphQLJson(): string {
     const segmentsArrayJson = JSON.stringify(this.segmentsToCheck);
 
+    // const hardCoded = `{"query": "query {customer(fs_user_id: \\"tester-101\\") {audiences(subset: [\\"has_email\\", \\"has_email_opted_in\\", \\"push_on_sale\\"]) {edges {node {name state}}}}}"}`
+    // console.log(hardCoded)
+
+    // return hardCoded
+
     const json: string[] = [];
     json.push('{"query" : "query {customer"');
-    json.push(`(${this.userKey} : "${this.userValue}") `);
+    json.push(`(${this.userKey} : \\"${this.userValue}\\") `);
     json.push('{audiences');
-    json.push(`(subset: ${segmentsArrayJson})`);
+    json.push(`(subset: ${segmentsArrayJson.replace()})`);
     json.push('{edges {node {name state}}}}}"}');
-
+    console.log(json.join(''))
     return json.join('');
   }
 }
