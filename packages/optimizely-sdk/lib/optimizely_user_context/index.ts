@@ -1,3 +1,5 @@
+import { LogHandler } from './../../../logging/src/models';
+import { OptimizelySegmentOption } from './../core/odp/OptimizelySegmentOption';
 /****************************************************************************
  * Copyright 2020-2022, Optimizely, Inc. and contributors                   *
  *                                                                          *
@@ -23,6 +25,11 @@ import {
   UserAttributes,
 } from '../../lib/shared_types';
 import { CONTROL_ATTRIBUTES } from '../utils/enums';
+import logger from '../../lib/modules/logging/logger';
+import { errorHandler } from '../../lib/index.browser';
+import { GraphqlManager } from '../../lib/plugins/odp/graphql_manager';
+import BrowserAsyncStorageCache from '../../lib/plugins/key_value_cache/browserAsyncStorageCache';
+import { VuidManager } from '../../lib/plugins/vuid_manager';
 
 export default class OptimizelyUserContext {
   private optimizely: Optimizely;
@@ -30,6 +37,7 @@ export default class OptimizelyUserContext {
   private attributes: UserAttributes;
   private forcedDecisionsMap: { [key: string]: { [key: string]: OptimizelyForcedDecision } };
   private _qualifiedSegments: string[] = [];
+  private cacheInstance = new BrowserAsyncStorageCache();
 
   constructor({
     optimizely,
@@ -37,11 +45,11 @@ export default class OptimizelyUserContext {
     attributes,
   }: {
     optimizely: Optimizely,
-    userId: string,
+    userId?: string,
     attributes?: UserAttributes,
   }) {
     this.optimizely = optimizely;
-    this.userId = userId;
+    this.userId = userId || '';
     this.attributes = { ...attributes } ?? {};
     this.forcedDecisionsMap = {};
   }
@@ -57,6 +65,16 @@ export default class OptimizelyUserContext {
 
   getUserId(): string {
     return this.userId;
+  }
+
+  async getUserIdOdp(): Promise<string> {
+    const vuidManager = await VuidManager.instance(this.cacheInstance)
+
+    const userId = (this.getUserId() !== '')
+      ? this.getUserId()
+      : vuidManager.vuid;
+
+    return userId
   }
 
   getAttributes(): UserAttributes {
@@ -86,8 +104,15 @@ export default class OptimizelyUserContext {
     key: string,
     options: OptimizelyDecideOption[] = []
   ): OptimizelyDecision {
-
     return this.optimizely.decide(this.cloneUserContext(), key, options);
+  }
+
+  async decideOdp(
+    key: string,
+    options: OptimizelyDecideOption[] = []
+  ): Promise<OptimizelyDecision> {
+    const userContextOdp = await this.cloneUserContextOdp()
+    return this.optimizely.decide(userContextOdp, key, options)
   }
 
   /**
@@ -214,6 +239,55 @@ export default class OptimizelyUserContext {
 
   public isQualifiedFor(segment: string): boolean {
     return this._qualifiedSegments.indexOf(segment) > -1;
+  }
+
+  private async cloneUserContextOdp(): Promise<OptimizelyUserContext> {
+    const userIdOdp = await this.getUserIdOdp()
+
+    const userContextOdp = new OptimizelyUserContext({
+      optimizely: this.getOptimizely(),
+      userId: userIdOdp,
+      attributes: this.getAttributes(),
+    });
+
+    if (Object.keys(this.forcedDecisionsMap).length > 0) {
+      userContextOdp.forcedDecisionsMap = { ...this.forcedDecisionsMap };
+    }
+
+    // 1. Get list of segments used from projectConfig
+    // 2. Make a GraphQL call using Mike's GraphQL Manager
+
+    const apiManager = new GraphqlManager({
+      handleError: (exception: Error) => {
+        console.error(exception)
+      }
+    }, {
+      log: (level, message) => {
+        console.log(level, message)
+      }
+    })
+
+    let segmentsFromProjectConfig = await apiManager.fetchSegments(
+      'ax6UV2223fD-jpOXID0BMg.mfIpRVza1UCDLGCzi1O9KvwjCC3bjsP5dm4ODnN9VTA',
+      'https://api.zaius.com/v3/graphql',
+      userIdOdp,
+      userIdOdp,
+      userContextOdp._qualifiedSegments
+    )
+
+    // 3. Add resulting list of segments into qualified segments
+    // this.qualifiedSegments([...this.qualifiedSegments(), ...segmentsFromProjectConfig])
+    this.qualifiedSegments = [
+      ...userContextOdp._qualifiedSegments,
+      ...segmentsFromProjectConfig
+    ]
+
+    // 4. Use segments from qualifiedSegments in this decision
+    if (this.qualifiedSegments) {
+      userContextOdp._qualifiedSegments = [...this._qualifiedSegments];
+    }
+
+    return userContextOdp;
   }
 
   private cloneUserContext(): OptimizelyUserContext {
