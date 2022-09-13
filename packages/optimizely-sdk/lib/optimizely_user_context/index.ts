@@ -74,7 +74,7 @@ export default class OptimizelyUserContext {
       ? this.getUserId()
       : vuidManager.vuid;
 
-    return userId
+    return userId // Return VUID/FS_UID Type here too?
   }
 
   getAttributes(): UserAttributes {
@@ -105,14 +105,6 @@ export default class OptimizelyUserContext {
     options: OptimizelyDecideOption[] = []
   ): OptimizelyDecision {
     return this.optimizely.decide(this.cloneUserContext(), key, options);
-  }
-
-  async decideAsync(
-    key: string,
-    options: OptimizelyDecideOption[] = []
-  ): Promise<OptimizelyDecision> {
-    const userContextOdp = await this.cloneUserContextAsync()
-    return this.optimizely.decide(userContextOdp, key, options)
   }
 
   /**
@@ -241,21 +233,8 @@ export default class OptimizelyUserContext {
     return this._qualifiedSegments.indexOf(segment) > -1;
   }
 
-  private async cloneUserContextAsync(): Promise<OptimizelyUserContext> {
+  public async fetchQualifiedSegments(options: Array<OptimizelySegmentOption> = []): Promise<void> {
     const userIdOdp = await this.getUserIdOdp()
-
-    const userContextOdp = new OptimizelyUserContext({
-      optimizely: this.getOptimizely(),
-      userId: userIdOdp,
-      attributes: this.getAttributes(),
-    });
-
-    if (Object.keys(this.forcedDecisionsMap).length > 0) {
-      userContextOdp.forcedDecisionsMap = { ...this.forcedDecisionsMap };
-    }
-
-    // 1. Get list of segments used from projectConfig
-    // 2. Make a GraphQL call using Mike's GraphQL Manager
 
     const apiManager = new GraphqlManager({
       handleError: (exception: Error) => {
@@ -267,29 +246,23 @@ export default class OptimizelyUserContext {
       }
     })
 
-    let segmentsFromProjectConfig = await apiManager.fetchSegments(
-      // 'ax6UV2223fD-jpOXID0BMg.mfIpRVza1UCDLGCzi1O9KvwjCC3bjsP5dm4ODnN9VTA',
-      'W4WzcEs-ABgXorzY7h1LCQ',
-      'https://api.zaius.com/v3/graphql',
+    console.info(`Fetching segments using params: {
+      key: ${this.optimizely.odpInformation.key},
+      endpoint: ${this.optimizely.odpInformation.host},
+      userKey: 'fs_user_id',
+      userValue: ${userIdOdp},
+      segments: ${Array.from(this.optimizely.odpInformation.segments)}
+    }`)
+
+    let updatedSegments = await apiManager.fetchSegments(
+      this.optimizely.odpInformation.key,
+      this.optimizely.odpInformation.host,
       'fs_user_id',
-      'tester-101',
-      // userContextOdp._qualifiedSegments
-      ['has_email']
+      userIdOdp,
+      Array.from(this.optimizely.odpInformation.segments)
     )
 
-    // 3. Add resulting list of segments into qualified segments
-    // this.qualifiedSegments([...this.qualifiedSegments(), ...segmentsFromProjectConfig])
-    this.qualifiedSegments = [
-      ...userContextOdp._qualifiedSegments,
-      ...segmentsFromProjectConfig
-    ]
-
-    // 4. Use segments from qualifiedSegments in this decision
-    if (this.qualifiedSegments) {
-      userContextOdp._qualifiedSegments = [...this._qualifiedSegments];
-    }
-
-    return userContextOdp;
+    this._qualifiedSegments = updatedSegments
   }
 
   private cloneUserContext(): OptimizelyUserContext {

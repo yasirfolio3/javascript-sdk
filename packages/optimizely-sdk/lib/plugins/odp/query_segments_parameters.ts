@@ -60,11 +60,16 @@ export class QuerySegmentsParameters {
     // return hardCoded
 
     const json: string[] = [];
-    json.push('{"query" : "query {customer"');
+    json.push('{"query" : "query {customer');
     json.push(`(${this.userKey} : \\"${this.userValue}\\") `);
     json.push('{audiences');
-    json.push(`(subset: ${segmentsArrayJson.replace()})`);
-    json.push('{edges {node {name state}}}}}"}');
+    json.push(`(subset: [`);
+    if (this.segmentsToCheck && this.segmentsToCheck.length) {
+      this.segmentsToCheck.forEach((segment, idx) => {
+        json.push(`\\"${segment}\\"${idx < (this.segmentsToCheck?.length || 0) ? '' : ','}`)
+      });
+    }
+    json.push('] {edges {node {name state}}}}}"}');
     console.log(json.join(''))
     return json.join('');
   }

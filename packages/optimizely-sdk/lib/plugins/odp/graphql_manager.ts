@@ -81,6 +81,10 @@ export class GraphqlManager implements IGraphQLManager {
       userValue,
       segmentsToCheck,
     });
+
+    console.log('fetchSegments...')
+    console.log(parameters)
+
     const segmentsResponse = await this._odpClient.querySegments(parameters);
     if (!segmentsResponse) {
       this._logger.log(LogLevel.ERROR, 'Audience segments fetch failed (network error)');

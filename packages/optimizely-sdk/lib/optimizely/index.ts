@@ -168,7 +168,7 @@ export default class Optimizely {
 
     const eventProcessorStartedPromise = this.eventProcessor.start();
 
-    this.readyPromise = Promise.all([projectConfigManagerReadyPromise, eventProcessorStartedPromise]).then(function(promiseResults) {
+    this.readyPromise = Promise.all([projectConfigManagerReadyPromise, eventProcessorStartedPromise]).then(function (promiseResults) {
       // Only return status from project config promise because event processor promise does not return any status.
       return promiseResults[0];
     })
@@ -585,14 +585,14 @@ export default class Optimizely {
     eventTags?: unknown
   ): boolean {
     try {
-      if (stringInputs.hasOwnProperty('user_id')) {
-        const userId = stringInputs['user_id'];
-        if (typeof userId !== 'string' || userId === null || userId === 'undefined') {
-          throw new Error(sprintf(ERROR_MESSAGES.INVALID_INPUT_FORMAT, MODULE_NAME, 'user_id'));
-        }
+      // if (stringInputs.hasOwnProperty('user_id')) {
+      //   const userId = stringInputs['user_id'];
+      //   if (typeof userId !== 'string' || userId === null || userId === 'undefined') {
+      //     throw new Error(sprintf(ERROR_MESSAGES.INVALID_INPUT_FORMAT, MODULE_NAME, 'user_id'));
+      //   }
 
-        delete stringInputs['user_id'];
-      }
+      //   delete stringInputs['user_id'];
+      // }
       Object.keys(stringInputs).forEach(key => {
         if (!stringValidator.validate(stringInputs[key as InputKey])) {
           throw new Error(sprintf(ERROR_MESSAGES.INVALID_INPUT_FORMAT, MODULE_NAME, key));
@@ -1332,12 +1332,12 @@ export default class Optimizely {
       );
       this.readyTimeouts = {};
       return eventProcessorStoppedPromise.then(
-        function() {
+        function () {
           return {
             success: true,
           };
         },
-        function(err) {
+        function (err) {
           return {
             success: false,
             reason: String(err),
@@ -1410,7 +1410,7 @@ export default class Optimizely {
       });
     });
     const readyTimeout = setTimeout(onReadyTimeout, timeoutValue);
-    const onClose = function() {
+    const onClose = function () {
       resolveTimeoutPromise({
         success: false,
         reason: 'Instance closed',
@@ -1446,10 +1446,10 @@ export default class Optimizely {
    * @return {OptimizelyUserContext|null}  An OptimizelyUserContext associated with this OptimizelyClient or
    *                                       null if provided inputs are invalid
    */
-  createUserContext(userId: string, attributes?: UserAttributes): OptimizelyUserContext | null {
-    if (!this.validateInputs({ user_id: userId }, attributes)) {
-      return null;
-    }
+  createUserContext(userId?: string, attributes?: UserAttributes): OptimizelyUserContext | null {
+    // if (!this.validateInputs({ user_id: userId }, attributes)) {
+    //   return null;
+    // }
 
     return new OptimizelyUserContext({
       optimizely: this,
@@ -1672,4 +1672,11 @@ export default class Optimizely {
     return this.decideForKeys(user, allFlagKeys, options);
   }
 
+  get odpInformation() {
+    return {
+      host: this.projectConfigManager.getConfig()?.hostForOdp || 'https://api.zaius.com/v3/graphql',
+      key: this.projectConfigManager.getConfig()?.publicKeyForOdp || 'W4WzcEs-ABgXorzY7h1LCQ',
+      segments: this.projectConfigManager.getConfig()?.allSegments || []
+    }
+  }
 }
