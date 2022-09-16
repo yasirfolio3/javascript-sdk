@@ -248,7 +248,7 @@ export default class OptimizelyUserContext {
 
     console.info(`Fetching segments using params: {
       key: ${this.optimizely.odpInformation.key},
-      endpoint: ${this.optimizely.odpInformation.host},
+      endpoint: ${this.optimizely.odpInformation.host}/v3/graphql,
       userKey: 'fs_user_id',
       userValue: ${userIdOdp},
       segments: ${Array.from(this.optimizely.odpInformation.segments)}
@@ -256,7 +256,7 @@ export default class OptimizelyUserContext {
 
     let updatedSegments = await apiManager.fetchSegments(
       this.optimizely.odpInformation.key,
-      this.optimizely.odpInformation.host,
+      this.optimizely.odpInformation.host + '/v3/graphql',
       'fs_user_id',
       userIdOdp,
       Array.from(this.optimizely.odpInformation.segments)
