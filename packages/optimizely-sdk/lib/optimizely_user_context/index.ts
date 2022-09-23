@@ -1,3 +1,6 @@
+import { OdpEvent } from './../plugins/odp/odp_event';
+import { REQUEST_TIMEOUT_MS } from './../../../datafile-manager/src/config';
+import { RestApiManager } from './../plugins/odp/rest_api_manager';
 import { LogHandler } from './../../../logging/src/models';
 import { OptimizelySegmentOption } from './../core/odp/OptimizelySegmentOption';
 /****************************************************************************
@@ -25,8 +28,6 @@ import {
   UserAttributes,
 } from '../../lib/shared_types';
 import { CONTROL_ATTRIBUTES } from '../utils/enums';
-import logger from '../../lib/modules/logging/logger';
-import { errorHandler } from '../../lib/index.browser';
 import { GraphqlManager } from '../../lib/plugins/odp/graphql_manager';
 import BrowserAsyncStorageCache from '../../lib/plugins/key_value_cache/browserAsyncStorageCache';
 import { VuidManager } from '../../lib/plugins/vuid_manager';
@@ -282,4 +283,62 @@ export default class OptimizelyUserContext {
 
     return userContext;
   }
+
+  public async sendOdpEvents(events: OdpEvent[]) {
+    if (!events || events.length === 0) {
+      console.log('Error: Need to send an array of odp events')
+
+      console.log(`
+      Example:
+      [
+        new OdpEvent('t1', 'a1',
+          new Map([['id-key-1', 'id-value-1']]),
+          new Map(Object.entries({
+            key11: 'value-1',
+            key12: true,
+            key13: 3.5,
+            key14: null,
+          }))),
+        new OdpEvent('t2', 'a2',
+          new Map([['id-key-2', 'id-value-2']]),
+          new Map(Object.entries({
+            key2: 'value-2',
+          }))),
+      ];`)
+    }
+
+    const vuid = await this.getUserIdOdp()
+    console.log('sendOdpEvent vuid: ' + vuid)
+
+
+    const apiManager = new RestApiManager({
+      log: (level, message) => {
+        console.log(level, message)
+      }
+    })
+
+    try {
+      console.log('Sending ODP Event with following params:')
+      console.log(
+        `Key: ${this.optimizely.odpInformation.key}`,
+        `Host: ${this.optimizely.odpInformation.host}`,
+        `Events: ${JSON.stringify(events)}`
+      )
+
+      apiManager.sendEvents(
+        this.optimizely.odpInformation.key,
+        this.optimizely.odpInformation.host,
+        events,
+      )
+    } catch (e: unknown) {
+      console.error('Unable to send ODP Event')
+    }
+  }
+
+  // key: ${this.optimizely.odpInformation.key},
+  // endpoint: ${this.optimizely.odpInformation.host}/v3/graphql,
+  // userKey: 'fs_user_id',
+  // userValue: ${userIdOdp},
+  // segments: ${Array.from(this.optimizely.odpInformation.segments)}
+
 }
