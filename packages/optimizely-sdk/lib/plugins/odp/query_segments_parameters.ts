@@ -69,8 +69,8 @@ export class QuerySegmentsParameters {
         json.push(`\\"${segment}\\"${idx < (this.segmentsToCheck?.length || 0) ? '' : ','}`)
       });
     }
-    json.push('] {edges {node {name state}}}}}"}');
-    console.log(json.join(''))
+    json.push(']) {edges {node {name state}}}}}"}');
+    console.log(`Zaius GraphQL Query: ${json.join('')}`)
     return json.join('');
   }
 }

@@ -57,15 +57,17 @@ export class RestApiManager implements IRestApiManager {
      * @returns Retry is true - if network or server error (5xx), otherwise false
      */
     public async sendEvents(apiKey: string, apiHost: string, events: OdpEvent[]): Promise<boolean> {
+        console.log(`Sending Events:`, events)
+
         let shouldRetry = false;
 
         if (!apiKey || !apiHost) {
-            this.logger.log(LogLevel.ERROR, `${EVENT_SENDING_FAILURE_MESSAGE} (Parameters apiKey or apiHost invalid)`);
+            console.log(LogLevel.ERROR, `${EVENT_SENDING_FAILURE_MESSAGE} (Parameters apiKey or apiHost invalid)`);
             return shouldRetry;
         }
 
         if (events.length === 0) {
-            this.logger.log(LogLevel.ERROR, `${EVENT_SENDING_FAILURE_MESSAGE} (no events)`);
+            console.log(LogLevel.ERROR, `${EVENT_SENDING_FAILURE_MESSAGE} (no events)`);
             return shouldRetry;
         }
 
@@ -88,17 +90,17 @@ export class RestApiManager implements IRestApiManager {
             if (err instanceof Error) {
                 message = (err as Error).message;
             }
-            this.logger.log(LogLevel.ERROR, `${EVENT_SENDING_FAILURE_MESSAGE} (${message})`);
+            console.log(LogLevel.ERROR, `${EVENT_SENDING_FAILURE_MESSAGE} (${message})`);
             shouldRetry = true;
         }
 
         if (statusCode === 0) {
-            this.logger.log(LogLevel.ERROR, `${EVENT_SENDING_FAILURE_MESSAGE} (network error)`);
+            console.log(LogLevel.ERROR, `${EVENT_SENDING_FAILURE_MESSAGE} (network error)`);
             shouldRetry = true;
         }
 
         if (statusCode >= 400) {
-            this.logger.log(LogLevel.ERROR, `${EVENT_SENDING_FAILURE_MESSAGE} (${statusCode})`);
+            console.log(LogLevel.ERROR, `${EVENT_SENDING_FAILURE_MESSAGE} (${statusCode})`);
         }
 
         if (statusCode >= 500) {

@@ -56,6 +56,9 @@ import {
   NOTIFICATION_TYPES
 } from '../utils/enums';
 
+import { OdpEvent } from '../../lib/plugins/odp/odp_event';
+import { RestApiManager } from '../../lib/plugins/odp/rest_api_manager';
+
 const MODULE_NAME = 'OPTIMIZELY';
 
 const DEFAULT_ONREADY_TIMEOUT = 30000;
@@ -1456,6 +1459,32 @@ export default class Optimizely {
       userId,
       attributes
     });
+  }
+
+  public async sendOdpEvents(events: OdpEvent[]) {
+    try {
+      const apiManager = new RestApiManager({
+        log: (level, message) => {
+          console.log(level, message)
+        }
+      })
+
+      console.log('Sending ODP Event with following params:')
+      console.log('- Key: ', this.odpInformation.key)
+      console.log('- Host: ', this.odpInformation.key)
+      console.log('- Events: ', events)
+
+      await apiManager.sendEvents(
+        this.odpInformation.key,
+        this.odpInformation.host,
+        events,
+      )
+
+      return true
+    } catch (e: unknown) {
+      console.error('Unable to send ODP Event')
+      return false
+    }
   }
 
   decide(
