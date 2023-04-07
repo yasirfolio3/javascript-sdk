@@ -24,7 +24,6 @@ import { NODE_CLIENT_ENGINE, NODE_CLIENT_VERSION } from '../../utils/enums';
 import { OdpOptions } from '../../../lib/shared_types';
 
 interface NodeOdpManagerConfig {
-  disable: boolean;
   logger?: LogHandler;
   odpOptions?: OdpOptions;
 }

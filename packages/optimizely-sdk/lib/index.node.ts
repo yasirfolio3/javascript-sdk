@@ -32,6 +32,8 @@ import { createNotificationCenter } from './core/notification_center';
 import { createEventProcessor } from './plugins/event_processor';
 import { OptimizelyDecideOption, Client, Config } from './shared_types';
 import { createHttpPollingDatafileManager } from './plugins/datafile_manager/http_polling_datafile_manager';
+import { OdpManager } from './core/odp/odp_manager';
+import { NodeOdpManager } from './plugins/odp_manager/index.node';
 
 const logger = getLogger();
 setLogLevel(LogLevel.ERROR);
@@ -115,6 +117,7 @@ const createInstance = function(config: Config): Client | null {
       datafileManager: config.sdkKey ? createHttpPollingDatafileManager(config.sdkKey, logger, config.datafile, config.datafileOptions) : undefined,
       notificationCenter,
       isValidInstance: isValidInstance,
+      odpManager: new NodeOdpManager({ logger, odpOptions: config.odpOptions })
     };
 
     return new Optimizely(optimizelyOptions);
