@@ -8,7 +8,7 @@ body:
   - type: textarea
     id: description
     attributes:
-      label: "description"
+      label: "Description"
       description: Briefly describe the enhancement in a few sentences.
       placeholder: Short description...
     validations:
